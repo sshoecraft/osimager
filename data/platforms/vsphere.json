@@ -1,0 +1,63 @@
+{
+  "include": "all",
+  "arches": [
+    "i386",
+    "x86_64"
+  ],
+  "notes": [
+    "cores changed to 0 so CPU topology assigned at power on"
+  ],
+  "defs": {
+    "vm_network": "VM Network",
+    "thin_disk": false
+  },
+  "variables": {
+    "vsphere-server": "{{vault `vsphere/>>location_name<<` `server`}}",
+    "vsphere-username": "{{vault `vsphere/>>location_name<<` `username`}}",
+    "vsphere-password": "{{vault `vsphere/>>location_name<<` `password`}}"
+  },
+  "config": {
+    "type": "vsphere-iso",
+    "vcenter_server": "{{user `vsphere-server`}}",
+    "username": "{{user `vsphere-username`}}",
+    "password": "{{user `vsphere-password`}}",
+    "datacenter": ">>datacenter<<",
+    "host": ">>esxi_host<<",
+    "cluster": ">>cluster<<",
+    "datastore": ">>datastore<<",
+    "folder": ">>folder<<",
+    "insecure_connection": "true",
+    "convert_to_template": false,
+    "vm_name": ">>name<<",
+    "CPUs": "#>cpu_sockets*cpu_cores<#",
+    "cpu_cores": 0,
+    "CPU_hot_plug": false,
+    "RAM": "#>memory<#",
+    "RAM_hot_plug": false,
+    "RAM_reserve_all": false,
+    "firmware": ">>firmware<<",
+    "iso_url": "E>'>>iso_path<<>>iso_name<<' if >>local_only<< else '>>iso_url<<'<E",
+    "iso_checksum": "E>'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'<E",
+    "iso_target_path": ">>iso_path<<>>iso_name<<",
+    "cd_files": "%>cd_files<%",
+    "cd_label": ">>cd_label<<",
+    "usb_controller": "usb",
+    "remove_cdrom": true,
+    "network_adapters": [
+      {
+        "network": ">>vm_network<<",
+        "network_card": "vmxnet3"
+      }
+    ],
+    "disk_controller_type": "pvscsi",
+    "storage": [
+      {
+        "disk_size": "#>boot_disk_size<#",
+        "disk_thin_provisioned": "%>thin_disk<%"
+      }
+    ],
+    "iso_paths": [
+      "[] /vmimages/tools-isoimages/E>'windows' if '>>spec_name<<'.startswith('win') else 'linux'<E.iso"
+    ]
+  }
+}

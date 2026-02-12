@@ -1,0 +1,10 @@
+{
+  "include": "winrm",
+  "defs": {
+    "boot_disk_size": 131072
+  },
+  "variables": {
+    "winrm-username": "{{vault `images/windows` `username`}}",
+    "winrm-password": "{{vault `images/windows` `password`}}"
+  }
+}

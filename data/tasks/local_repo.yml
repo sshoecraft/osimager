@@ -1,0 +1,202 @@
+---
+- name: Copy findcd script to target
+  copy:
+    src: files/linux/findcd
+    dest: /root/findcd
+    mode: '0755'
+
+- name: Set GPG key file for RedHat
+  set_fact:
+    gpg_key_file: RPM-GPG-KEY-redhat-release
+    marker_file: RPM-GPG-KEY-redhat-release
+    repodir: Server
+  when: ansible_distribution == "RedHat"
+
+- name: Set GPG key file for OracleLinux
+  set_fact:
+    gpg_key_file: RPM-GPG-KEY-oracle
+    marker_file: RPM-GPG-KEY-oracle
+    repodir: Server
+  when: ansible_distribution == "OracleLinux"
+
+- name: Set GPG key file for CentOS
+  set_fact:
+    gpg_key_file: "RPM-GPG-KEY-CentOS-{{ ansible_distribution_major_version }}"
+    marker_file: "RPM-GPG-KEY-CentOS-{{ ansible_distribution_major_version }}"
+    repodir: 
+  when: ansible_distribution == "CentOS"
+
+- name: Set GPG key file for AlmaLinux
+  set_fact:
+    gpg_key_file: "RPM-GPG-KEY-AlmaLinux-{{ ansible_distribution_major_version }}"
+    marker_file: media.repo
+    repodir: 
+  when: ansible_distribution == "AlmaLinux"
+
+- name: Set GPG key file for RockyLinux
+  set_fact:
+    marker_file: media.repo
+  when: ansible_distribution == "RockyLinux"
+
+- name: marker_file
+  debug:
+    msg: "{{ marker_file }}"
+  when:
+    - marker_file is defined
+    - marker_file != ""
+
+- name: Execute findcd script
+  command: /root/findcd "{{ marker_file }}"
+  register: findcd_output
+  changed_when: false
+  failed_when: false
+  when:
+    - marker_file is defined
+    - marker_file != ""
+
+- name: findcd results
+  debug:
+    msg: "{{ findcd_output.stdout }}"
+  when:
+    - marker_file is defined
+    - marker_file != ""
+
+- name: Set fact with DVD device name (if found)
+  set_fact:
+    dvd_device: "{{ findcd_output.stdout | trim }}"
+  when: 
+    - marker_file is defined
+    - marker_file != ""
+    - findcd_output.stdout | trim != ""
+
+- name: Check if /local_repo directory exists
+  stat:
+    path: /local_repo
+  register: local_repo_stat
+  when: dvd_device is defined
+
+- name: Create /local_repo directory if it doesn't exist
+  file:
+    path: /local_repo
+    state: directory
+    mode: '0755'
+  when:
+    - dvd_device is defined
+    - not local_repo_stat.stat.exists
+
+- name: Check if DVD is already mounted
+  shell: mount | grep -q 'on /local_repo '
+  register: mount_check
+  failed_when: false
+  changed_when: false
+  when: dvd_device is defined
+
+- name: Mount DVD if not already mounted
+  command: mount -t iso9660 {{ dvd_device }} /local_repo
+  when:
+    - dvd_device is defined
+    - mount_check.rc != 0
+  notify: Dismount RedHat DVD
+
+- name: Check if GPG key file exists
+  stat:
+    path: /local_repo/{{ gpg_key_file }}
+  register: gpg_key_stat
+  when:
+    - dvd_device is defined
+    - gpg_key_file is defined
+    - gpg_key_file != ""
+
+- name: Import GPG key from DVD
+  rpm_key:
+    state: present
+    key: /local_repo/{{ gpg_key_file }}
+  when:
+    - dvd_device is defined
+    - gpg_key_file is defined
+    - gpg_key_file != ""
+    - gpg_key_stat.stat.exists
+
+- name: Remove enabled from all repos
+  shell: sed -i -e '/^enabled.*/d' /etc/yum.repos.d/*.repo
+  ignore_errors: true
+#  when: ansible_distribution_major_version | int < 6
+
+- name: Add enabled=0 to all repos
+  shell: sed -i -e '/^\[.*\]/aenabled=0' /etc/yum.repos.d/*.repo
+  ignore_errors: true
+#  when: ansible_distribution_major_version | int < 6
+
+- name: Configure DVD repo for versions < 6
+  copy:
+    dest: /etc/yum.repos.d/local.repo
+    content: |
+      [InstallMedia]
+      name=Local DVD Repository
+      baseurl=file:///local_repo/{{ repodir }}
+      enabled=1
+      gpgcheck={% if gpg_key_file is defined and gpg_key_file != "" %}1{% else %}0{% endif %}{{ '' }}
+      {% if gpg_key_file is defined and gpg_key_file != "" %}
+      gpgkey=file:///local_repo/{{ gpg_key_file }}
+      {% endif %}
+
+  when:
+    - dvd_device is defined
+    - ansible_distribution_major_version | int < 6
+  notify: Disable RedHat DVD repo
+
+- name: Configure DVD repo for versions 6, 7
+  copy:
+    dest: /etc/yum.repos.d/local.repo
+    content: |
+      [InstallMedia]
+      name=Local DVD Repository
+      baseurl=file:///local_repo
+      enabled=1
+      gpgcheck={% if gpg_key_file is defined and gpg_key_file != "" %}1{% else %}0{% endif %}{{ '' }}
+      {% if gpg_key_file is defined and gpg_key_file != "" %}
+      gpgkey=file:///local_repo/{{ gpg_key_file }}
+      {% endif %}
+  when:
+    - dvd_device is defined
+    - ansible_distribution_major_version in ['6', '7']
+  notify: Disable RedHat DVD repo
+
+- name: Configure DVD repo for version 8 and above
+  copy:
+    dest: /etc/yum.repos.d/local.repo
+    content: |
+      [InstallMedia-BaseOS]
+      name=Local DVD Repository
+      baseurl=file:///local_repo/BaseOS
+      enabled=1
+      gpgcheck={% if gpg_key_file is defined and gpg_key_file != "" %}1{% else %}0{% endif %}{{ '' }}
+      {% if gpg_key_file is defined and gpg_key_file != "" %}
+      gpgkey=file:///local_repo/{{ gpg_key_file }}
+      {% endif %}
+
+      [InstallMedia-AppStream]
+      name=Local DVD AppStream Repository
+      baseurl=file:///local_repo/AppStream
+      enabled=1
+      gpgcheck={% if gpg_key_file is defined and gpg_key_file != "" %}1{% else %}0{% endif %}{{ '' }}
+      {% if gpg_key_file is defined and gpg_key_file != "" %}
+      gpgkey=file:///local_repo/{{ gpg_key_file }}
+      {% endif %}
+  when:
+    - dvd_device is defined
+    - ansible_distribution_major_version | int >= 8
+  notify: Disable RedHat DVD repo
+
+- name: Clean yum cache
+  command: yum clean all
+  ignore_errors: yes
+
+- name: Make yum cache
+  command: yum makecache
+  ignore_errors: yes
+
+- name: Install bind-utils
+  package:
+    name: bind-utils
+    state: latest

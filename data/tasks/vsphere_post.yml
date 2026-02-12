@@ -1,0 +1,22 @@
+---
+# Needed here in case vra install
+- name: De-register system
+  block:
+    - name: Disconnect registation
+      shell: SUSEConnect --de-register
+      ignore_errors: yes
+
+    - name: "Cleanup registration"
+      shell: SUSEConnect --cleanup
+      ignore_errors: yes
+
+    - name: "Cleanup zypper repos/creds/services"
+      shell: "rm -rf /etc/zypp/{repos.d,credentials.d,services.d}/*"
+      ignore_errors: true
+
+    - name: "Delete /etc/SUSEConnect"
+      file:
+        path: /etc/SUSEConnect
+        state: absent
+  when:
+    - ansible_distribution == 'SLES'

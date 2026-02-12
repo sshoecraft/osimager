@@ -1,0 +1,12 @@
+---
+- name: "Check for existance of roles/{{include_if_item}}"
+  raw: test -d "roles/{{include_if_item}}"
+  register: info
+  delegate_to: localhost
+  become: no
+  ignore_errors: true
+  changed_when: false
+- name: "Include role {{include_if_item}}"
+  include_role:
+    name: "{{include_if_item}}"
+  when: info.rc == 0

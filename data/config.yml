@@ -1,0 +1,172 @@
+---
+- name: OS Configuration
+  hosts: "{{ host | default('all') }}"
+  gather_facts: true
+  become: true
+  vars:
+    ansible_winrm_server_cert_validation: ignore
+    ansible_winrm_read_timeout_sec: 180
+  environment:
+    ZYPP_LOCK_TIMEOUT: 180
+  tasks:
+#    - name: ansible_user
+#      debug: msg={{ansible_user}}
+
+#    - name: Print Ansible version
+#      debug:
+#        msg: "{{ 'ansible_version: ' + ansible_version.major | string}}"
+
+#    - name: Print all available facts
+#      debug:
+#        var: ansible_facts
+
+#    - meta: end_play
+
+#    - name: Display dist
+#      debug:
+#        msg: "ansible_distribution: {{ansible_distribution}}"
+
+#    - name: Display version
+#      debug:
+#        msg: "ansible_distribution_major_version: {{ansible_distribution_major_version}}"
+
+    - name: Display platform
+      debug:
+        msg: "platform: {{platform}}"
+
+    - name: Check platform
+      fail: msg="platform must be set"
+      when: platform|length == 0
+
+    - name: Display location
+      debug:
+        msg: "location_name: {{location_name}}"
+
+    - name: Check location
+      fail: msg="location_name must be set"
+      when: location_name|length == 0
+
+    - name: Display Build name
+      debug:
+        msg: "packer_build_name: {{packer_build_name}}"
+
+    - name: Display Spec config
+      debug:
+        msg: "spec_name: {{spec_config}}"
+
+    - name: Create build file
+      copy:
+        dest: /build
+        content: "{{platform}},{{location_name}},{{packer_build_name}}"
+
+    - name: Display Build name
+      debug:
+        msg: "packer_build_name: {{packer_build_name}}"
+
+    - name: Create build file
+      copy:
+        dest: /build
+        content: "{{platform}},{{location_name}},{{packer_build_name}}"
+
+    # Copy install files to system
+    - include_tasks: tasks/copy_files_if.yml
+      loop:
+        - "/install/all"
+        - "/install/{{platform}}"
+        - "/install/{{location_name}}"
+        - "/install/{{ansible_system}}"
+        - "/install/{{ansible_os_family}}"
+        - "/install/{{packer_build_name}}"
+      loop_control:
+        loop_var: copy_if_item
+
+    # Run all existing pre tasks
+    - include_tasks: tasks/include_tasks_if.yml
+      loop:
+        - "tasks/{{platform}}_pre.yml"
+        - "tasks/{{location_name}}_pre.yml"
+        - "tasks/{{ansible_system}}_pre.yml"
+        - "tasks/{{ansible_os_family}}_pre.yml"
+      loop_control:
+        loop_var: include_if_item
+
+    # Each spec MUST provide config tasks
+    - name: Run os-specific config tasks
+      include_tasks: "{{spec_config}}"
+
+    # Run all existing post tasks
+    - include_tasks: tasks/include_tasks_if.yml
+      loop:
+        - "tasks/{{ansible_os_family}}_post.yml"
+        - "tasks/{{ansible_system}}_post.yml"
+        - "tasks/{{location_name}}_post.yml"
+        - "tasks/{{platform}}_post.yml"
+      loop_control:
+        loop_var: include_if_item
+
+    - name: Remove install directory (linux)
+      file:
+        path: /install/
+        state: absent
+      when: ansible_system == "Linux"
+
+    - name: Remove install directory (windows)
+      win_file:
+        path: c:\install
+        state: absent
+      when: ansible_os_family == "Windows"
+
+    # For physical builds
+    - name: Create completion marker file
+      copy:
+        dest: /install_complete
+        content: "{{ansible_date_time.date}}"
+ 
+
+  handlers:
+    - name: Update grub2
+      debug:
+        msg: "Triggering grub2 config update"
+      changed_when: true
+      notify:
+        - Update grub2 on EFI
+        - Update grub2 on BIOS
+
+    - name: Update grub2 on EFI
+      command: grub2-mkconfig -o "{{ efi_grub_cfg.files[0].path }}"
+      when: efi_grub_cfg.matched > 0
+      ignore_errors: yes
+
+    - name: Update grub2 on BIOS
+      debug:
+        msg: "Triggering BIOS notifiers"
+      changed_when: true
+      notify:
+        - Remove grub2 grubenv
+        - Create grub2 grubenv
+        - Regenerate grub2 config
+#      when: not efi_check.stat.exists
+
+    - name: Remove grub2 grubenv
+      file:
+        path: /boot/grub2/grubenv
+        state: absent
+
+    - name: Create grub2 grubenv
+      command: grub2-editenv /boot/grub2/grubenv create
+      ignore_errors: yes
+
+    - name: Regenerate grub2 config
+      command: grub2-mkconfig -o /boot/grub2/grub.cfg
+      ignore_errors: yes
+
+    - name: Dismount RedHat DVD
+      command: umount /local_repo
+
+    - name: Disable RedHat DVD repo
+      command: sed -i -e 's:^enabled=1:enabled=0:g' /etc/yum.repos.d/local.repo
+      notify: Clean yum cache
+
+    - name: Clean yum cache
+      command: yum clean all
+      ignore_errors: true

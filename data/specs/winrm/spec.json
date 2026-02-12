@@ -1,0 +1,10 @@
+{
+  "config": {
+    "communicator": "winrm",
+    "winrm_host": "E>'>>ip<<' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else (None if '>>platform_type<<' in ['vsphere-iso', 'amazon-ebs', 'azure-arm', 'googlecompute'] else '{{ .Host }}')<E",
+    "winrm_use_ssl": false,
+    "winrm_username": "{{ user `winrm-username` }}",
+    "winrm_password": "{{ user `winrm-password` }}",
+    "winrm_timeout": "4h"
+  }
+}

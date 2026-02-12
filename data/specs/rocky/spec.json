@@ -1,0 +1,26 @@
+{
+  "provides": {
+    "dist": "rocky",
+    "versions": [
+        "8.[3-9]",
+        "9.[0-6]"
+    ],
+    "arches": [
+      "x86_64",
+      "aarch64"
+    ]
+  },
+  "include": "redhat",
+  "method": "merge",
+  "defs": {
+    "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd.iso"
+  },
+  "version_specific": [
+    {
+      "version": "8.*",
+      "defs": {
+        "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd1.iso"
+      }
+    }
+  ]
+}

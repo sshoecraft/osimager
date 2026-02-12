@@ -1,0 +1,11 @@
+---
+- name: "Check for existence of {{include_if_item}}"
+  raw: test -f "{{include_if_item}}"
+  register: info
+  delegate_to: localhost
+  become: no
+  ignore_errors: true
+  changed_when: false
+- name: "Include tasks from {{include_if_item}}"
+  include_tasks: "{{include_if_item}}"
+  when: info.rc == 0

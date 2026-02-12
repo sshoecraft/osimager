@@ -1,0 +1,42 @@
+{
+  "platforms": [
+    "vsphere"
+  ],
+  "defs": {
+    "domain": "vm.localdomain",
+    "cidr": "192.168.120.0/24",
+    "dns": {
+      "search": [
+        "vm.localdomain",
+        "localdomain"
+      ],
+      "servers": [
+        "192.168.120.1"
+      ]
+    },
+    "gateway": "192.168.120.1",
+    "ntp": {
+      "servers": [
+        "192.168.120.1"
+      ]
+    },
+    "vms_path": "/vms",
+    "iso_path": "/iso/"
+  },
+  "platform_specific": [
+    {
+      "platform": "vsphere",
+      "defs": {
+        "datacenter": "ha-datacenter",
+        "esxi_host": "192.168.1.251",
+        "datastore": "vms",
+        "folder": "",
+        "vm_network": "192.168.120.0:24",
+        "thin_disk": "true"
+      },
+      "config": {
+        "remote_cache_datastore": "iso"
+      }
+    }
+  ]
+}

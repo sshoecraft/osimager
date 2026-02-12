@@ -1,0 +1,24 @@
+{
+  "provides": {
+    "dist": "alma",
+    "versions": [
+        "8.[3-10]",
+        "9.[0-7]"
+    ],
+    "arches": [
+      "x86_64",
+      "aarch64"
+    ]
+  },
+  "include": "redhat",
+  "method": "merge",
+  "defs": {
+    "iso_url": "https://vault.almalinux.org/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
+  },
+  "version_specific": [
+    {
+      "version": "8.3",
+      "arches": ["x86_64"]
+    }
+  ]
+}

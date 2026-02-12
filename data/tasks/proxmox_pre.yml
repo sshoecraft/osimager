@@ -1,0 +1,16 @@
+---
+- name: Install qemu-guest-agent
+  package:
+    name: qemu-guest-agent
+    state: latest
+  register: install
+  when: not ansible_os_family == "Windows"
+  ignore_errors: yes
+
+- name: Start qemu-guest-agent
+  service:
+    name: qemu-guest-agent
+    state: started
+  register: install
+  when: not ansible_os_family == "Windows"
+  ignore_errors: yes

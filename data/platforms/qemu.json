@@ -1,0 +1,28 @@
+{
+  "include": "all",
+  "arches": [
+    "x86_64"
+  ],
+  "variables": {
+    "name": "{{ build_name }}"
+  },
+  "config": {
+    "type": "qemu",
+    "iso_url": "E>'>>iso_path<<>>iso_name<<' if >>local_only<< else '>>iso_url<<'<E",
+    "iso_checksum": "E>'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'<E",
+    "iso_target_path": "E>'' if >>local_only<< else '>>iso_path<<>>iso_name<<'<E",
+    "output_directory": ">>vms_path<</vmware/>>name<<",
+    "shutdown_command": "echo 'packer' | sudo -S shutdown -P now",
+    "sockets": "#>cpu_sockets<#",
+    "cores": "#>cpu_cores<#",
+    "firmware": ">>firmware<<",
+    "memory": "#>memory<#",
+    "disk_size": ">>boot_disk_size<<M",
+    "format": "qcow2",
+    "accelerator": "kvm",
+    "http_directory": "path/to/httpdir",
+    "vm_name": ">>name<<",
+    "net_device": "virtio-net",
+    "disk_interface": "virtio"
+  }
+}

@@ -1,0 +1,17 @@
+#!/bin/bash
+test -z "$1" && exit 1
+for d in cdrom sr0 sr1 sr2 sr3 hda hdb hdc hdd
+do
+        if test -e /dev/$d; then
+                mount -t iso9660 /dev/$d /mnt > /dev/null 2>&1
+                if test $(ls /mnt/ | grep -ic "${1}") -gt 0; then
+                        found="/dev/$d"
+                fi
+                umount /mnt > /dev/null 2>&1
+        fi
+        if test -n "$found"; then
+                echo "$found"
+                break
+        fi
+done
+exit 0

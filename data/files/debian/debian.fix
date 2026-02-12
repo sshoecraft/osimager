@@ -1,0 +1,26 @@
+#!/bin/sh
+
+exec > /tmp/fix.log 2>&1
+set -x
+
+script=/usr/lib/apt-setup/generators/40cdrom
+if test -e ${script}; then
+    rm -f ${script}
+    cat >${script}<<__END_SCRIPT1
+#!/bin/sh
+sed -i -E 's|^#?\s*deb cdrom:|deb [trusted=yes] cdrom:|' /target/etc/apt/sources.list
+cp /target/etc/apt/sources.list /target/etc/apt/sources.list.new
+exit 0
+__END_SCRIPT1
+    chmod 0755 ${script}
+fi
+
+if test -e /debian.tools; then
+    script=/usr/lib/finish-install.d/92install_tools
+    cat >${script}<<__END_SCRIPT2
+#!/bin/sh
+cp /debian.tools /target/debian.tools && chroot /target /bin/bash -c /debian.tools
+exit 0
+__END_SCRIPT2
+    chmod 0755 ${script}
+fi

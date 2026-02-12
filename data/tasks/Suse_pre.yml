@@ -1,0 +1,98 @@
+---
+#  shell: systemctl disable --now packagekit
+#  shell: systemctl mask packagekit
+#- name: Stop and disable packagekit
+#  systemd_service:
+#    name: packagekit
+#    enabled: false
+#    masked: true
+#  ignore_errors: true
+- name: Stop and disable packagekit
+  service:
+    name: packagekit
+    enabled: no
+    masked: yes
+  ignore_errors: true
+
+- name: Set http proxy (if defined)
+  lineinfile:
+    path: /etc/sysconfig/proxy
+    regexp: '^HTTP_PROXY=.*'
+    line: "HTTP_PROXY=\"{{proxy}}\""
+    state: present
+    create: true
+  when: proxy is defined
+
+- name: Set https proxy (if defined)
+  lineinfile:
+    path: /etc/sysconfig/proxy
+    regexp: '^HTTPS_PROXY=.*'
+    line: "HTTPS_PROXY=\"{{proxy}}\""
+    state: present
+    create: true
+  when: proxy is defined
+
+- name: Enable proxy (if defined)
+  lineinfile:
+    path: /etc/sysconfig/proxy
+    regexp: '^PROXY_ENABLED=.*'
+    line: "PROXY_ENABLED=\"yes\""
+    state: present
+  when: proxy is defined
+
+- name: "Check if /etc/SUSEConnect exists"
+  stat:
+    path: /etc/SUSEConnect
+  register: etc_sc
+  when: suse_key is defined
+
+- name: "Create /etc/SUSEConnect"
+  copy:
+    dest: /etc/SUSEConnect
+    content: |
+      ---
+      insecure: false
+      curl: https://scc.suse.com
+  when:
+    - suse_key is defined
+    - etc_sc.stat.exists == False
+
+- name: "Register system with SuSE"
+  shell: ZYPP_LOCK_TIMEOUT=180 /usr/sbin/SUSEConnect -r {{ suse_key }}
+  when:
+    - suse_key is defined
+    - etc_sc.stat.exists == False
+
+- name: Register cloud guest in GCP
+  shell: registercloudguest --force-new
+  when: platform == 'gcp'
+
+- name: Enable Cloud Repos on SLES 15 in GCP
+  command: /usr/sbin/SUSEConnect -p sle-module-public-cloud/15.1/x86_64
+  ignore_errors: true
+  when:
+    - ansible_distribution_major_version == "15"
+    - platform == "gcp"
+
+- name: Install packages for python
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python-xml
+    - python2-pyOpenSSL
+    - python3-pyOpenSSL
+  ignore_errors: true
+
+#- name: install libopenssl-devel on SLES 15 byos
+#  package: name=libopenssl-devel state=present
+#  ignore_errors: true
+#  when: (ansible_distribution == 'SLES') and (ansible_distribution_version == "15.1") and (is_byos is defined) and (is_byos == "true")
+
+#  zypper -n in python-xml python2-pyOpenSSL
+#- name: Install requred packages
+#  package:
+#    name:
+#      - python-xml
+#      - python2-pyOpenSSL
+#    state: present

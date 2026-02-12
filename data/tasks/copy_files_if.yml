@@ -1,0 +1,14 @@
+---
+- name: "Check for existence of {{copy_if_item}}"
+  raw: test -d "{{copy_if_item}}"
+  register: info
+  delegate_to: localhost
+  become: false
+  ignore_errors: true
+  changed_when: false
+- name: "Copying from {{copy_if_item}} to /install"
+  copy:
+    src: "{{copy_if_item}}/"
+    dest: "/install/"
+    mode: 0755
+  when: info.rc == 0

@@ -1,0 +1,71 @@
+{
+  "permissions": {
+    "allow": [
+      "*"
+    ],
+    "deny": []
+  },
+  "features": {
+    "allowAllTools": true,
+    "allowAllCommands": true,
+    "allowAllFileAccess": true,
+    "allowAllNetworkAccess": true,
+    "allowAllSystemAccess": true,
+    "bypassAllSafetyChecks": true,
+    "enableDebugMode": true,
+    "enableAdvancedMode": true,
+    "unlimitedTokens": true,
+    "unlimitedMemory": true,
+    "allowExecuteAnyCode": true,
+    "allowModifySystemFiles": true,
+    "allowRootAccess": true,
+    "allowBackgroundProcesses": true,
+    "persistentSessions": true,
+    "noTimeouts": true,
+    "noRateLimits": true
+  },
+  "tools": {
+    "bash": {
+      "allow": ["*"],
+      "deny": [],
+      "timeout": 0,
+      "sudo": true
+    },
+    "read": {
+      "allow": ["*"],
+      "deny": []
+    },
+    "write": {
+      "allow": ["*"],
+      "deny": []
+    },
+    "edit": {
+      "allow": ["*"],
+      "deny": []
+    }
+  },
+  "paths": {
+    "allowedPaths": ["*"],
+    "deniedPaths": [],
+    "followSymlinks": true,
+    "allowHiddenFiles": true,
+    "allowSystemFiles": true
+  },
+  "network": {
+    "allowAllHosts": true,
+    "allowAllPorts": true,
+    "allowAllProtocols": true,
+    "bypassProxy": true,
+    "allowInsecure": true
+  },
+  "execution": {
+    "allowShellScripts": true,
+    "allowBinaries": true,
+    "allowSudo": true,
+    "allowSystemCommands": true,
+    "environmentVariables": {
+      "CLAUDE_UNRESTRICTED": "true",
+      "CLAUDE_DEBUG": "true"
+    }
+  }
+}

@@ -1,0 +1,131 @@
+---
+- name: Download google cloud SDK archive on SLES
+  get_url:
+    url: https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-336.0.0-linux-x86_64.tar.gz
+    dest: /tmp/google-cloud-sdk.tar.gz
+    mode: '0644'
+    timeout: 180
+  register: download
+  when:
+    - platform == "gcp"
+- debug: var=download
+
+- name: Extract google cloud SDK archive
+  unarchive:
+    src: /tmp/google-cloud-sdk.tar.gz
+    dest: /usr/local
+    remote_src: true
+  register: extract
+  when:
+    - platform == "gcp"
+    - download is success
+- debug: var=extract
+
+- name: Remove google cloud SDK archive
+  file:
+    path: /tmp/google-cloud-sdk.tar.gz
+    state: absent
+  when:
+    - platform == "gcp"
+    - download is success
+
+- name: run gcloud installer
+  command: /usr/local/google-cloud-sdk/install.sh --usage-reporting false -q
+  when:
+    - platform == "gcp"
+    - extract is success
+
+- name: symlink gsutil and gcloud for suse only
+  file:
+    src: "/usr/local/google-cloud-sdk/bin/{{ item.path }}"
+    dest: "/usr/bin/{{ item.dest }}"
+    state: link
+  with_items:
+    - {path: 'gcloud', dest: 'gcloud'}
+    - {path: 'gsutil', dest: 'gsutil'}
+  when:
+    - platform == "gcp"
+    - extract is success
+
+- name: Set the nlockmgr tcp port
+  lineinfile:
+    path: /etc/sysconfig/nfs
+    line: "LOCKD_TCPPORT=4045"
+    state: present
+
+- name: Set the nlockmgr udp port
+  lineinfile:
+    path: /etc/sysconfig/nfs
+    line: "LOCKD_UDPPORT=4045"
+    state: present
+
+# https://www.suse.com/support/kb/doc/?id=000019341
+- name: Check if /etc/products.d/SLES_SAP.prod exists
+  stat:
+    path: /etc/products.d/SLES_SAP.prod
+  register: sles_sap_file
+- name: Set is_sap fact
+  set_fact:
+    is_sap: "{{ true if sles_sap_file.stat.exists else false }}"
+- debug: var=is_sap
+
+- name: Create sapadm user
+  user:
+    name: sapadm
+    comment: "SAP Adm"
+    uid: 13631
+  when: is_sap == true
+
+- name: Install HANA-Firewall
+  package:
+    name: HANA-Firewall
+    state: present
+  when: is_sap == true
+  register: hana_install
+  ignore_errors: true
+
+- name: Disable HANA-Firewall
+  service:
+    name: hana-firewall.service
+    enabled: false
+  when: is_sap == true and hana_install.rc == 0
+  ignore_errors: true
+
+# XXX needs to be last
+#  --no-gpg-check removed because 15 doesnt support it
+#  shell: zypper --non-interactive update -y --auto-agree-with-licenses
+- name: Update installed packages
+  zypper:
+    name: '*'
+    state: latest
+  register: update
+- debug: var=update
+
+- name: Cleanup cloud registration in GCP
+  shell: registercloudguest --clean
+  ignore_errors: true
+  when:
+    - platform == "gcp"
+
+- name: De-register system
+  block:
+    - name: Disconnect registation
+      shell: SUSEConnect --de-register
+      ignore_errors: true
+
+    - name: "Cleanup registration"
+      shell: SUSEConnect --cleanup
+      ignore_errors: true
+
+    - name: "Cleanup zypper repos/creds/services"
+      shell: "rm -rf /etc/zypp/{repos.d,credentials.d,services.d}/*"
+      ignore_errors: true
+
+    - name: "Delete /etc/SUSEConnect"
+      file:
+        path: /etc/SUSEConnect
+        state: absent
+  when: platform != 'vsphere'
+
+- name: "Set multi-user as default"
+  shell: systemctl set-default multi-user.target

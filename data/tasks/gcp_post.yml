@@ -1,0 +1,3 @@
+---
+- include_tasks: gcp_linux_post.yml
+  when: ansible_system == "Linux"

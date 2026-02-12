@@ -1,0 +1,511 @@
+#!/bin/bash
+
+# OSImager Uninstaller
+# Removes OSImager completely from the system
+# Usage: sudo ./uninstall.sh [OPTIONS]
+
+set -euo pipefail
+
+# Configuration
+DEFAULT_INSTALL_DIR="/opt/osimager"
+INSTALL_DIR="${OSIMAGER_INSTALL_DIR:-$DEFAULT_INSTALL_DIR}"
+SERVICE_NAME="osimager"
+SERVICE_USER="osimager"
+WEB_PORT="8000"
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Logging
+LOG_FILE="/tmp/osimager-uninstall.log"
+PRESERVE_DATA=false
+PRESERVE_LOGS=false
+FORCE_REMOVE=false
+
+# Helper functions
+log() {
+    echo -e "${GREEN}[INFO]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+warn() {
+    echo -e "${YELLOW}[WARN]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" | tee -a "$LOG_FILE"
+    exit 1
+}
+
+debug() {
+    echo -e "${BLUE}[DEBUG]${NC} $1" | tee -a "$LOG_FILE"
+}
+
+print_banner() {
+    echo -e "${RED}"
+    cat << 'EOF'
+  ___  ____  ___                               
+ / _ \/ ___|_ _|_ __ ___   __ _  __ _  ___ _ __ 
+| | | \___ \| || '_ ` _ \ / _` |/ _` |/ _ \ '__|
+| |_| |___) | || | | | | | (_| | (_| |  __/ |   
+ \___/|____/___|_| |_| |_|\__,_|\__, |\___|_|   
+                               |___/           
+EOF
+    echo -e "${NC}"
+    echo "OSImager Uninstaller"
+    echo "==================="
+    echo
+}
+
+check_permissions() {
+    log "Checking permissions..."
+    
+    # Check if running as root
+    if [[ $EUID -ne 0 ]]; then
+        error "This script must be run as root (use sudo)"
+    fi
+    
+    log "Permission check passed ✓"
+}
+
+show_what_will_be_removed() {
+    log "The following will be removed:"
+    echo
+    
+    echo "Services:"
+    if systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
+        echo "  • $SERVICE_NAME systemd service"
+    fi
+    
+    echo
+    echo "System files:"
+    if [[ -f "/etc/systemd/system/$SERVICE_NAME.service" ]]; then
+        echo "  • /etc/systemd/system/$SERVICE_NAME.service"
+    fi
+    if [[ -f "/etc/logrotate.d/osimager" ]]; then
+        echo "  • /etc/logrotate.d/osimager"
+    fi
+    
+    echo
+    echo "CLI commands:"
+    for script in mkosimage rfosimage mkvenv osimager-admin; do
+        if [[ -L "/usr/local/bin/$script" ]]; then
+            echo "  • /usr/local/bin/$script"
+        fi
+    done
+    
+    echo
+    echo "Installation directory:"
+    if [[ -d "$INSTALL_DIR" ]]; then
+        local dir_size=$(du -sh "$INSTALL_DIR" 2>/dev/null | cut -f1)
+        echo "  • $INSTALL_DIR ($dir_size)"
+        
+        if [[ -d "$INSTALL_DIR/data" ]]; then
+            echo "    - Data files (platforms, specs, locations)"
+        fi
+        if [[ -d "$INSTALL_DIR/logs" ]]; then
+            echo "    - Log files"
+        fi
+        if [[ -d "$INSTALL_DIR/lib" ]]; then
+            echo "    - Python virtual environment and API"
+        fi
+        if [[ -d "$INSTALL_DIR/ui" ]]; then
+            echo "    - Web interface files"
+        fi
+    fi
+    
+    echo
+    echo "User account:"
+    if id "$SERVICE_USER" &>/dev/null; then
+        echo "  • $SERVICE_USER system user"
+    fi
+    
+    echo
+    echo "Firewall rules:"
+    if systemctl is-active --quiet firewalld; then
+        if firewall-cmd --list-ports | grep -q "$WEB_PORT/tcp"; then
+            echo "  • firewalld port $WEB_PORT/tcp"
+        fi
+    elif command -v ufw &> /dev/null && ufw status | grep -q "$WEB_PORT/tcp"; then
+        echo "  • UFW port $WEB_PORT/tcp rule"
+    fi
+    
+    echo
+}
+
+confirm_removal() {
+    if [[ "$FORCE_REMOVE" == "true" ]]; then
+        log "Force removal enabled - skipping confirmation"
+        return 0
+    fi
+    
+    echo -e "${YELLOW}WARNING: This will completely remove OSImager from your system!${NC}"
+    echo
+    
+    if [[ "$PRESERVE_DATA" == "false" ]]; then
+        echo -e "${RED}• All data files (specs, platforms, locations) will be deleted${NC}"
+    else
+        echo -e "${GREEN}• Data files will be preserved${NC}"
+    fi
+    
+    if [[ "$PRESERVE_LOGS" == "false" ]]; then
+        echo -e "${RED}• All log files will be deleted${NC}"
+    else
+        echo -e "${GREEN}• Log files will be preserved${NC}"
+    fi
+    
+    echo
+    read -p "Are you sure you want to continue? [y/N]: " -n 1 -r
+    echo
+    
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        log "Uninstallation cancelled by user"
+        exit 0
+    fi
+}
+
+stop_service() {
+    log "Stopping OSImager service..."
+    
+    if systemctl is-active --quiet "$SERVICE_NAME"; then
+        systemctl stop "$SERVICE_NAME"
+        log "Service stopped ✓"
+    else
+        log "Service was not running ✓"
+    fi
+}
+
+disable_service() {
+    log "Disabling OSImager service..."
+    
+    if systemctl is-enabled --quiet "$SERVICE_NAME"; then
+        systemctl disable "$SERVICE_NAME"
+        log "Service disabled ✓"
+    else
+        log "Service was not enabled ✓"
+    fi
+}
+
+remove_systemd_service() {
+    log "Removing systemd service..."
+    
+    if [[ -f "/etc/systemd/system/$SERVICE_NAME.service" ]]; then
+        rm -f "/etc/systemd/system/$SERVICE_NAME.service"
+        systemctl daemon-reload
+        log "Systemd service file removed ✓"
+    else
+        log "Systemd service file not found ✓"
+    fi
+}
+
+remove_cli_symlinks() {
+    log "Removing CLI command symlinks..."
+    
+    local removed_count=0
+    for script in mkosimage rfosimage mkvenv osimager-admin; do
+        if [[ -L "/usr/local/bin/$script" ]]; then
+            rm -f "/usr/local/bin/$script"
+            ((removed_count++))
+            debug "Removed /usr/local/bin/$script"
+        fi
+    done
+    
+    log "Removed $removed_count CLI command symlinks ✓"
+}
+
+remove_logrotate_config() {
+    log "Removing logrotate configuration..."
+    
+    if [[ -f "/etc/logrotate.d/osimager" ]]; then
+        rm -f "/etc/logrotate.d/osimager"
+        log "Logrotate configuration removed ✓"
+    else
+        log "Logrotate configuration not found ✓"
+    fi
+}
+
+remove_firewall_rules() {
+    log "Removing firewall rules..."
+    
+    local rules_removed=false
+    
+    # Remove firewalld rules
+    if systemctl is-active --quiet firewalld; then
+        if firewall-cmd --list-ports | grep -q "$WEB_PORT/tcp"; then
+            firewall-cmd --permanent --remove-port="$WEB_PORT/tcp"
+            firewall-cmd --reload
+            rules_removed=true
+            debug "Removed firewalld rule for port $WEB_PORT/tcp"
+        fi
+    fi
+    
+    # Remove UFW rules
+    if command -v ufw &> /dev/null && ufw status | grep -q "$WEB_PORT/tcp"; then
+        ufw delete allow "$WEB_PORT/tcp"
+        rules_removed=true
+        debug "Removed UFW rule for port $WEB_PORT/tcp"
+    fi
+    
+    if [[ "$rules_removed" == "true" ]]; then
+        log "Firewall rules removed ✓"
+    else
+        log "No firewall rules found ✓"
+    fi
+}
+
+backup_data() {
+    if [[ "$PRESERVE_DATA" == "true" && -d "$INSTALL_DIR/data" ]]; then
+        local backup_dir="/tmp/osimager-backup-$(date +%Y%m%d-%H%M%S)"
+        log "Creating data backup at $backup_dir..."
+        
+        mkdir -p "$backup_dir"
+        cp -r "$INSTALL_DIR/data" "$backup_dir/"
+        
+        if [[ "$PRESERVE_LOGS" == "true" && -d "$INSTALL_DIR/logs" ]]; then
+            cp -r "$INSTALL_DIR/logs" "$backup_dir/"
+        fi
+        
+        # Create restoration script
+        cat > "$backup_dir/restore.sh" << EOF
+#!/bin/bash
+# OSImager Data Restoration Script
+# Created: $(date)
+
+echo "Restoring OSImager data from backup..."
+
+if [[ ! -d "$INSTALL_DIR" ]]; then
+    echo "ERROR: OSImager installation directory not found: $INSTALL_DIR"
+    echo "Please reinstall OSImager first, then run this script"
+    exit 1
+fi
+
+# Restore data
+if [[ -d "./data" ]]; then
+    sudo cp -r ./data/* "$INSTALL_DIR/data/"
+    sudo chown -R osimager:osimager "$INSTALL_DIR/data"
+    echo "Data files restored ✓"
+fi
+
+# Restore logs
+if [[ -d "./logs" ]]; then
+    sudo cp -r ./logs/* "$INSTALL_DIR/logs/"
+    sudo chown -R osimager:osimager "$INSTALL_DIR/logs"
+    echo "Log files restored ✓"
+fi
+
+echo "Restoration complete. You may need to restart the OSImager service:"
+echo "sudo systemctl restart osimager"
+EOF
+        
+        chmod +x "$backup_dir/restore.sh"
+        
+        echo -e "${GREEN}Data backup created at: $backup_dir${NC}"
+        echo -e "${GREEN}To restore after reinstallation: $backup_dir/restore.sh${NC}"
+        log "Data backup completed ✓"
+    fi
+}
+
+remove_installation_directory() {
+    log "Removing installation directory..."
+    
+    if [[ ! -d "$INSTALL_DIR" ]]; then
+        log "Installation directory not found ✓"
+        return 0
+    fi
+    
+    # Create backup if requested
+    backup_data
+    
+    # Remove the installation directory
+    if [[ "$PRESERVE_DATA" == "true" || "$PRESERVE_LOGS" == "true" ]]; then
+        # Selective removal
+        for subdir in bin lib ui etc; do
+            if [[ -d "$INSTALL_DIR/$subdir" ]]; then
+                rm -rf "$INSTALL_DIR/$subdir"
+                debug "Removed $INSTALL_DIR/$subdir"
+            fi
+        done
+        
+        if [[ "$PRESERVE_DATA" == "false" && -d "$INSTALL_DIR/data" ]]; then
+            rm -rf "$INSTALL_DIR/data"
+            debug "Removed $INSTALL_DIR/data"
+        fi
+        
+        if [[ "$PRESERVE_LOGS" == "false" && -d "$INSTALL_DIR/logs" ]]; then
+            rm -rf "$INSTALL_DIR/logs"
+            debug "Removed $INSTALL_DIR/logs"
+        fi
+        
+        # Remove parent directory if empty
+        if [[ -z "$(ls -A "$INSTALL_DIR" 2>/dev/null)" ]]; then
+            rmdir "$INSTALL_DIR"
+            debug "Removed empty installation directory"
+        fi
+    else
+        # Complete removal
+        rm -rf "$INSTALL_DIR"
+        debug "Completely removed installation directory"
+    fi
+    
+    log "Installation directory processed ✓"
+}
+
+remove_user() {
+    log "Removing service user..."
+    
+    if id "$SERVICE_USER" &>/dev/null; then
+        userdel "$SERVICE_USER" 2>/dev/null || true
+        log "User $SERVICE_USER removed ✓"
+    else
+        log "User $SERVICE_USER not found ✓"
+    fi
+}
+
+show_completion_summary() {
+    echo
+    echo -e "${GREEN}=== Uninstallation Complete ===${NC}"
+    echo
+    
+    log "OSImager has been successfully removed from the system"
+    
+    if [[ "$PRESERVE_DATA" == "true" || "$PRESERVE_LOGS" == "true" ]]; then
+        echo -e "${YELLOW}Note: Some files were preserved as requested${NC}"
+        if [[ "$PRESERVE_DATA" == "true" ]]; then
+            echo "  • Data files preserved"
+        fi
+        if [[ "$PRESERVE_LOGS" == "true" ]]; then
+            echo "  • Log files preserved"
+        fi
+    fi
+    
+    echo
+    echo "What was removed:"
+    echo "  • OSImager systemd service"
+    echo "  • CLI commands (mkosimage, rfosimage, mkvenv, osimager-admin)"
+    echo "  • System configuration files"
+    echo "  • Installation directory (complete or partial)"
+    echo "  • Service user account"
+    echo "  • Firewall rules"
+    echo
+    
+    if command -v packer &> /dev/null; then
+        warn "Packer is still installed and may be used by other applications"
+    fi
+    
+    if command -v ansible &> /dev/null; then
+        warn "Ansible is still installed and may be used by other applications"
+    fi
+    
+    if command -v node &> /dev/null; then
+        warn "Node.js is still installed and may be used by other applications"
+    fi
+    
+    echo "To reinstall OSImager, run the installer script again."
+    echo
+}
+
+show_help() {
+    cat << EOF
+OSImager Uninstaller
+
+Usage: sudo ./uninstall.sh [OPTIONS]
+
+Options:
+  --install-dir DIR     Installation directory (default: /opt/osimager)
+  --preserve-data       Preserve data files (specs, platforms, locations)
+  --preserve-logs       Preserve log files
+  --force               Skip confirmation prompts
+  --help                Show this help message
+
+Environment Variables:
+  OSIMAGER_INSTALL_DIR    Override default installation directory
+
+Examples:
+  sudo ./uninstall.sh                        # Complete removal with confirmation
+  sudo ./uninstall.sh --preserve-data        # Remove but keep data files
+  sudo ./uninstall.sh --preserve-logs        # Remove but keep log files
+  sudo ./uninstall.sh --force                # Remove without confirmation
+  sudo ./uninstall.sh --preserve-data --preserve-logs --force
+
+Notes:
+  • This script will completely remove OSImager from your system
+  • Use --preserve-data to keep your specifications, platforms, and locations
+  • Use --preserve-logs to keep historical log files
+  • Backup files are automatically created when using preserve options
+  • Dependencies (Packer, Ansible, Node.js) are not removed
+
+EOF
+}
+
+# Main uninstallation function
+main() {
+    print_banner
+    
+    # Parse command line arguments
+    while [[ $# -gt 0 ]]; do
+        case $1 in
+            --install-dir)
+                INSTALL_DIR="$2"
+                shift 2
+                ;;
+            --preserve-data)
+                PRESERVE_DATA=true
+                shift
+                ;;
+            --preserve-logs)
+                PRESERVE_LOGS=true
+                shift
+                ;;
+            --force)
+                FORCE_REMOVE=true
+                shift
+                ;;
+            --help)
+                show_help
+                exit 0
+                ;;
+            *)
+                error "Unknown option: $1"
+                ;;
+        esac
+    done
+    
+    log "Starting OSImager uninstallation..."
+    log "Installation directory: $INSTALL_DIR"
+    log "Preserve data: $PRESERVE_DATA"
+    log "Preserve logs: $PRESERVE_LOGS"
+    echo
+    
+    # Check if OSImager is installed
+    if [[ ! -d "$INSTALL_DIR" ]] && ! systemctl list-unit-files | grep -q "$SERVICE_NAME.service"; then
+        warn "OSImager does not appear to be installed"
+        read -p "Continue anyway? [y/N]: " -n 1 -r
+        echo
+        if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+            log "Uninstallation cancelled"
+            exit 0
+        fi
+    fi
+    
+    # Run uninstallation steps
+    check_permissions
+    show_what_will_be_removed
+    confirm_removal
+    stop_service
+    disable_service
+    remove_systemd_service
+    remove_cli_symlinks
+    remove_logrotate_config
+    remove_firewall_rules
+    remove_installation_directory
+    remove_user
+    show_completion_summary
+    
+    log "Uninstallation completed successfully!"
+}
+
+# Run main function
+main "$@"

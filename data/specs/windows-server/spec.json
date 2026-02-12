@@ -1,0 +1,141 @@
+{
+  "provides": {
+    "dist": "windows-server",
+    "versions": [
+      "2016",
+      "2019",
+      "2022",
+      "2025"
+    ],
+    "arches": [
+      "x86_64"
+    ]
+  },
+  "include": "windows",
+  "method": "merge",
+  "defs": {
+    "timezone": "Central Standard Time",
+    "cpu_cores": 4,
+    "memory": 8192,
+    "cd_files": [
+      ">>temp_dir<</Autounattend.xml",
+      ">>data_path<</data/files/windows/build/*"
+    ],
+    "cd_label": "packer"
+  },
+  "config": {
+    "boot_wait": "3s",
+    "boot_command": [
+      "<enter><wait10><enter>"
+    ],
+    "shutdown_command": "shutdown /s /t 0 /d p:0:0 /c \"Packer Shutdown\""
+  },
+  "files": [
+    {
+      "sources": [
+        "windows/Autounattend.xml"
+      ],
+      "dest": "Autounattend.xml"
+    }
+  ],
+  "platform_specific": [
+    {
+      "platform": "vsphere",
+      "config": {
+        "guest_os_type": "windows9Server64Guest",
+        "iso_paths": [
+          "[] /vmimages/tools-isoimages/windows.iso"
+        ]
+      }
+    },
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Windows2019_64",
+        "gfx_controller": "vboxsvga",
+        "hard_drive_interface": "ide"
+      }
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "2016",
+      "defs": {
+        "memory": 4096,
+        "product_key": "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY",
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO"
+      },
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "windows9Server64Guest"
+          },
+          "defs": {
+            "memory": 4096
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Windows2016_64"
+          },
+          "defs": {
+            "memory": 4096
+          }
+        }
+      ]
+    },
+    {
+      "version": "2019",
+      "defs": {
+        "product_key": "N69G4-B89J2-4G8F4-WWYCC-J464C",
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO"
+      },
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Windows2019_64"
+          }
+        }
+      ]
+    },
+    {
+      "version": "2022",
+      "defs": {
+        "product_key": "VDYBN-27WPP-V4HQT-9VMD4-VMK7H",
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO"
+      },
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Windows2022_64"
+          }
+        }
+      ]
+    },
+    {
+      "version": "2025",
+      "defs": {
+        "product_key": "TVRH6-WHNXV-R9WG3-9XRFY-MY832",
+        "iso_url": "file:///iso/Windows/windows_server_2025_x64_dvd.iso"
+      },
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "windows2019srvNext_64Guest"
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Windows2022_64"
+          }
+        }
+      ]
+    }
+  ]
+}

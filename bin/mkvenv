@@ -1,0 +1,174 @@
+#!/usr/bin/env python3
+"""
+mkvenv - Virtual environment management for OSImager.
+
+This script handles creation and management of Python virtual
+environments for OSImager builds and provisioning.
+"""
+
+import sys
+import os
+import subprocess
+import venv
+from typing import List, Optional
+from pathlib import Path
+
+# Add the lib directory to the path to import osimager
+# Handle both development and installation environments
+script_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.dirname(script_dir)
+
+if os.path.exists('/opt/osimager/lib'):
+    # Installation environment
+    sys.path.insert(0, '/opt/osimager/lib')
+else:
+    # Development environment - lib directory is in project root
+    lib_path = os.path.join(project_root, 'lib')
+    sys.path.insert(0, lib_path)
+
+from osimager.constants import EXIT_SUCCESS, EXIT_GENERAL_ERROR, DEFAULT_DATA_DIR
+
+
+def main(argv: Optional[List[str]] = None) -> int:
+    """
+    Main entry point for mkvenv CLI script.
+    
+    Args:
+        argv: Command line arguments (defaults to sys.argv[1:])
+        
+    Returns:
+        int: Exit code (0 for success, non-zero for failure)
+    """
+    if argv is None:
+        argv = sys.argv[1:]
+    
+    try:
+        if '--help' in argv or '-h' in argv:
+            print_help()
+            return EXIT_SUCCESS
+        
+        if '--version' in argv or '-V' in argv:
+            from osimager.constants import OSIMAGER_VERSION, OSIMAGER_NAME
+            print(f"{OSIMAGER_NAME} mkvenv version {OSIMAGER_VERSION}")
+            return EXIT_SUCCESS
+        
+        # Parse arguments
+        verbose = '--verbose' in argv or '-v' in argv
+        force = '--force' in argv or '-f' in argv
+        
+        # Get environment name
+        env_name = None
+        for arg in argv:
+            if not arg.startswith('-'):
+                env_name = arg
+                break
+        
+        if not env_name:
+            print("Error: Virtual environment name required")
+            print("Use 'mkvenv --help' for usage information")
+            return EXIT_GENERAL_ERROR
+        
+        # Determine base directory for virtual environments
+        base_dir = os.environ.get('OSIMAGER_DATA_DIR', DEFAULT_DATA_DIR)
+        venv_dir = os.path.join(base_dir, 'venv', env_name)
+        
+        if verbose:
+            print(f"Creating virtual environment: {venv_dir}")
+        
+        # Check if environment already exists
+        if os.path.exists(venv_dir):
+            if force:
+                if verbose:
+                    print(f"Removing existing environment: {venv_dir}")
+                import shutil
+                shutil.rmtree(venv_dir)
+            else:
+                print(f"Error: Virtual environment '{env_name}' already exists")
+                print("Use --force to recreate")
+                return EXIT_GENERAL_ERROR
+        
+        # Create base directory if it doesn't exist
+        os.makedirs(os.path.dirname(venv_dir), exist_ok=True)
+        
+        # Create virtual environment
+        if verbose:
+            print("Creating virtual environment...")
+        
+        venv.create(venv_dir, with_pip=True)
+        
+        # Install basic requirements if they exist
+        requirements_file = os.path.join(base_dir, 'requirements.txt')
+        if os.path.exists(requirements_file):
+            if verbose:
+                print(f"Installing requirements from: {requirements_file}")
+            
+            pip_cmd = os.path.join(venv_dir, 'bin', 'pip')
+            if os.name == 'nt':  # Windows
+                pip_cmd = os.path.join(venv_dir, 'Scripts', 'pip.exe')
+            
+            result = subprocess.run([
+                pip_cmd, 'install', '-r', requirements_file
+            ], capture_output=True, text=True)
+            
+            if result.returncode != 0:
+                print(f"Warning: Failed to install requirements: {result.stderr}")
+            elif verbose:
+                print("Requirements installed successfully")
+        
+        print(f"Virtual environment '{env_name}' created successfully")
+        print(f"Location: {venv_dir}")
+        
+        # Show activation instructions
+        if os.name == 'nt':  # Windows
+            activate_script = os.path.join(venv_dir, 'Scripts', 'activate.bat')
+        else:  # Unix/Linux/macOS
+            activate_script = os.path.join(venv_dir, 'bin', 'activate')
+        
+        print(f"To activate: source {activate_script}")
+        
+        return EXIT_SUCCESS
+        
+    except KeyboardInterrupt:
+        print("\nOperation cancelled by user.")
+        return EXIT_GENERAL_ERROR
+    except Exception as e:
+        print(f"Error: {e}")
+        return EXIT_GENERAL_ERROR
+
+
+def print_help() -> None:
+    """Print help information for mkvenv."""
+    print("""
+mkvenv - Virtual environment management for OSImager
+
+Usage: mkvenv [OPTIONS] ENV_NAME
+
+Creates and manages Python virtual environments for OSImager builds.
+
+Options:
+  -h, --help     Show this help message and exit
+  -V, --version  Show version information and exit
+  -v, --verbose  Enable verbose output
+  -f, --force    Force recreation if environment exists
+
+Arguments:
+  ENV_NAME       Name of the virtual environment to create
+
+Environment Variables:
+  OSIMAGER_DATA_DIR    Data directory for OSImager (default: /opt/osimager/data)
+
+Examples:
+  mkvenv myenv                 Create virtual environment 'myenv'
+  mkvenv --force myenv         Recreate 'myenv' if it exists
+  mkvenv --verbose myenv       Create with verbose output
+
+The virtual environment will be created in:
+  $OSIMAGER_DATA_DIR/venv/ENV_NAME
+
+If a requirements.txt file exists in the base directory, it will be
+automatically installed in the new virtual environment.
+""")
+
+
+if __name__ == "__main__":
+    sys.exit(main())

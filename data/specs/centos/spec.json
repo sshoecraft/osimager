@@ -1,0 +1,154 @@
+{
+  "provides": {
+    "dist": "centos",
+    "versions": [
+        "6.[0-10]",
+        "7.[0-9]",
+        "8.[0-5]"
+    ],
+    "arches": [
+      "i386",
+      "x86_64",
+      "aarch64"
+    ]
+  },
+  "include": "redhat",
+  "method": "merge",
+  "version_specific": [
+    {
+      "version": "6.*",
+      "arches": ["i386", "x86_64"],
+      "defs": {
+        "iso_url": "https://vault.centos.org/>>version<</isos/>>arch<</CentOS->>version<<->>arch<<-bin-DVD1.iso"
+      },
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "centos6E>'_64' if '>>arch<<' == 'x86_64' else ''<EGuest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "7.*",
+      "arches": ["x86_64"],
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "centos7_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "7.0",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.0.1406/isos/>>arch<</CentOS-7.0-1406->>arch<<-DVD.iso"
+      }
+    },
+    {
+      "version": "7.1",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.1.1503/isos/>>arch<</CentOS-7->>arch<<-DVD-1503-01.iso"
+      }
+    },
+    {
+      "version": "7.2",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.2.1511/isos/>>arch<</CentOS-7->>arch<<-DVD-1511.iso"
+      }
+    },
+    {
+      "version": "7.3",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.3.1611/isos/>>arch<</CentOS-7->>arch<<-DVD-1611.iso"
+      }
+    },
+    {
+      "version": "7.4",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.4.1708/isos/>>arch<</CentOS-7->>arch<<-DVD-1708.iso"
+      }
+    },
+    {
+      "version": "7.5",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.5.1804/isos/>>arch<</CentOS-7->>arch<<-DVD-1804.iso"
+      }
+    },
+    {
+      "version": "7.6",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.6.1810/isos/>>arch<</CentOS-7->>arch<<-DVD-1810.iso"
+      }
+    },
+    {
+      "version": "7.7",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.7.1908/isos/>>arch<</CentOS-7->>arch<<-DVD-1908.iso"
+      }
+    },
+    {
+      "version": "7.8",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.8.2003/isos/>>arch<</CentOS-7->>arch<<-DVD-2003.iso"
+      }
+    },
+    {
+      "version": "7.9",
+      "defs": {
+        "iso_url": "https://vault.centos.org/7.9.2009/isos/>>arch<</CentOS-7->>arch<<-DVD-2009.iso"
+      }
+    },
+    {
+      "version": "8.*",
+      "arches": ["x86_64", "aarch64"],
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "centos8_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "8.0",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.0.1905/isos/>>arch<</CentOS-8->>arch<<-1905-dvd1.iso"
+      }
+    },
+    {
+      "version": "8.1",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.1.1911/isos/>>arch<</CentOS-8.1.1911->>arch<<-dvd1.iso"
+      }
+    },
+    {
+      "version": "8.2",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.2.2004/isos/>>arch<</CentOS-8.2.2004->>arch<<-dvd1.iso"
+      }
+    },
+    {
+      "version": "8.3",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.3.2011/isos/>>arch<</CentOS-8.3.2011->>arch<<-dvd1.iso"
+      }
+    },
+    {
+      "version": "8.4",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.4.2105/isos/>>arch<</CentOS-8.4.2105->>arch<<-dvd1.iso"
+      }
+    },
+    {
+      "version": "8.5",
+      "defs": {
+        "iso_url": "https://vault.centos.org/8.5.2111/isos/>>arch<</CentOS-8.5.2111->>arch<<-dvd1.iso"
+      }
+    }
+  ]
+}

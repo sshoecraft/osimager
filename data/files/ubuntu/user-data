@@ -1,0 +1,36 @@
+#cloud-config
+package_update: false
+package_upgrade: false
+autoinstall:
+  version: 1
+
+  early-commands:
+    - systemctl stop ssh
+
+  network:
+    network:
+      version: 2
+      ethernets: {}
+
+  ssh:
+    install-server: yes
+
+  user-data:
+    disable_root: false
+    hostname: >>hostname<<
+    chpasswd:
+      expire: false
+      list:
+        - root:6>images/linux:password<6
+
+  storage:
+    layout:
+      name: lvm
+
+  late-commands:
+    - curtin in-target --target /target -- dpkg -r unattended-upgrades
+    - curtin in-target --target /target -- passwd -u root
+    - sed -ie 's/GRUB_CMDLINE_LINUX=.*/GRUB_CMDLINE_LINUX="net.ifnames=0 biosdevname=0 quiet"/' /target/etc/default/grub
+    - curtin in-target --target /target update-grub2
+    - sed -ie '/^#PermitRootLogin.*/cPermitRootLogin yes' /target/etc/ssh/sshd_config
+    - sed -ie 's/^#\?PermitRootLogin.*/PermitRootLogin yes/' /target/etc/ssh/sshd_config.d/*.conf 2>/dev/null || true

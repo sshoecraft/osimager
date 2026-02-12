@@ -1,0 +1,178 @@
+---
+- name: Delete /etc/issue
+  file:
+    path: /etc/issue
+    state: absent
+  ignore_errors: true
+
+- name: Copy banner to /etc/issue
+  copy:
+    src: files/linux/banner
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644
+  ignore_errors: true
+
+- name: Delete /etc/issue.net
+  file:
+    path: /etc/issue.net
+    state: absent
+  ignore_errors: true
+
+- name: Copy banner to /etc/issue.net
+  copy:
+    src: files/linux/banner
+    dest: /etc/issue.net
+    owner: root
+    group: root
+    mode: 0644
+  ignore_errors: true
+
+- name: Set Banner in sshd_config
+  shell: sed -i "s|no default banner path|default banner path|;s|#Banner.*|Banner /etc/issue.net|" /etc/ssh/sshd_config
+  ignore_errors: true
+
+- name: Fix /etc/update-motd.d/ entries
+  shell: chmod -x /etc/update-motd.d/*
+  ignore_errors: true
+
+- name: disable selinux
+  selinux:
+    state: disabled
+  ignore_errors: true
+
+- name: disable DNS lookups in /etc/ssh/sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^#UseDNS'
+    line: 'UseDNS no'
+    state: present
+    backrefs: true
+  register: sshdconf
+
+- name: disable DNS lookups in /etc/ssh/sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^UseDNS'
+    line: 'UseDNS no'
+    state: present
+  when: (sshdconf.changed==false)
+
+- name: Enable PubkeyAuthentication in /etc/ssh/sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PubkeyAuthentication'
+    line: 'PubkeyAuthentication yes'
+    state: present
+
+- name: Enable PasswordAuthentication in /etc/ssh/sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PasswordAuthentication'
+    line: 'PasswordAuthentication yes'
+    state: present
+
+- name: Enable PermitRootLogin in /etc/ssh/sshd_config
+  lineinfile:
+    path: /etc/ssh/sshd_config
+    regexp: '^PermitRootLogin'
+    line: 'PermitRootLogin yes'
+    state: present
+
+- name: check if sysconfig/nfs exists
+  stat:
+    path: /etc/sysconfig/nfs
+  register: sysnfs
+
+- name: Romove all existing STATD_PORT lines
+  lineinfile:
+    path: /etc/sysconfig/nfs
+    state: absent
+    regexp: '^STATD_PORT='
+    create: true
+  when: (sysnfs.stat.exists == true)
+
+- name: Set the STATD_PORT option
+  lineinfile:
+    path: /etc/sysconfig/nfs
+    line: "STATD_PORT=2046"
+    state: present
+  when: (sysnfs.stat.exists == true)
+
+- name: Romove all existing LOCKD_*PORT lines
+  lineinfile:
+    path: /etc/sysconfig/nfs
+    state: absent
+    regexp: '^LOCKD_.*PORT='
+  when: (sysnfs.stat.exists == true)
+
+- name: Check for existance of /etc/default/grub
+  stat:
+    path: /etc/default/grub
+  register: defgrub
+
+- name: set GRUB_TIMEOUT=15 in /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_TIMEOUT=.*'
+    line: 'GRUB_TIMEOUT=15'
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: set GRUB_TIMEOUT_STYLE=menu in /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_TIMEOUT_STYLE=.*'
+    line: 'GRUB_TIMEOUT_STYLE=menu'
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: remove GRUB_HIDDEN_TIMEOUT from /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_HIDDEN_TIMEOUT=.*'
+    state: absent
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: remove GRUB_HIDDEN_TIMEOUT_QUIET from /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_HIDDEN_TIMEOUT_QUIET=.*'
+    state: absent
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: set GRUB_DISABLE_RECOVERY=false in /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_DISABLE_RECOVERY=.*'
+    line: 'GRUB_DISABLE_RECOVERY="false"'
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: set GRUB_DISABLE_SUBMENU=false in /etc/default/grub
+  lineinfile:
+    path: /etc/default/grub
+    regexp: 'GRUB_DISABLE_SUBMENU=.*'
+    line: 'GRUB_DISABLE_SUBMENU="false"'
+  when: defgrub.stat.exists == true
+  notify: Update grub2
+
+- name: Find installers
+  find: paths=/install/ patterns='install_*.sh'
+  register: found
+
+- name: Install software
+  shell: "{{item}}"
+  with_items: "{{found.files | map(attribute='path') | list }}"
+  ignore_errors: true
+  register: install
+- debug: var=install
+
+- name: Install ksh shell
+  package:
+    name: ksh
+    state: present
+  ignore_errors: true

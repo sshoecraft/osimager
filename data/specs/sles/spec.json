@@ -1,0 +1,115 @@
+{
+  "provides": {
+    "dist": "sles",
+    "versions": [
+        "12.[1-5]",
+        "15.[0-6]"
+    ],
+    "arches": [
+      "x86_64",
+      "aarch64"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox"
+  ],
+  "defs": {
+    "boot_disk_size": 32768,
+    "timezone": "America/Chicago",
+    "cd_files": ">>temp_dir<</autoinst.xml",
+    "cd_label": "OEMDRV"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "/sbin/shutdown -P now",
+    "boot_command": [
+      "<down><wait>textmode=1",
+      " autoyast=device://OEMDRV/autoinst.xml",
+      " net.ifnames=0 biosdevname=0",
+      "<enter>"
+    ]
+  },
+  "version_specific": [
+    {
+      "version": "12.*",
+      "arches": ["x86_64"],
+      "defs": {
+        "iso_url": "file:///iso/SUSE/SLE-12-SP>>minor<<-Server-DVD->>arch<<-GM-DVD1.iso",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python"
+      },
+      "files": [
+        {
+          "sources": [
+            "suse/autoinst_12.xml"
+          ],
+          "dest": "autoinst.xml"
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "OpenSUSE_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "sles12-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "sles12_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "15.*",
+      "defs": {
+        "iso_url": "file:///iso/SUSE/SLE-15-SP>>minor<<-Full->>arch<<-GM-Media1.iso",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+      },
+      "files": [
+        {
+          "sources": [
+            "suse/autoinst_15.xml"
+          ],
+          "dest": "autoinst.xml"
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "OpenSUSE_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "sles15-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "sles15_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "15.0",
+      "defs": {
+        "iso_url": "file:///iso/SUSE/SLE-15-Full->>arch<<-GM-Media1.iso"
+      }
+    }
+  ]
+}

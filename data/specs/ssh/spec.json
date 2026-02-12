@@ -1,0 +1,10 @@
+{
+  "config": {
+    "communicator": "ssh",
+    "ssh_host": "E>'>>ip<<' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else (None if '>>platform_type<<' in ['vsphere-iso', 'amazon-ebs', 'azure-arm', 'googlecompute'] else ('127.0.0.1' if '>>platform_type<<' == 'virtualbox-iso' else '{{ .Host }}'))<E",
+    "ssh_port": "E>'{{ .SSHHostPort }}' if '>>platform_type<<' == 'virtualbox-iso' else '22'<E",
+    "ssh_username": "{{ user `ssh-username` }}",
+    "ssh_password": "{{ user `ssh-password` }}",
+    "ssh_timeout": "25m"
+  }
+}
