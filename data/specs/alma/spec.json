@@ -10,7 +10,7 @@
       "aarch64"
     ]
   },
-  "include": "redhat",
+  "include": "rhel",
   "method": "merge",
   "defs": {
     "iso_url": "https://vault.almalinux.org/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"

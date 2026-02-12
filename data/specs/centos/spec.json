@@ -12,7 +12,7 @@
       "aarch64"
     ]
   },
-  "include": "redhat",
+  "include": "rhel",
   "method": "merge",
   "version_specific": [
     {

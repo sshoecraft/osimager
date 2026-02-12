@@ -3,14 +3,15 @@
     "dist": "rocky",
     "versions": [
         "8.[3-9]",
-        "9.[0-6]"
+        "9.[0-7]",
+        "10.[0-1]"
     ],
     "arches": [
       "x86_64",
       "aarch64"
     ]
   },
-  "include": "redhat",
+  "include": "rhel",
   "method": "merge",
   "defs": {
     "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd.iso"
