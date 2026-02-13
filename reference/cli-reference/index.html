@@ -1,0 +1,2173 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/reference/cli-reference/">
+      
+      
+        <link rel="prev" href="../../architecture/file-generation/">
+      
+      
+        <link rel="next" href="../platform-reference/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>CLI Reference - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cli-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CLI Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mkosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mkosimage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mkosimage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positional-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positional Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output and Debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistent-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistent Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rfosimage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rfosimage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-differs-from-mkosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Differs from mkosimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments-and-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments and Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mkvenv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mkvenv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mkvenv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#listing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building Images
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-and-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging and Inspection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overriding-defs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overriding Defs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packer-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packer Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-provisioning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistent-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistent Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit Codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration File
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mkosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mkosimage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mkosimage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#positional-arguments" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Positional Arguments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#general" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        General
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#output-and-debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Output and Debugging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#customization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistent-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistent Settings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rfosimage
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rfosimage">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-differs-from-mkosimage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Differs from mkosimage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#when-to-use" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        When to Use
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#arguments-and-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arguments and Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mkvenv" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mkvenv
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="mkvenv">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#synopsis_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synopsis
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#purpose" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Purpose
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#options_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#listing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Listing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building Images
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debugging-and-inspection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging and Inspection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#overriding-defs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overriding Defs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packer-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packer Logging
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-provisioning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-provisioning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#persistent-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Persistent Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#exit-codes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Exit Codes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration File
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cli-reference">CLI Reference<a class="headerlink" href="#cli-reference" title="Permanent link">&para;</a></h1>
+<p>OSImager provides three command-line tools installed as console scripts via pip.</p>
+<hr />
+<h2 id="mkosimage">mkosimage<a class="headerlink" href="#mkosimage" title="Permanent link">&para;</a></h2>
+<p>The primary build command. Assembles a Packer build configuration from platform, location, and spec files, then executes it.</p>
+<h3 id="synopsis">Synopsis<a class="headerlink" href="#synopsis" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
+</code></pre></div>
+<h3 id="positional-arguments">Positional Arguments<a class="headerlink" href="#positional-arguments" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th>Required</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>PLATFORM/LOCATION/SPEC</code></td>
+<td>Yes (for builds)</td>
+<td>Target triple specifying the platform, location, and spec to build. Example: <code>vmware/lab/rhel-9.5-x86_64</code></td>
+</tr>
+<tr>
+<td><code>NAME</code></td>
+<td>No</td>
+<td>Hostname for the built VM. Defaults to the spec name if omitted.</td>
+</tr>
+<tr>
+<td><code>IP</code></td>
+<td>No</td>
+<td>Static IP address for the built VM. If omitted, OSImager attempts DNS resolution of the hostname.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
+<h4 id="general">General<a class="headerlink" href="#general" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Long Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-V</code></td>
+<td><code>--version</code></td>
+<td>Print the OSImager version and exit.</td>
+</tr>
+<tr>
+<td><code>-l</code></td>
+<td><code>--list</code></td>
+<td>List all available specs. Specs with a local ISO in your <code>iso_path</code> are marked with <code>*</code>.</td>
+</tr>
+<tr>
+<td><code>-a</code></td>
+<td><code>--avail</code></td>
+<td>List only specs that have a matching local ISO present.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--list-platforms</code></td>
+<td>List all available platforms with their Packer builder type and supported architectures.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--list-defs</code></td>
+<td>List all available defs (template variables) with their default values and sources. Shows base defaults, platform defs, and computed defs.</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td><code>--debug</code></td>
+<td>Enable debug output. Prints internal variable resolution, file loading paths, and Packer debug flag.</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td><code>--verbose</code></td>
+<td>Enable verbose output. Prints loaded settings, file paths, and environment variables as they are set.</td>
+</tr>
+<tr>
+<td><code>-c</code></td>
+<td><code>--config</code></td>
+<td>Path to the osimager.conf configuration file. Default: <code>osimager.conf</code> (resolved in <code>~/.config/osimager/</code>).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="build-control">Build Control<a class="headerlink" href="#build-control" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Long Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-n</code></td>
+<td><code>--dry</code></td>
+<td>Dry run. Builds the full Packer JSON configuration but does not execute <code>packer build</code>. Prints the command that would be run.</td>
+</tr>
+<tr>
+<td><code>-f</code></td>
+<td></td>
+<td>Force rebuild. Passes <code>-force</code> to Packer, which causes it to delete and re-create any existing output artifacts.</td>
+</tr>
+<tr>
+<td><code>-k</code></td>
+<td></td>
+<td>Keep temp files and VMs on error. Sets Packer's <code>-on-error=abort</code> so the VM is not destroyed if the build fails, allowing inspection.</td>
+</tr>
+<tr>
+<td><code>-e</code></td>
+<td><code>--on_error</code></td>
+<td>Set Packer's on-error behavior explicitly. Valid values: <code>cleanup</code> (default Packer behavior), <code>abort</code>, <code>ask</code>. Overrides <code>-k</code>.</td>
+</tr>
+<tr>
+<td><code>-t</code></td>
+<td></td>
+<td>Enable Packer's timestamp UI (<code>-timestamp-ui</code>), which prefixes each output line with a timestamp.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--local-only</code></td>
+<td>Restrict builds to local ISOs only. Specs without a matching local ISO will fail instead of attempting a download. This setting is persisted to <code>osimager.conf</code>.</td>
+</tr>
+<tr>
+<td><code>-m</code></td>
+<td><code>--temp</code></td>
+<td>Specify a custom temp directory for build artifacts. By default, OSImager creates a temporary directory in <code>/tmp</code> and cleans it up after the build (unless <code>-k</code> is set).</td>
+</tr>
+</tbody>
+</table>
+<h4 id="output-and-debugging">Output and Debugging<a class="headerlink" href="#output-and-debugging" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Long Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-x</code></td>
+<td><code>--defs</code></td>
+<td>Dump the fully resolved defs dictionary and exit. Shows all merged variables from platform, location, and spec configs after template substitution.</td>
+</tr>
+<tr>
+<td><code>-u</code></td>
+<td><code>--dump</code></td>
+<td>Dump the complete Packer build JSON and exit. Useful for inspecting the exact configuration that would be sent to Packer.</td>
+</tr>
+<tr>
+<td><code>-L</code></td>
+<td></td>
+<td>Enable Packer logging. Sets the <code>PACKER_LOG=1</code> environment variable.</td>
+</tr>
+<tr>
+<td><code>-N</code></td>
+<td><code>--logfile</code></td>
+<td>Path for Packer log output. Sets <code>PACKER_LOG_PATH</code> to this value. Only meaningful when <code>-L</code> is also set.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="customization">Customization<a class="headerlink" href="#customization" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Long Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-F</code></td>
+<td><code>--fqdn</code></td>
+<td>Override the auto-generated FQDN. By default, OSImager constructs the FQDN from the hostname and the location's <code>domain</code> setting.</td>
+</tr>
+<tr>
+<td><code>-D</code></td>
+<td><code>--define</code></td>
+<td>Define custom defs as a comma-separated list of <code>KEY=VALUE</code> pairs. These override any values from platform, location, or spec configs.</td>
+</tr>
+</tbody>
+</table>
+<h4 id="persistent-settings">Persistent Settings<a class="headerlink" href="#persistent-settings" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--set KEY=VALUE</code></td>
+<td>Set a persistent configuration value in <code>~/.config/osimager/osimager.conf</code>. Can be specified multiple times. Only saves if the value actually changes.</td>
+</tr>
+</tbody>
+</table>
+<p>The following keys are accepted by <code>--set</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>credential_source</code></td>
+<td><code>vault</code></td>
+<td>Credential backend: <code>vault</code> (HashiCorp Vault) or <code>config</code> (local secrets file).</td>
+</tr>
+<tr>
+<td><code>vault_addr</code></td>
+<td><em>(empty)</em></td>
+<td>HashiCorp Vault server URL (e.g. <code>http://vault.example.com:8200</code>).</td>
+</tr>
+<tr>
+<td><code>vault_token</code></td>
+<td><em>(empty)</em></td>
+<td>HashiCorp Vault access token.</td>
+</tr>
+<tr>
+<td><code>packer_cmd</code></td>
+<td><code>packer</code></td>
+<td>Path to the Packer binary.</td>
+</tr>
+<tr>
+<td><code>packer_cache_dir</code></td>
+<td><code>/tmp</code></td>
+<td>Directory for Packer's ISO download cache.</td>
+</tr>
+<tr>
+<td><code>local_only</code></td>
+<td><code>False</code></td>
+<td>When <code>True</code>, only use local ISOs; never attempt downloads.</td>
+</tr>
+<tr>
+<td><code>data_dir</code></td>
+<td><code>data</code></td>
+<td>Path to the OSImager data directory (relative to package or absolute).</td>
+</tr>
+<tr>
+<td><code>save_index</code></td>
+<td><code>False</code></td>
+<td>When <code>True</code>, cache the spec index to <code>~/.config/osimager/specs/index.json</code>.</td>
+</tr>
+<tr>
+<td><code>ansible_playbook</code></td>
+<td><code>config.yml</code></td>
+<td>Name of the Ansible playbook used during provisioning.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="rfosimage">rfosimage<a class="headerlink" href="#rfosimage" title="Permanent link">&para;</a></h2>
+<p>Re-provisions an existing VM using Ansible without rebuilding from an ISO. Replaces the Packer builder with a <code>null</code> builder, keeping only the communicator configuration and provisioners.</p>
+<h3 id="synopsis_1">Synopsis<a class="headerlink" href="#synopsis_1" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>rfosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
+</code></pre></div>
+<h3 id="how-it-differs-from-mkosimage">How It Differs from mkosimage<a class="headerlink" href="#how-it-differs-from-mkosimage" title="Permanent link">&para;</a></h3>
+<p><code>rfosimage</code> runs the same configuration merge pipeline as <code>mkosimage</code> (platform + location + spec), but before executing Packer it:</p>
+<ol>
+<li>Removes any <code>files</code> section from the spec (no file generation needed).</li>
+<li>Extracts the communicator type and settings (e.g. SSH host, user, password) from the original builder.</li>
+<li>Replaces the builder with a Packer <code>null</code> builder that only connects to the target via the communicator.</li>
+<li>Runs the provisioners (typically Ansible) against the existing VM.</li>
+</ol>
+<p>This means the VM must already exist and be reachable at the specified hostname/IP.</p>
+<h3 id="when-to-use">When to Use<a class="headerlink" href="#when-to-use" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Re-running Ansible provisioning after changing a spec's Ansible playbook or roles.</li>
+<li>Applying configuration updates to an already-built VM.</li>
+<li>Testing Ansible provisioner changes without waiting for a full OS install.</li>
+</ul>
+<h3 id="arguments-and-options">Arguments and Options<a class="headerlink" href="#arguments-and-options" title="Permanent link">&para;</a></h3>
+<p><code>rfosimage</code> accepts the same positional arguments and options as <code>mkosimage</code>. The <code>NAME</code> and <code>IP</code> arguments are typically required since the target VM must be reachable.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The target VM must be running and accessible via the communicator (SSH or WinRM) defined in the platform config. If the VM was built with <code>mkosimage</code>, the same credentials configured in your secrets will be used.</p>
+</div>
+<hr />
+<h2 id="mkvenv">mkvenv<a class="headerlink" href="#mkvenv" title="Permanent link">&para;</a></h2>
+<p>Creates a Python virtual environment for Ansible version pinning. Some older OS distributions require specific Ansible versions that differ from what is installed system-wide.</p>
+<h3 id="synopsis_2">Synopsis<a class="headerlink" href="#synopsis_2" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkvenv [OPTIONS]
+</code></pre></div>
+<h3 id="purpose">Purpose<a class="headerlink" href="#purpose" title="Permanent link">&para;</a></h3>
+<p>Certain specs include a <code>venv</code> key that references a named virtual environment. When <code>mkosimage</code> encounters a spec with a <code>venv</code> value, it activates that virtual environment before running Packer, ensuring the correct Ansible version is on the <code>PATH</code>.</p>
+<p><code>mkvenv</code> creates and configures these virtual environments in the venv directory (<code>~/.venv/</code> by default).</p>
+<h3 id="options_1">Options<a class="headerlink" href="#options_1" title="Permanent link">&para;</a></h3>
+<p><code>mkvenv</code> accepts the base options shared with all OSImager commands:</p>
+<table>
+<thead>
+<tr>
+<th>Flag</th>
+<th>Long Form</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-V</code></td>
+<td><code>--version</code></td>
+<td>Print the OSImager version and exit.</td>
+</tr>
+<tr>
+<td><code>-l</code></td>
+<td><code>--list</code></td>
+<td>List available specs.</td>
+</tr>
+<tr>
+<td><code>-a</code></td>
+<td><code>--avail</code></td>
+<td>List only specs with local ISOs.</td>
+</tr>
+<tr>
+<td><code>-d</code></td>
+<td><code>--debug</code></td>
+<td>Enable debug output.</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td><code>--verbose</code></td>
+<td>Enable verbose output.</td>
+</tr>
+<tr>
+<td><code>-c</code></td>
+<td><code>--config</code></td>
+<td>Path to osimager.conf.</td>
+</tr>
+<tr>
+<td></td>
+<td><code>--set KEY=VALUE</code></td>
+<td>Set a persistent configuration value.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<h3 id="listing">Listing<a class="headerlink" href="#listing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="c1"># List all available specs (* marks those with local ISOs)</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>mkosimage<span class="w"> </span>--list
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="c1"># List only specs with local ISOs</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>mkosimage<span class="w"> </span>--avail
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="c1"># List all available platforms with builder type and architectures</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>mkosimage<span class="w"> </span>--list-platforms
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="c1"># List all available defs with defaults and sources</span>
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>mkosimage<span class="w"> </span>--list-defs
+</code></pre></div>
+<h3 id="building-images">Building Images<a class="headerlink" href="#building-images" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1"># Build with VirtualBox (hostname defaults to spec name, IP via DNS)</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>mkosimage<span class="w"> </span>virtualbox/local/alma-9.5-x86_64
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1"># Build with explicit hostname and IP</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>mkosimage<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="c1"># Build with a custom FQDN</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>mkosimage<span class="w"> </span>-F<span class="w"> </span>myhost.custom.domain<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="c1"># Force rebuild, deleting any existing artifacts</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>mkosimage<span class="w"> </span>-f<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost
+</code></pre></div>
+<h3 id="debugging-and-inspection">Debugging and Inspection<a class="headerlink" href="#debugging-and-inspection" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># Dry run -- show the Packer command without executing it</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>mkosimage<span class="w"> </span>-n<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># Dump the resolved defs dictionary</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>mkosimage<span class="w"> </span>-x<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="c1"># Dump the Packer build JSON</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>mkosimage<span class="w"> </span>-u<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="c1"># Enable verbose and debug output together</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>mkosimage<span class="w"> </span>-v<span class="w"> </span>-d<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+</code></pre></div>
+<h3 id="overriding-defs">Overriding Defs<a class="headerlink" href="#overriding-defs" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="c1"># Override memory and CPU settings</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>mkosimage<span class="w"> </span>-D<span class="w"> </span><span class="nv">memory</span><span class="o">=</span><span class="m">4096</span>,cpu_cores<span class="o">=</span><span class="m">4</span><span class="w"> </span>vmware/lab/rhel-9.5-x86_64
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="c1"># Override multiple values for a custom build</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>mkosimage<span class="w"> </span>-D<span class="w"> </span><span class="nv">memory</span><span class="o">=</span><span class="m">8192</span>,cpu_cores<span class="o">=</span><span class="m">8</span>,disk_size<span class="o">=</span><span class="m">51200</span><span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>bighost
+</code></pre></div>
+<h3 id="packer-logging">Packer Logging<a class="headerlink" href="#packer-logging" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="c1"># Enable Packer logging to a file</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>mkosimage<span class="w"> </span>-L<span class="w"> </span>-N<span class="w"> </span>/tmp/packer.log<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="c1"># Keep VM on error for inspection</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>mkosimage<span class="w"> </span>-k<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="c1"># Explicit on-error behavior</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>mkosimage<span class="w"> </span>-e<span class="w"> </span>ask<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+</code></pre></div>
+<h3 id="re-provisioning">Re-provisioning<a class="headerlink" href="#re-provisioning" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># Re-run Ansible provisioning on an existing VM</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>rfosimage<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="c1"># Dry run re-provisioning to see what would execute</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>rfosimage<span class="w"> </span>-n<span class="w"> </span>vmware/lab/rhel-9.5-x86_64<span class="w"> </span>myhost<span class="w"> </span><span class="m">192</span>.168.1.100
+</code></pre></div>
+<h3 id="persistent-configuration">Persistent Configuration<a class="headerlink" href="#persistent-configuration" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="c1"># Switch to local secrets file mode</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">credential_source</span><span class="o">=</span>config
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="c1"># Configure Vault</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">vault_addr</span><span class="o">=</span>http://vault.example.com:8200
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">vault_token</span><span class="o">=</span>hvs.your-token-here
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="c1"># Use a custom Packer binary</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">packer_cmd</span><span class="o">=</span>/usr/local/bin/packer
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="c1"># Restrict to local ISOs only</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">local_only</span><span class="o">=</span>True
+</code></pre></div>
+<hr />
+<h2 id="exit-codes">Exit Codes<a class="headerlink" href="#exit-codes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Constant</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td><code>EXIT_SUCCESS</code></td>
+<td>Command completed successfully.</td>
+</tr>
+<tr>
+<td>1</td>
+<td><code>EXIT_GENERAL_ERROR</code></td>
+<td>General error (build failure, missing spec, invalid arguments).</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>EXIT_MISUSE</code></td>
+<td>Command misuse (invalid argument combinations).</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>EXIT_CONFIG_ERROR</code></td>
+<td>Configuration error (missing or invalid config files).</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>EXIT_NETWORK_ERROR</code></td>
+<td>Network error (DNS resolution failure, unreachable host).</td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>EXIT_PERMISSION_ERROR</code></td>
+<td>Permission error (insufficient access to files or directories).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="configuration-file">Configuration File<a class="headerlink" href="#configuration-file" title="Permanent link">&para;</a></h2>
+<p>All three commands read settings from <code>~/.config/osimager/osimager.conf</code>, an INI-format file with an <code>[osimager]</code> section:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">[osimager]</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="na">credential_source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">config</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="na">packer_cmd</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">packer</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="na">packer_cache_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">/tmp</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="na">local_only</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="na">data_dir</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">data</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="na">save_index</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">False</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="na">ansible_playbook</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">config.yml</span>
+</code></pre></div>
+<p>Settings are loaded in this order (later overrides earlier):</p>
+<ol>
+<li>Built-in defaults in the OSImager source.</li>
+<li>Values from <code>~/.config/osimager/osimager.conf</code>.</li>
+<li>Command-line <code>--set</code> overrides (which also persist back to the conf file).</li>
+<li>Command-line flags (e.g. <code>--local-only</code>, <code>-d</code>, <code>-v</code>).</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

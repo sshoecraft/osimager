@@ -1,0 +1,2903 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/architecture/build-pipeline/">
+      
+      
+        <link rel="prev" href="../overview/">
+      
+      
+        <link rel="next" href="../configuration-merging/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Build Pipeline - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#osimager-build-pipeline" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Build Pipeline
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-cli-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: CLI Parsing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-parse-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Parse Target
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-load-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Load Platform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Load Platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#include-chain-for-vmware-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include Chain for VMware Platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-load-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Load Location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-load-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Load Spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Load Spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#include-chain-for-rhel-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include Chain for RHEL Spec
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-build-defs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Build Defs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 6: Build Defs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-name-decomposition-lines-1062-1076" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec Name Decomposition (lines 1062-1076)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bootshutdown-conditional-removal-lines-1078-1082" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boot/Shutdown Conditional Removal (lines 1078-1082)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temp-directory-lines-1084-1089" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temp Directory (lines 1084-1089)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-defs-update-lines-1094-1106" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Defs Update (lines 1094-1106)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-normalization-lines-1108-1112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Normalization (lines 1108-1112)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packer-variables-lines-1114-1119" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packer Variables (lines 1114-1119)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns-expansion-lines-1121-1124" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS Expansion (lines 1121-1124)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ntp-expansion-lines-1126-1128" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NTP Expansion (lines 1126-1128)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-name-and-fqdn-lines-1130-1142" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Name and FQDN (lines 1130-1142)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cidr-splitting-lines-1144-1159" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CIDR Splitting (lines 1144-1159)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ip-resolution-lines-1161-1165" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IP Resolution (lines 1161-1165)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-define-overrides-lines-1167-1178" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User --define Overrides (lines 1167-1178)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-resolve-isos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Resolve ISOs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-8-load-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Load Credentials
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 8: Load Credentials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-mode-credential_source-vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vault Mode (credential_source = "vault")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-mode-credential_source-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Mode (credential_source = "config")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-error-handling-lines-1203-1215" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Error Handling (lines 1203-1215)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-9-template-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 9: Template Substitution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 9: Template Substitution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#substitution-pass-order-line-1222-1237" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Substitution Pass Order (line 1222-1237)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-marker-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template Marker Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#processing-flow-do_substr-utilspy-lines-796-846" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Flow (do_substr(), utils.py lines 796-846)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-10-generate-installer-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 10: Generate Installer Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-11-check-required-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 11: Check Required Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-12-assemble-packer-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 12: Assemble Packer JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 12: Assemble Packer JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provisioners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioners
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-reference-resolution-lines-1254-1256" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vault Reference Resolution (lines 1254-1256)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dump-and-exit-points-lines-1258-1264" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dump and Exit Points (lines 1258-1264)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-13-execute-packer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 13: Execute Packer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 13: Execute Packer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directory-change-lines-1338-1344" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Change (lines 1338-1344)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-generation-and-validation-lines-1347-1350" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Generation and Validation (lines 1347-1350)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-packer-json-lines-1352-1356" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Packer JSON (lines 1352-1356)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-environment-variables-lines-1358-1372" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Set Environment Variables (lines 1358-1372)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-command-assembly-lines-1374-1404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Command Assembly (lines 1374-1404)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-lines-1406-1412" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution (lines 1406-1412)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-lines-1414-1415" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup (lines 1414-1415)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfosimage-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rfosimage Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rfosimage Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shared-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builder-replacement-lines-153-173" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builder Replacement (lines 153-173)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow Diagram
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-source-file-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Source File Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#pipeline-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pipeline Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-1-cli-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 1: CLI Parsing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-2-parse-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 2: Parse Target
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-3-load-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 3: Load Platform
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 3: Load Platform">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#include-chain-for-vmware-platform" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include Chain for VMware Platform
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-4-load-location" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 4: Load Location
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-5-load-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 5: Load Spec
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 5: Load Spec">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#include-chain-for-rhel-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Include Chain for RHEL Spec
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-6-build-defs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 6: Build Defs
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 6: Build Defs">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-name-decomposition-lines-1062-1076" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec Name Decomposition (lines 1062-1076)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bootshutdown-conditional-removal-lines-1078-1082" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Boot/Shutdown Conditional Removal (lines 1078-1082)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#temp-directory-lines-1084-1089" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Temp Directory (lines 1084-1089)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#core-defs-update-lines-1094-1106" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Core Defs Update (lines 1094-1106)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#path-normalization-lines-1108-1112" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Path Normalization (lines 1108-1112)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#packer-variables-lines-1114-1119" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Packer Variables (lines 1114-1119)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dns-expansion-lines-1121-1124" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS Expansion (lines 1121-1124)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ntp-expansion-lines-1126-1128" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        NTP Expansion (lines 1126-1128)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#instance-name-and-fqdn-lines-1130-1142" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instance Name and FQDN (lines 1130-1142)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cidr-splitting-lines-1144-1159" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CIDR Splitting (lines 1144-1159)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ip-resolution-lines-1161-1165" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        IP Resolution (lines 1161-1165)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#user-define-overrides-lines-1167-1178" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        User --define Overrides (lines 1167-1178)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-7-resolve-isos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 7: Resolve ISOs
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-8-load-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 8: Load Credentials
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 8: Load Credentials">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vault-mode-credential_source-vault" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vault Mode (credential_source = "vault")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#config-mode-credential_source-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Config Mode (credential_source = "config")
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#credential-error-handling-lines-1203-1215" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credential Error Handling (lines 1203-1215)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-9-template-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 9: Template Substitution
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 9: Template Substitution">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#substitution-pass-order-line-1222-1237" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Substitution Pass Order (line 1222-1237)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#template-marker-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template Marker Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#processing-flow-do_substr-utilspy-lines-796-846" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Flow (do_substr(), utils.py lines 796-846)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-10-generate-installer-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 10: Generate Installer Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-11-check-required-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 11: Check Required Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-12-assemble-packer-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 12: Assemble Packer JSON
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 12: Assemble Packer JSON">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provisioners" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provisioners
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vault-reference-resolution-lines-1254-1256" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vault Reference Resolution (lines 1254-1256)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dump-and-exit-points-lines-1258-1264" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dump and Exit Points (lines 1258-1264)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#step-13-execute-packer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step 13: Execute Packer
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Step 13: Execute Packer">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directory-change-lines-1338-1344" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directory Change (lines 1338-1344)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#file-generation-and-validation-lines-1347-1350" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Generation and Validation (lines 1347-1350)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#write-packer-json-lines-1352-1356" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Write Packer JSON (lines 1352-1356)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#set-environment-variables-lines-1358-1372" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Set Environment Variables (lines 1358-1372)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#build-command-assembly-lines-1374-1404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build Command Assembly (lines 1374-1404)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution-lines-1406-1412" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution (lines 1406-1412)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup-lines-1414-1415" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cleanup (lines 1414-1415)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rfosimage-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        rfosimage Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="rfosimage Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#shared-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Shared Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#builder-replacement-lines-153-173" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Builder Replacement (lines 153-173)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#execution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-flow-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data Flow Diagram
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-source-file-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Source File Reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="osimager-build-pipeline">OSImager Build Pipeline<a class="headerlink" href="#osimager-build-pipeline" title="Permanent link">&para;</a></h1>
+<p>Technical reference for the complete build pipeline executed when a user runs a command such as:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+</code></pre></div>
+<p>All line numbers reference the source as of v1.3.0.</p>
+<hr />
+<h2 id="pipeline-overview">Pipeline Overview<a class="headerlink" href="#pipeline-overview" title="Permanent link">&para;</a></h2>
+<p>The build pipeline proceeds through these phases in order:</p>
+<ol>
+<li>CLI parsing and OSImager initialization</li>
+<li>Target parsing and index lookup</li>
+<li>Platform loading</li>
+<li>Location loading</li>
+<li>Spec loading (recursive include chain)</li>
+<li>Defs computation (networking, DNS, NTP, CIDR, FQDN, user overrides)</li>
+<li>ISO resolution</li>
+<li>Credential loading</li>
+<li>Template substitution (<code>do_sub()</code> pass)</li>
+<li>Installer file generation (<code>gen_files()</code>)</li>
+<li>Required file check</li>
+<li>Packer JSON assembly</li>
+<li>Packer execution</li>
+</ol>
+<hr />
+<h2 id="step-1-cli-parsing">Step 1: CLI Parsing<a class="headerlink" href="#step-1-cli-parsing" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/cli.py</code> lines 15-123
+<strong>Entry point:</strong> <code>main_mkosimage()</code></p>
+<p>The console script entry point creates an <code>OSImager</code> instance with <code>which="full"</code>, which triggers full argument parsing including positional arguments (<code>target</code>, <code>name</code>, <code>ip</code>) and all build flags (<code>--force</code>, <code>--keep</code>, <code>--dry</code>, <code>--on_error</code>, <code>--define</code>, <code>--dump-defs</code>, <code>--dump-config</code>, <code>--temp</code>, <code>--local-only</code>).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">osimager</span> <span class="o">=</span> <span class="n">OSImager</span><span class="p">(</span><span class="n">argv</span><span class="o">=</span><span class="n">argv</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;full&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 20-200
+<strong>Method:</strong> <code>OSImager.__init__()</code> -&gt; <code>init_vars()</code> -&gt; <code>init_settings()</code></p>
+<p><code>init_vars()</code> (line 29) zeroes all instance state: <code>vault</code>, <code>secrets</code>, <code>platform</code>, <code>location</code>, <code>spec</code>, <code>defs</code>, <code>evars</code>, <code>variables</code>, <code>pre_provisioners</code>, <code>provisioners</code>, <code>post_provisioners</code>, <code>config</code>, <code>files</code>, <code>fqdn</code>.</p>
+<p><code>init_settings()</code> (line 45) performs:
+- Default settings initialization (line 48-61): <code>base_dir</code>, <code>user_dir</code>, <code>data_dir</code>, <code>packer_cmd</code>, <code>venv_dir</code>, <code>ansible_playbook</code>, <code>packer_cache_dir</code>, <code>local_only</code>, <code>save_index</code>, <code>credential_source</code>, <code>vault_addr</code>, <code>vault_token</code>
+- argparse setup with base args and full args (lines 64-106)
+- Positional argument extraction: <code>target</code>, <code>name</code>, <code>ip</code> (lines 120-127)
+- Config file loading via <code>load_settings()</code> from <code>~/.config/osimager/osimager.conf</code> (line 156)
+- <code>--set</code> overrides applied and persisted if changed (lines 160-189)
+- <code>base_path</code> set from <code>base_dir</code> setting (line 192)
+- User config directory <code>~/.config/osimager/locations/</code> created (line 194)
+- All settings seeded into <code>self.defs</code> (line 196)</p>
+<p>If <code>--list</code> is set, <code>main_mkosimage()</code> calls <code>get_index()</code> and prints available specs (cli.py lines 23-37), then returns.</p>
+<p>If no target is provided, usage information and available platforms/locations are printed (cli.py lines 39-102).</p>
+<p>Otherwise, the pipeline continues:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">build_config</span> <span class="o">=</span> <span class="n">osimager</span><span class="o">.</span><span class="n">make_build</span><span class="p">(</span><span class="n">osimager</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">osimager</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="n">osimager</span><span class="o">.</span><span class="n">ip</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="step-2-parse-target">Step 2: Parse Target<a class="headerlink" href="#step-2-parse-target" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 964-991
+<strong>Method:</strong> <code>make_build(target, name, ip)</code></p>
+<p>The target string <code>vmware/lab/rhel-9.5-x86_64</code> is split on <code>/</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">tuple</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">)</span>  <span class="c1"># [&#39;vmware&#39;, &#39;lab&#39;, &#39;rhel-9.5-x86_64&#39;]</span>
+</code></pre></div>
+<p>If fewer than 3 parts, raises <code>ValueError</code>.</p>
+<p>Extracts and stores:
+- <code>platform_name</code> = <code>"vmware"</code> -&gt; <code>self.defs['platform']</code>
+- <code>location_name</code> = <code>"lab"</code> -&gt; <code>self.defs['location']</code>
+- <code>spec_name</code> = <code>"rhel-9.5-x86_64"</code></p>
+<p><strong>Index lookup</strong> (lines 980-991): Calls <code>self.get_index(spec_name)</code> which either reads the cached index from <code>~/.config/osimager/specs/index.json</code> or builds it via <code>make_index()</code> (line 814-872). The index maps spec keys like <code>rhel-9.5-x86_64</code> to their spec file path and provides metadata.</p>
+<p>From the index entry, extracts and stores in <code>self.defs</code>:
+- <code>dist</code> = <code>"rhel"</code>
+- <code>version</code> = <code>"9.5"</code>
+- <code>arch</code> = <code>"x86_64"</code></p>
+<p>Sets <code>instance_name</code> = <code>name</code> if provided, else <code>spec_name</code> (line 993). For our example: <code>"myhost"</code>.</p>
+<p>Initializes default Ansible environment variables (lines 999-1005):
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">evars</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="s2">&quot;ANSIBLE_RETRY_FILES_ENABLED&quot;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>    <span class="s2">&quot;ANSIBLE_WARNINGS&quot;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>    <span class="s2">&quot;ANSIBLE_NOCOWS&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="s2">&quot;ANSIBLE_DISPLAY_SKIPPED_HOSTS&quot;</span><span class="p">:</span> <span class="s2">&quot;False&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="s2">&quot;ANSIBLE_STDOUT_CALLBACK&quot;</span><span class="p">:</span> <span class="s2">&quot;minimal&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="p">}</span>
+</code></pre></div></p>
+<p>Creates the default Ansible provisioner (lines 1010-1020) with template markers for <code>ansible_playbook</code>, <code>ansible_extra_args</code>, and <code>ansible_extra_vars</code>.</p>
+<hr />
+<h2 id="step-3-load-platform">Step 3: Load Platform<a class="headerlink" href="#step-3-load-platform" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> line 1026
+<strong>Method:</strong> <code>load_data_file("platforms", "vmware")</code></p>
+<p>Resolves to <code>&lt;data_dir&gt;/platforms/vmware.json</code>.</p>
+<p>The VMware platform file includes <code>"all"</code>, triggering the recursive include mechanism:</p>
+<h3 id="include-chain-for-vmware-platform">Include Chain for VMware Platform<a class="headerlink" href="#include-chain-for-vmware-platform" title="Permanent link">&para;</a></h3>
+<p><code>vmware.json</code> -&gt; <code>include: "all"</code> -&gt; <code>all.json</code></p>
+<p><strong><code>all.json</code></strong> provides base hardware defaults:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span><span class="w"> </span><span class="nt">&quot;defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">&quot;cpu_sockets&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;cpu_cores&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2048</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;boot_disk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">16385</span><span class="w"> </span><span class="p">}</span><span class="w"> </span><span class="p">}</span>
+</code></pre></div></p>
+<p><strong><code>vmware.json</code></strong> adds VMware-specific builder config:
+- <code>type</code>: <code>"vmware-iso"</code>
+- <code>vm_name</code>, <code>output_directory</code>, <code>cpus</code>, <code>cores</code>, <code>memory</code>, <code>firmware</code>, <code>iso_url</code>, <code>disk_size</code>, <code>network_adapter_type</code>, etc.
+- All values use template markers (<code>&gt;&gt;name&lt;&lt;</code>, <code>#&gt;cpu_cores&lt;#</code>, <code>E&gt;...&lt;E</code>) for deferred substitution.</p>
+<p>The <code>load_data_file()</code> method (line 444) calls <code>load_file()</code> (line 421), which calls <code>read_data()</code> to parse JSON/TOML, then processes <code>include</code> keys recursively via <code>load_inc()</code> (line 404). Each level calls <code>load_data()</code> (line 315) which merges <code>files</code>, <code>evars</code>, <code>defs</code>, <code>variables</code>, <code>pre_provisioners</code>, <code>provisioners</code>, <code>post_provisioners</code>, and <code>config</code> into the OSImager instance. After merging, <code>load_specific()</code> (line 294) processes any <code>platform_specific</code>, <code>location_specific</code>, <code>dist_specific</code>, <code>version_specific</code>, <code>arch_specific</code>, and <code>firmware_specific</code> sections using <code>re.fullmatch()</code> against the current defs.</p>
+<p>After loading, <code>platform_type</code> is extracted from <code>self.config['type']</code> (line 1030), yielding <code>"vmware-iso"</code> for the VMware platform.</p>
+<hr />
+<h2 id="step-4-load-location">Step 4: Load Location<a class="headerlink" href="#step-4-load-location" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> line 1035
+<strong>Method:</strong> <code>load_data_file("locations", "lab")</code></p>
+<p>Locations are loaded from <code>~/.config/osimager/locations/</code>. The method checks for <code>lab.json</code> first, then <code>lab.toml</code> (line 453-461).</p>
+<p>A typical location file provides:
+- <code>platforms</code>: list of supported platform names
+- <code>defs</code>: network configuration (<code>cidr</code>, <code>gateway</code>, <code>domain</code>, <code>dns</code>, <code>ntp</code>, <code>iso_path</code>, <code>vms_path</code>, etc.)
+- <code>platform_specific</code>: per-platform overrides (e.g., vSphere datacenter/cluster, Proxmox node settings)</p>
+<p>After loading, <code>load_specific()</code> processes <code>platform_specific</code> entries, matching <code>vmware</code> against the current <code>platform</code> def. This is where platform-location intersection config (e.g., VMware datastore paths specific to a lab) gets merged.</p>
+<p>Validation at lines 1053-1058 checks:
+- Location supports the requested platform
+- Spec supports the requested platform
+- Spec supports the requested location</p>
+<hr />
+<h2 id="step-5-load-spec">Step 5: Load Spec<a class="headerlink" href="#step-5-load-spec" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1039-1042</p>
+<p>The spec path comes from the index entry (line 1039). For <code>rhel-9.5-x86_64</code>, this resolves to the full filesystem path of <code>specs/rhel/spec.json</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">spec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">load_file</span><span class="p">(</span><span class="s1">&#39;specs&#39;</span><span class="p">,</span> <span class="n">spec_path</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="include-chain-for-rhel-spec">Include Chain for RHEL Spec<a class="headerlink" href="#include-chain-for-rhel-spec" title="Permanent link">&para;</a></h3>
+<p>The recursive include chain for RHEL is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>rhel/spec.json
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  -&gt; include: &quot;linux&quot;
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>     linux/spec.json
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>       -&gt; include: &quot;ssh&quot;
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>          ssh/spec.json  (base — no further includes)
+</code></pre></div>
+<p><strong>Loading order</strong> (deepest first due to recursion in <code>load_file()</code>, line 421):</p>
+<ol>
+<li>
+<p><strong><code>ssh/spec.json</code></strong> -- Sets <code>config.communicator</code> = <code>"ssh"</code>, <code>ssh_host</code>, <code>ssh_port</code>, <code>ssh_username</code>, <code>ssh_password</code>, <code>ssh_timeout</code>. The <code>ssh_host</code> value uses a Python eval expression (<code>E&gt;...&lt;E</code>) that dynamically selects the SSH target based on <code>platform_type</code> and whether an IP was provided.</p>
+</li>
+<li>
+<p><strong><code>linux/spec.json</code></strong> -- Sets <code>defs.boot_disk_size</code> = 16384, <code>variables.ssh-username</code> and <code>variables.ssh-password</code> as Packer vault references (<code>{{vault \</code>images/linux` `username`}}`).</p>
+</li>
+<li>
+<p><strong><code>rhel/spec.json</code></strong> -- The main RHEL spec. Loaded last so its values take precedence. Provides:</p>
+</li>
+<li><code>provides</code> section (dist, versions, arches) -- used only for indexing</li>
+<li><code>platforms</code> list restricting supported platforms</li>
+<li><code>files</code> array defining kickstart generation: concatenation of <code>rhel/kickstart_&gt;&gt;major&lt;&lt;.cfg</code>, <code>rhel/ks-part.sh</code>, <code>rhel/kickstart_end.cfg</code>, <code>rhel/kickstart_post.cfg</code>, <code>rhel/install_vmwtools.sh</code>, <code>rhel/kickstart_end.cfg</code> -&gt; output as <code>ks.cfg</code></li>
+<li><code>defs</code>: <code>cd_files</code>, <code>cd_label</code> = <code>"OEMDRV"</code>, <code>ansible_extra_args</code></li>
+<li><code>config</code>: <code>boot_wait</code>, <code>shutdown_command</code></li>
+<li><code>version_specific</code> array with regex-matched overrides</li>
+</ol>
+<p><strong>Version-specific processing</strong> (via <code>load_specific()</code> at line 378): For version <code>9.5</code>, the <code>"9.*"</code> version_specific entry matches via <code>re.fullmatch("9.*", "9.5")</code>. This sets:
+- <code>defs.cpu_cores</code> = 4, <code>defs.memory</code> = 4096
+- <code>defs.spec_config</code> = <code>"specs/rhel/config_9.yml"</code>
+- <code>defs.ansible_extra_vars</code> with python3 interpreter
+- <code>defs.iso_url</code> with archive.org template
+- Cloud provider image references (Azure, GCP, AWS)
+- <code>config.firmware</code> = <code>"efi"</code>
+- <code>config.boot_command</code> for EFI kickstart boot</p>
+<p><strong>Platform-specific within version-specific</strong>: The <code>9.*</code> entry also has <code>platform_specific</code> entries. The <code>vmware</code> match sets <code>defs.cpu_sockets</code> = 2, <code>config.guest_os_type</code> = <code>"rhel9-64"</code>, and merges <code>vmx_data</code> with <code>scsi0.virtualdev</code> = <code>"pvscsi"</code>.</p>
+<p>After spec loading, venv activation is checked (lines 1047-1051) -- if the spec declares a <code>venv</code>, the PATH environment variable is modified to prioritize the venv bin directory.</p>
+<hr />
+<h2 id="step-6-build-defs">Step 6: Build Defs<a class="headerlink" href="#step-6-build-defs" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1062-1178</p>
+<h3 id="spec-name-decomposition-lines-1062-1076">Spec Name Decomposition (lines 1062-1076)<a class="headerlink" href="#spec-name-decomposition-lines-1062-1076" title="Permanent link">&para;</a></h3>
+<p>The spec name <code>rhel-9.5-x86_64</code> is split on <code>-</code>:
+- <code>dist</code> = <code>"rhel"</code>
+- <code>version</code> = <code>"9.5"</code> -&gt; <code>major</code> = <code>"9"</code>, <code>minor</code> = <code>"5"</code>
+- <code>arch</code> = <code>"x86_64"</code></p>
+<h3 id="bootshutdown-conditional-removal-lines-1078-1082">Boot/Shutdown Conditional Removal (lines 1078-1082)<a class="headerlink" href="#bootshutdown-conditional-removal-lines-1078-1082" title="Permanent link">&para;</a></h3>
+<p>If <code>defs.boot</code> is falsy, <code>boot_command</code> and <code>boot_wait</code> are removed from config.
+If <code>defs.shutcmd</code> is falsy, <code>shutdown_command</code> is removed from config.</p>
+<h3 id="temp-directory-lines-1084-1089">Temp Directory (lines 1084-1089)<a class="headerlink" href="#temp-directory-lines-1084-1089" title="Permanent link">&para;</a></h3>
+<p>If <code>--temp</code> was specified, uses that directory. Otherwise creates a new <code>tempfile.mkdtemp()</code>.</p>
+<h3 id="core-defs-update-lines-1094-1106">Core Defs Update (lines 1094-1106)<a class="headerlink" href="#core-defs-update-lines-1094-1106" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">defs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="s2">&quot;base_path&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;data_path&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;user_dir&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="s2">&quot;temp_dir&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;tmpdir&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;spec_dir&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="s2">&quot;dist&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;major&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;minor&quot;</span><span class="p">:</span> <span class="o">...</span><span class="p">,</span> <span class="s2">&quot;arch&quot;</span><span class="p">:</span> <span class="o">...</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">})</span>
+</code></pre></div>
+<h3 id="path-normalization-lines-1108-1112">Path Normalization (lines 1108-1112)<a class="headerlink" href="#path-normalization-lines-1108-1112" title="Permanent link">&para;</a></h3>
+<p>Strips trailing slashes from <code>iso_path</code> and <code>vms_path</code> defs so templates can append their own separators.</p>
+<h3 id="packer-variables-lines-1114-1119">Packer Variables (lines 1114-1119)<a class="headerlink" href="#packer-variables-lines-1114-1119" title="Permanent link">&para;</a></h3>
+<p>Sets <code>platform-name</code>, <code>location-name</code>, <code>spec-name</code>, <code>spec-config</code> in <code>self.variables</code> (these become Packer <code>{{user \</code>...`}}` variables).</p>
+<h3 id="dns-expansion-lines-1121-1124">DNS Expansion (lines 1121-1124)<a class="headerlink" href="#dns-expansion-lines-1121-1124" title="Permanent link">&para;</a></h3>
+<p>Extracts <code>dns</code> dict from defs. Expands:
+- <code>dns.search</code> list -&gt; <code>dns_search</code> (space-joined string)
+- <code>dns.servers</code> list -&gt; <code>dns1</code>, <code>dns2</code>, <code>dns3</code>, ... (numbered individual entries)</p>
+<h3 id="ntp-expansion-lines-1126-1128">NTP Expansion (lines 1126-1128)<a class="headerlink" href="#ntp-expansion-lines-1126-1128" title="Permanent link">&para;</a></h3>
+<p>Extracts <code>ntp</code> dict. Expands <code>ntp.servers</code> list -&gt; <code>ntp1</code>, <code>ntp2</code>, ...</p>
+<h3 id="instance-name-and-fqdn-lines-1130-1142">Instance Name and FQDN (lines 1130-1142)<a class="headerlink" href="#instance-name-and-fqdn-lines-1130-1142" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>defs.name</code> = instance_name (<code>"myhost"</code>)</li>
+<li>FQDN computation priority:</li>
+<li><code>--fqdn</code> flag if specified</li>
+<li>If <code>name</code> contains a dot, use it as FQDN directly</li>
+<li>Otherwise: <code>instance_name + "." + defs['domain']</code></li>
+<li>Sets both <code>defs.fqdn</code> and <code>variables.fqdn</code></li>
+</ul>
+<h3 id="cidr-splitting-lines-1144-1159">CIDR Splitting (lines 1144-1159)<a class="headerlink" href="#cidr-splitting-lines-1144-1159" title="Permanent link">&para;</a></h3>
+<p>Splits <code>defs.cidr</code> (e.g., <code>"192.168.1.0/24"</code>) into:
+- <code>subnet</code> = <code>"192.168.1.0"</code>
+- <code>prefix</code> = <code>"24"</code>
+- <code>gateway</code> = computed from last usable address if not explicitly set (<code>ipaddress.IPv4Network</code>)
+- <code>gw</code> = alias for <code>gateway</code>
+- <code>netmask</code> = converted from prefix via <code>prefix_to_netmask()</code> (e.g., <code>"255.255.255.0"</code>)</p>
+<h3 id="ip-resolution-lines-1161-1165">IP Resolution (lines 1161-1165)<a class="headerlink" href="#ip-resolution-lines-1161-1165" title="Permanent link">&para;</a></h3>
+<p>If no IP was provided on the command line, attempts DNS resolution via <code>get_ip(fqdn, location_dns_config)</code> using the location's DNS servers and search domains. Falls back to empty string.</p>
+<p>For our example, IP = <code>"192.168.1.100"</code> (provided directly).</p>
+<h3 id="user-define-overrides-lines-1167-1178">User --define Overrides (lines 1167-1178)<a class="headerlink" href="#user-define-overrides-lines-1167-1178" title="Permanent link">&para;</a></h3>
+<p>If <code>--define</code> was used (e.g., <code>-D memory=8192,firmware=bios</code>), splits on commas, then on <code>=</code>, and overwrites <code>self.defs</code> entries. This allows command-line override of any def value.</p>
+<hr />
+<h2 id="step-7-resolve-isos">Step 7: Resolve ISOs<a class="headerlink" href="#step-7-resolve-isos" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1183-1201</p>
+<p>Checks <code>defs.urls</code> (array of <code>{url, checksum}</code> dicts). Runs <code>do_sub()</code> on the URLs first to resolve any template markers.</p>
+<p>Two modes based on <code>local_only</code> setting:</p>
+<ul>
+<li>
+<p><strong>Local mode</strong> (<code>get_iso_file()</code>, line 892-921): Takes the first URL entry, extracts <code>iso_name</code> and <code>iso_path</code> for local filesystem access. Sets <code>defs.iso_file</code>, <code>defs.iso_name</code>, <code>defs.iso_checksum</code> = <code>"none"</code>. Removes <code>iso_urls</code> from config.</p>
+</li>
+<li>
+<p><strong>Remote mode</strong> (<code>check_iso_urls()</code>, line 923-962): Iterates URL entries, performs HTTP HEAD checks (<code>check_url()</code>), downloads checksum files (<code>get_checksum()</code>), and sets <code>defs.iso_url</code>, <code>defs.iso_name</code>, <code>defs.iso_checksum</code>.</p>
+</li>
+</ul>
+<p>If <code>iso_url</code> is defined but <code>iso_name</code> is not, derives <code>iso_name</code> from the URL via <code>get_filename_from_url()</code> (lines 1193-1201).</p>
+<hr />
+<h2 id="step-8-load-credentials">Step 8: Load Credentials<a class="headerlink" href="#step-8-load-credentials" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 547-583, called at line 1204
+<strong>Method:</strong> <code>load_credentials()</code></p>
+<p>Dispatches based on <code>credential_source</code> setting:</p>
+<h3 id="vault-mode-credential_source-vault">Vault Mode (<code>credential_source</code> = <code>"vault"</code>)<a class="headerlink" href="#vault-mode-credential_source-vault" title="Permanent link">&para;</a></h3>
+<p>Lines 556-583. Reads <code>vault_addr</code> and <code>vault_token</code> from settings. Creates <code>hvac.Client</code> (line 571). Verifies authentication via <code>vault.is_authenticated()</code>. If successful, stores <code>vault_addr</code> and <code>vault_token</code> in defs for later use as environment variables.</p>
+<h3 id="config-mode-credential_source-config">Config Mode (<code>credential_source</code> = <code>"config"</code>)<a class="headerlink" href="#config-mode-credential_source-config" title="Permanent link">&para;</a></h3>
+<p>Calls <code>load_secrets()</code> (lines 507-545). Parses <code>~/.config/osimager/secrets</code> file. Format:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>path key1=value1 key2=value2
+</code></pre></div>
+Example:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>images/linux username=root password=T3mp@dm1n!
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>vsphere/lab server=vcenter.local username=admin password=P@ss
+</code></pre></div></p>
+<p>Populates <code>self.secrets</code> dict keyed by path.</p>
+<h3 id="credential-error-handling-lines-1203-1215">Credential Error Handling (lines 1203-1215)<a class="headerlink" href="#credential-error-handling-lines-1203-1215" title="Permanent link">&para;</a></h3>
+<p>If credential loading fails, checks whether the configuration actually references secrets (vault template functions <code>{{vault ...}}</code>, or substitution markers <code>|&gt;</code>, <code>6&gt;</code>, <code>5&gt;</code>). Only aborts if secrets are actually needed.</p>
+<hr />
+<h2 id="step-9-template-substitution">Step 9: Template Substitution<a class="headerlink" href="#step-9-template-substitution" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1222-1237
+<strong>File:</strong> <code>osimager/utils.py</code> lines 301-846</p>
+<p>The <code>do_sub()</code> function is the core template engine. It recursively walks all data structures (dicts, lists, tuples, sets, strings) and delegates string processing to <code>do_substr()</code>.</p>
+<h3 id="substitution-pass-order-line-1222-1237">Substitution Pass Order (line 1222-1237)<a class="headerlink" href="#substitution-pass-order-line-1222-1237" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">defs</span> <span class="o">=</span> <span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defs</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>           <span class="c1"># Resolve defs against themselves</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="bp">self</span><span class="o">.</span><span class="n">evars</span> <span class="o">=</span> <span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">evars</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>         <span class="c1"># Resolve environment variables</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="bp">self</span><span class="o">.</span><span class="n">variables</span> <span class="o">=</span> <span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>  <span class="c1"># Resolve Packer variables</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="c1"># Provisioner assembly:</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a><span class="n">provisioners</span> <span class="o">=</span> <span class="p">[]</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a><span class="n">provisioners</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pre_provisioners</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="n">provisioners</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">provisioners</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a><span class="n">provisioners</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">post_provisioners</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a><span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="bp">self</span><span class="p">)</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">do_sub</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="template-marker-types">Template Marker Types<a class="headerlink" href="#template-marker-types" title="Permanent link">&para;</a></h3>
+<p>Defined in <code>ACTIONS</code> (utils.py lines 698-711):</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Markers</th>
+<th>Purpose</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>%&gt;..&lt;%</code></td>
+<td>Replace complete value (including quotes) with defs variable</td>
+<td><code>%&gt;cd_files&lt;%</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>&gt;&gt;..&lt;&lt;</code></td>
+<td>Replace marker inline with defs variable</td>
+<td><code>&gt;&gt;version&lt;&lt;</code> -&gt; <code>9.5</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>+&gt;..&lt;+</code></td>
+<td>Replace with basename of defs variable</td>
+<td><code>+&gt;iso_path&lt;+</code></td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>*&gt;..&lt;*</code></td>
+<td>Replace with IP address (DNS lookup)</td>
+<td><code>*&gt;hostname&lt;*</code></td>
+</tr>
+<tr>
+<td>5</td>
+<td><code>\|&gt;..&lt;\|</code></td>
+<td>Replace with HashiCorp Vault / secrets value</td>
+<td><code>\|&gt;images/linux:password&lt;\|</code></td>
+</tr>
+<tr>
+<td>6</td>
+<td><code>#&gt;..&lt;#</code></td>
+<td>Numeric eval (arithmetic on def values)</td>
+<td><code>#&gt;cpu_sockets*cpu_cores&lt;#</code></td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>$&gt;..&lt;$</code></td>
+<td>Replace with environment variable</td>
+<td><code>$&gt;HOME&lt;$</code></td>
+</tr>
+<tr>
+<td>8</td>
+<td><code>1&gt;..&lt;1</code></td>
+<td>MD5 password hash of secret</td>
+<td><code>1&gt;images/linux:password&lt;1</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td><code>5&gt;..&lt;5</code></td>
+<td>SHA-256 password hash of secret</td>
+<td><code>5&gt;images/linux:password&lt;5</code></td>
+</tr>
+<tr>
+<td>10</td>
+<td><code>6&gt;..&lt;6</code></td>
+<td>SHA-512 password hash of secret</td>
+<td><code>6&gt;images/linux:password&lt;6</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td><code>E&gt;..&lt;E</code></td>
+<td>Python eval expression</td>
+<td><code>E&gt;'efi' if ... else 'bios'&lt;E</code></td>
+</tr>
+<tr>
+<td>12</td>
+<td><code>[&gt;..&lt;]</code></td>
+<td>Insert list items (expand list into parent)</td>
+<td><code>[&gt;ansible_extra_args&lt;]</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="processing-flow-do_substr-utilspy-lines-796-846">Processing Flow (<code>do_substr()</code>, utils.py lines 796-846)<a class="headerlink" href="#processing-flow-do_substr-utilspy-lines-796-846" title="Permanent link">&para;</a></h3>
+<p>For each string, iterates through all 12 action types. For each action, <code>extract_all()</code> finds all tokens matching the start/end markers. The corresponding <code>ACTION_HANDLER</code> (lines 683-696) is invoked to produce the replacement value. If the entire string is a single marker, the replacement can be a non-string type (dict, list, int); otherwise string substitution is performed.</p>
+<hr />
+<h2 id="step-10-generate-installer-files">Step 10: Generate Installer Files<a class="headerlink" href="#step-10-generate-installer-files" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1300-1334
+<strong>Method:</strong> <code>gen_files()</code></p>
+<p>Called from <code>run_packer()</code> (line 1350). Processes <code>self.files</code> (populated from the spec's <code>files</code> array during loading).</p>
+<p>For RHEL 9.5, the files array specifies kickstart generation:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="p">{</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="w">    </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_9.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="w">        </span><span class="s2">&quot;rhel/ks-part.sh&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_end.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_post.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a><span class="w">        </span><span class="s2">&quot;rhel/install_vmwtools.sh&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_end.cfg&quot;</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="w">    </span><span class="nt">&quot;dest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ks.cfg&quot;</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="p">}</span>
+</code></pre></div></p>
+<p>For each file entry:
+1. Iterates <code>sources</code> array
+2. Each source path is resolved relative to <code>&lt;data_dir&gt;/files/</code>
+3. Source file contents are read and concatenated into a single <code>data</code> string
+4. <code>do_substr(data, self)</code> performs template substitution on the concatenated content
+5. Result is written to <code>&lt;temp_dir&gt;/&lt;dest&gt;</code> (e.g., <code>/tmp/tmpXXXXXX/ks.cfg</code>)</p>
+<p>The generated kickstart file contains the fully resolved network config, partition layout, package lists, and post-install scripts with all <code>&gt;&gt;variable&lt;&lt;</code> markers replaced by actual values.</p>
+<hr />
+<h2 id="step-11-check-required-files">Step 11: Check Required Files<a class="headerlink" href="#step-11-check-required-files" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1268-1298
+<strong>Method:</strong> <code>check_required_files()</code></p>
+<p>Called from <code>run_packer()</code> at line 1347. Reads the <code>required_files</code> array from the spec (if present). Each entry has:
+- <code>file</code>: relative path under <code>&lt;data_dir&gt;/files/</code>
+- <code>description</code>: human-readable description
+- <code>url</code>: download URL
+- <code>location</code>: where to place the file</p>
+<p>Performs <code>do_sub()</code> on each entry, checks <code>os.path.exists()</code>. If any file is missing, prints download instructions and calls <code>sys.exit(1)</code>.</p>
+<p>Most RHEL builds do not have <code>required_files</code>. ESXi specs use this for VIB files that must be manually downloaded.</p>
+<hr />
+<h2 id="step-12-assemble-packer-json">Step 12: Assemble Packer JSON<a class="headerlink" href="#step-12-assemble-packer-json" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1248-1264</p>
+<p>The final Packer build structure is assembled:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="bp">self</span><span class="o">.</span><span class="n">build</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="s2">&quot;variables&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">variables</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="s2">&quot;provisioners&quot;</span><span class="p">:</span> <span class="n">provisioners</span><span class="p">,</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="s2">&quot;builders&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="p">]</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h3>
+<p>Contains Packer user variables referenced by <code>{{user \</code>...`}}<code>in builders/provisioners:
+-</code>platform-name<code>,</code>location-name<code>,</code>spec-name<code>,</code>spec-config<code>-</code>ssh-username<code>,</code>ssh-password<code>(vault references or resolved values)
+-</code>name<code>,</code>fqdn`</p>
+<h3 id="provisioners">Provisioners<a class="headerlink" href="#provisioners" title="Permanent link">&para;</a></h3>
+<p>Ordered list: <code>pre_provisioners</code> + <code>provisioners</code> + <code>post_provisioners</code>. The default provisioner is an Ansible provisioner running the playbook specified by <code>ansible_playbook</code> with extra vars for platform, location, spec, and install directory.</p>
+<h3 id="builders">Builders<a class="headerlink" href="#builders" title="Permanent link">&para;</a></h3>
+<p>Single-element array containing <code>self.config</code> -- the fully resolved builder configuration. For VMware, this is a <code>vmware-iso</code> builder with all VM parameters, ISO paths, boot commands, and VMX data.</p>
+<h3 id="vault-reference-resolution-lines-1254-1256">Vault Reference Resolution (lines 1254-1256)<a class="headerlink" href="#vault-reference-resolution-lines-1254-1256" title="Permanent link">&para;</a></h3>
+<p>If using config-based secrets (<code>self.secrets</code> is populated), <code>resolve_packer_vault_refs()</code> (lines 612-634) walks the entire build structure and replaces Packer <code>{{vault \</code>path` `key`}}` references with actual values from the secrets dict. This allows the same spec files to work with both Vault and local secrets.</p>
+<h3 id="dump-and-exit-points-lines-1258-1264">Dump and Exit Points (lines 1258-1264)<a class="headerlink" href="#dump-and-exit-points-lines-1258-1264" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>--dump-defs</code> (<code>-x</code>): prints <code>self.defs</code> as JSON and exits</li>
+<li><code>--dump-config</code> (<code>-u</code>): prints <code>self.build</code> as JSON and exits</li>
+</ul>
+<p>These are diagnostic tools for inspecting the resolved state without running Packer.</p>
+<hr />
+<h2 id="step-13-execute-packer">Step 13: Execute Packer<a class="headerlink" href="#step-13-execute-packer" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/core.py</code> lines 1336-1416
+<strong>Method:</strong> <code>run_packer()</code></p>
+<p>Called from <code>main_mkosimage()</code> at cli.py line 113.</p>
+<h3 id="directory-change-lines-1338-1344">Directory Change (lines 1338-1344)<a class="headerlink" href="#directory-change-lines-1338-1344" title="Permanent link">&para;</a></h3>
+<p>Changes working directory to <code>data_path</code> so that relative paths in config files (e.g., <code>config.yml</code>, Ansible roles) resolve correctly.</p>
+<h3 id="file-generation-and-validation-lines-1347-1350">File Generation and Validation (lines 1347-1350)<a class="headerlink" href="#file-generation-and-validation-lines-1347-1350" title="Permanent link">&para;</a></h3>
+<p>Calls <code>check_required_files()</code> then <code>gen_files()</code> (described in steps 10-11 above).</p>
+<h3 id="write-packer-json-lines-1352-1356">Write Packer JSON (lines 1352-1356)<a class="headerlink" href="#write-packer-json-lines-1352-1356" title="Permanent link">&para;</a></h3>
+<p>Writes the assembled build structure to <code>&lt;temp_dir&gt;/&lt;instance_name&gt;.json</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">defs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tmpdir&quot;</span><span class="p">,</span> <span class="s2">&quot;/tmp&quot;</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">defs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">build</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</code></pre></div></p>
+<p>For our example: <code>/tmp/tmpXXXXXX/myhost.json</code></p>
+<h3 id="set-environment-variables-lines-1358-1372">Set Environment Variables (lines 1358-1372)<a class="headerlink" href="#set-environment-variables-lines-1358-1372" title="Permanent link">&para;</a></h3>
+<p>All entries in <code>self.evars</code> are exported:
+- Ansible control variables (<code>ANSIBLE_RETRY_FILES_ENABLED</code>, <code>ANSIBLE_WARNINGS</code>, etc.)
+- <code>RES_OPTIONS</code> for DNS resolution during build
+- <code>PATH</code> (if venv is active)</p>
+<p>If Vault is configured:
+- <code>VAULT_TOKEN</code> and <code>VAULT_ADDR</code> are exported (lines 1365-1368)</p>
+<p>If logging is enabled:
+- <code>PACKER_LOG</code> = <code>"1"</code> (line 1370)
+- <code>PACKER_LOG_PATH</code> = logfile path (line 1372)</p>
+<h3 id="build-command-assembly-lines-1374-1404">Build Command Assembly (lines 1374-1404)<a class="headerlink" href="#build-command-assembly-lines-1374-1404" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="n">cmd</span> <span class="o">=</span> <span class="p">[]</span>
+</code></pre></div>
+<p>If a venv is specified in the spec, prepends the activation command:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>. ~/.venv/&lt;venv_name&gt;/bin/activate &amp;&amp;
+</code></pre></div></p>
+<p>Then appends the Packer command:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>packer build [-timestamp-ui] [-on-error=&lt;mode&gt;] [-force] [-debug] &lt;output_file&gt;
+</code></pre></div></p>
+<p>Flag mapping:
+- <code>--timestamp</code> -&gt; <code>-timestamp-ui</code>
+- <code>--on_error &lt;mode&gt;</code> -&gt; <code>-on-error=&lt;mode&gt;</code>
+- <code>--keep</code> -&gt; <code>-on-error=abort</code>
+- <code>--force</code> -&gt; <code>-force</code>
+- <code>--debug</code> -&gt; <code>-debug</code></p>
+<h3 id="execution-lines-1406-1412">Execution (lines 1406-1412)<a class="headerlink" href="#execution-lines-1406-1412" title="Permanent link">&para;</a></h3>
+<p>If not <code>--dry_run</code>, ensures CWD is <code>data_path</code> and calls:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">os</span><span class="o">.</span><span class="n">system</span><span class="p">(</span><span class="n">cmd_str</span><span class="p">)</span>
+</code></pre></div></p>
+<p>Uses <code>os.system()</code> for direct shell execution, allowing Packer's interactive output (progress bars, prompts) to pass through to the terminal.</p>
+<h3 id="cleanup-lines-1414-1415">Cleanup (lines 1414-1415)<a class="headerlink" href="#cleanup-lines-1414-1415" title="Permanent link">&para;</a></h3>
+<p>If <code>--temp</code> was not specified and <code>--keep</code> was not set, removes the temp directory:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">temp_dir</span><span class="p">)</span>
+</code></pre></div></p>
+<hr />
+<h2 id="rfosimage-flow">rfosimage Flow<a class="headerlink" href="#rfosimage-flow" title="Permanent link">&para;</a></h2>
+<p><strong>File:</strong> <code>osimager/cli.py</code> lines 126-185
+<strong>Entry point:</strong> <code>main_rfosimage()</code></p>
+<p>The <code>rfosimage</code> (refit OS image) command shares the entire pipeline through step 12, then modifies the builder before execution.</p>
+<h3 id="shared-pipeline">Shared Pipeline<a class="headerlink" href="#shared-pipeline" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">img</span> <span class="o">=</span> <span class="n">OSImager</span><span class="p">(</span><span class="n">argv</span><span class="p">,</span> <span class="s2">&quot;full&quot;</span><span class="p">,</span> <span class="n">extra_args</span><span class="p">)</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="n">build</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">make_build</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">ip</span><span class="p">)</span>
+</code></pre></div>
+<p>All steps 1-12 execute identically.</p>
+<h3 id="builder-replacement-lines-153-173">Builder Replacement (lines 153-173)<a class="headerlink" href="#builder-replacement-lines-153-173" title="Permanent link">&para;</a></h3>
+<p>After <code>make_build()</code> returns, <code>rfosimage</code> replaces the platform-specific builder with a <code>null</code> builder. This skips VM creation/ISO boot and instead connects directly to an existing machine via its communicator (SSH/WinRM).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n">builders</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="n">comm</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;communicator&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># e.g., &quot;ssh&quot;</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="n">new_config</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">defs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;spec_name&quot;</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">),</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;null&quot;</span>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a><span class="p">}</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a><span class="c1"># Copy only communicator-related keys (ssh_host, ssh_port, ssh_username, etc.)</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a><span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>    <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">comm</span><span class="p">):</span>  <span class="c1"># keys starting with &quot;ssh&quot; for SSH communicator</span>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>        <span class="n">new_config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+</code></pre></div>
+<p>This preserves <code>ssh_host</code>, <code>ssh_port</code>, <code>ssh_username</code>, <code>ssh_password</code>, <code>ssh_timeout</code>, etc., while discarding all builder-specific config (ISO, boot commands, VM hardware, disk settings).</p>
+<p>The spec's <code>files</code> section is also removed (line 153-154) since installer files are not needed for refitting.</p>
+<h3 id="execution">Execution<a class="headerlink" href="#execution" title="Permanent link">&para;</a></h3>
+<p>Calls <code>img.run_packer()</code> which writes the null-builder JSON and executes Packer. Packer connects to the existing host and runs only the provisioners (Ansible playbook, shell scripts).</p>
+<hr />
+<h2 id="data-flow-diagram">Data Flow Diagram<a class="headerlink" href="#data-flow-diagram" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>CLI args
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  |
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  v
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>OSImager.__init__()
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>  |-- init_vars()        -&gt; zero state
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>  |-- init_settings()    -&gt; parse args, load settings, seed defs
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>  |
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>  v
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>make_build(target, name, ip)
+<a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a>  |
+<a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>  |-- split target       -&gt; platform_name, location_name, spec_name
+<a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a>  |-- get_index()        -&gt; dist, version, arch
+<a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a>  |
+<a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>  |-- load_data_file(&quot;platforms&quot;, ...)
+<a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>  |     |-- all.json     -&gt; base defs (cpu, memory, disk)
+<a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>  |     |-- vmware.json  -&gt; builder config (vmware-iso type)
+<a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>  |
+<a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>  |-- load_data_file(&quot;locations&quot;, ...)
+<a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>  |     |-- lab.json     -&gt; network defs (cidr, dns, ntp, domain)
+<a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>  |     |-- platform_specific for vmware
+<a id="__codelineno-22-21" name="__codelineno-22-21" href="#__codelineno-22-21"></a>  |
+<a id="__codelineno-22-22" name="__codelineno-22-22" href="#__codelineno-22-22"></a>  |-- load_file(&quot;specs&quot;, ...)
+<a id="__codelineno-22-23" name="__codelineno-22-23" href="#__codelineno-22-23"></a>  |     |-- ssh/spec.json   -&gt; communicator config
+<a id="__codelineno-22-24" name="__codelineno-22-24" href="#__codelineno-22-24"></a>  |     |-- linux/spec.json -&gt; boot_disk_size, vault variables
+<a id="__codelineno-22-25" name="__codelineno-22-25" href="#__codelineno-22-25"></a>  |     |-- rhel/spec.json  -&gt; files, boot_command, version_specific
+<a id="__codelineno-22-26" name="__codelineno-22-26" href="#__codelineno-22-26"></a>  |           |-- version_specific &quot;9.*&quot; match
+<a id="__codelineno-22-27" name="__codelineno-22-27" href="#__codelineno-22-27"></a>  |           |-- platform_specific &quot;vmware&quot; match
+<a id="__codelineno-22-28" name="__codelineno-22-28" href="#__codelineno-22-28"></a>  |
+<a id="__codelineno-22-29" name="__codelineno-22-29" href="#__codelineno-22-29"></a>  |-- compute defs       -&gt; major, minor, DNS, NTP, CIDR, FQDN, IP
+<a id="__codelineno-22-30" name="__codelineno-22-30" href="#__codelineno-22-30"></a>  |-- user --define      -&gt; override defs
+<a id="__codelineno-22-31" name="__codelineno-22-31" href="#__codelineno-22-31"></a>  |-- resolve ISOs       -&gt; iso_url, iso_name, iso_checksum
+<a id="__codelineno-22-32" name="__codelineno-22-32" href="#__codelineno-22-32"></a>  |-- load_credentials() -&gt; vault client or local secrets
+<a id="__codelineno-22-33" name="__codelineno-22-33" href="#__codelineno-22-33"></a>  |
+<a id="__codelineno-22-34" name="__codelineno-22-34" href="#__codelineno-22-34"></a>  |-- do_sub() pass      -&gt; resolve all template markers
+<a id="__codelineno-22-35" name="__codelineno-22-35" href="#__codelineno-22-35"></a>  |-- assemble build     -&gt; { variables, provisioners, builders }
+<a id="__codelineno-22-36" name="__codelineno-22-36" href="#__codelineno-22-36"></a>  |-- resolve_packer_vault_refs() if config mode
+<a id="__codelineno-22-37" name="__codelineno-22-37" href="#__codelineno-22-37"></a>  |
+<a id="__codelineno-22-38" name="__codelineno-22-38" href="#__codelineno-22-38"></a>  v
+<a id="__codelineno-22-39" name="__codelineno-22-39" href="#__codelineno-22-39"></a>run_packer()
+<a id="__codelineno-22-40" name="__codelineno-22-40" href="#__codelineno-22-40"></a>  |-- chdir(data_path)
+<a id="__codelineno-22-41" name="__codelineno-22-41" href="#__codelineno-22-41"></a>  |-- check_required_files()
+<a id="__codelineno-22-42" name="__codelineno-22-42" href="#__codelineno-22-42"></a>  |-- gen_files()        -&gt; write ks.cfg to temp_dir
+<a id="__codelineno-22-43" name="__codelineno-22-43" href="#__codelineno-22-43"></a>  |-- write JSON         -&gt; temp_dir/myhost.json
+<a id="__codelineno-22-44" name="__codelineno-22-44" href="#__codelineno-22-44"></a>  |-- set env vars       -&gt; ANSIBLE_*, VAULT_*, PATH
+<a id="__codelineno-22-45" name="__codelineno-22-45" href="#__codelineno-22-45"></a>  |-- os.system(&quot;packer build ... myhost.json&quot;)
+<a id="__codelineno-22-46" name="__codelineno-22-46" href="#__codelineno-22-46"></a>  |-- cleanup temp_dir
+</code></pre></div>
+<hr />
+<h2 id="key-source-file-reference">Key Source File Reference<a class="headerlink" href="#key-source-file-reference" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Lines</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>osimager/cli.py</code></td>
+<td>15-123</td>
+<td><code>main_mkosimage()</code> entry point</td>
+</tr>
+<tr>
+<td><code>osimager/cli.py</code></td>
+<td>126-185</td>
+<td><code>main_rfosimage()</code> entry point</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>20-200</td>
+<td><code>__init__()</code>, <code>init_vars()</code>, <code>init_settings()</code></td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>294-378</td>
+<td><code>load_specific()</code>, <code>load_data()</code> -- config merging</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>404-469</td>
+<td><code>load_inc()</code>, <code>load_file()</code>, <code>load_data_file()</code> -- recursive include loading</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>507-545</td>
+<td><code>load_secrets()</code> -- parse local secrets file</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>547-583</td>
+<td><code>load_credentials()</code> -- vault or config dispatch</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>585-610</td>
+<td><code>get_secret()</code> -- unified secret access</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>612-634</td>
+<td><code>resolve_packer_vault_refs()</code> -- replace <code>{{vault ...}}</code> in build JSON</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>814-872</td>
+<td><code>make_index()</code> -- build spec index from all spec files</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>892-962</td>
+<td><code>get_iso_file()</code>, <code>check_iso_urls()</code> -- ISO resolution</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>964-1266</td>
+<td><code>make_build()</code> -- main build orchestration</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>1268-1298</td>
+<td><code>check_required_files()</code></td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>1300-1334</td>
+<td><code>gen_files()</code> -- installer file generation</td>
+</tr>
+<tr>
+<td><code>osimager/core.py</code></td>
+<td>1336-1416</td>
+<td><code>run_packer()</code> -- write JSON, set env, execute</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>78-113</td>
+<td><code>explode_string_with_dynamic_range()</code> -- version range expansion</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>219-227</td>
+<td><code>prefix_to_netmask()</code> -- CIDR prefix to dotted netmask</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>229-250</td>
+<td><code>get_ip()</code> -- DNS resolution with custom servers</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>301-334</td>
+<td><code>do_sub()</code> -- recursive template substitution</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>543-582</td>
+<td><code>hash_password()</code> -- crypt-compatible password hashing</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>683-711</td>
+<td><code>ACTION_HANDLERS</code>, <code>ACTIONS</code> -- substitution marker definitions</td>
+</tr>
+<tr>
+<td><code>osimager/utils.py</code></td>
+<td>796-846</td>
+<td><code>do_substr()</code> -- per-string template processing</td>
+</tr>
+<tr>
+<td><code>osimager/constants.py</code></td>
+<td>10</td>
+<td><code>OSIMAGER_VERSION</code> -- single source of truth for version</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

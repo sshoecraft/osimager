@@ -1,0 +1,3023 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/reference/spec-reference/">
+      
+      
+        <link rel="prev" href="../platform-reference/">
+      
+      
+        <link rel="next" href="../defs-reference/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Spec Reference - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spec-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec File Anatomy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec File Anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-provides-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The provides Object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-files-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The files Array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-required_files-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The required_files Array
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inheritance-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inheritance System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inheritance-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-each-base-level-contributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Each Base Level Contributes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Each Base Level Contributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-ssh-communicator-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ssh -- SSH Communicator Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#winrm-winrm-communicator-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        winrm -- WinRM Communicator Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-linux-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        linux -- Linux Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows-windows-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        windows -- Windows Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-6-specific-section-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 6 Specific Section Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The 6 Specific Section Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#processing-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recursive-nesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursive Nesting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-override-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Override Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-expansion-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Expansion Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version Expansion Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#range-expansion-start-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Range Expansion: [start-end]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-list-abc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit List: [a,b,c]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zero-padded-range-01-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zero-Padded Range: [01-03]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plain-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plain Versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-substitution-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template Substitution Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Template Substitution Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-def-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Def Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-eval-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Eval Expressions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-distribution-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Distribution Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Distribution Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rhel-red-hat-enterprise-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RHEL (Red Hat Enterprise Linux)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#almalinux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AlmaLinux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rocky-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rocky Linux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#centos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CentOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oracle-enterprise-linux-oel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oracle Enterprise Linux (OEL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debian" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debian
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubuntu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sles-suse-linux-enterprise-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLES (SUSE Linux Enterprise Server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#esxi-vmware-esxi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ESXi (VMware ESXi)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysvr4-system-v-release-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SysVR4 (System V Release 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#spec-file-anatomy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec File Anatomy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Spec File Anatomy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-provides-object" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The provides Object
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-files-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The files Array
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-required_files-array" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The required_files Array
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inheritance-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance System
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Inheritance System">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inheritance-chains" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inheritance Chains
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-each-base-level-contributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What Each Base Level Contributes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What Each Base Level Contributes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ssh-ssh-communicator-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ssh -- SSH Communicator Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#winrm-winrm-communicator-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        winrm -- WinRM Communicator Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#linux-linux-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        linux -- Linux Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#windows-windows-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        windows -- Windows Base
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Merge Behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#load-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Load Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-6-specific-section-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The 6 Specific Section Types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The 6 Specific Section Types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#processing-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#recursive-nesting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Recursive Nesting
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-override-keys" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Additional Override Keys
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#version-expansion-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Version Expansion Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Version Expansion Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#range-expansion-start-end" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Range Expansion: [start-end]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#explicit-list-abc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Explicit List: [a,b,c]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#zero-padded-range-01-03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Zero-Padded Range: [01-03]
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plain-versions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plain Versions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#template-substitution-patterns" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Template Substitution Patterns
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Template Substitution Patterns">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#common-def-variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common Def Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#python-eval-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Python Eval Expressions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#per-distribution-details" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-Distribution Details
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Per-Distribution Details">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rhel-red-hat-enterprise-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RHEL (Red Hat Enterprise Linux)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#almalinux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AlmaLinux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rocky-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rocky Linux
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#centos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CentOS
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#oracle-enterprise-linux-oel" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Oracle Enterprise Linux (OEL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#debian" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debian
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ubuntu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ubuntu
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sles-suse-linux-enterprise-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SLES (SUSE Linux Enterprise Server)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#esxi-vmware-esxi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ESXi (VMware ESXi)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sysvr4-system-v-release-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SysVR4 (System V Release 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-reference">Spec Reference<a class="headerlink" href="#spec-reference" title="Permanent link">&para;</a></h1>
+<p>Spec files are JSON documents that define everything OSImager needs to build an OS image: the distribution, versions, architectures, installer files, boot commands, provisioners, and platform-specific configuration. They live in <code>osimager/data/specs/&lt;name&gt;/spec.json</code>.</p>
+<hr />
+<h2 id="spec-file-anatomy">Spec File Anatomy<a class="headerlink" href="#spec-file-anatomy" title="Permanent link">&para;</a></h2>
+<p>Every top-level key that can appear in a spec JSON file:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>provides</code></td>
+<td>object</td>
+<td>What the spec produces: <code>dist</code>, <code>versions</code>, and <code>arches</code></td>
+</tr>
+<tr>
+<td><code>include</code></td>
+<td>string or list</td>
+<td>Inheritance chain -- references to other spec(s) to load first</td>
+</tr>
+<tr>
+<td><code>method</code></td>
+<td>string</td>
+<td><code>"merge"</code> (default) or <code>"replace"</code> -- controls how this spec's data merges with inherited data</td>
+</tr>
+<tr>
+<td><code>merge</code></td>
+<td>list</td>
+<td>Key names within dict sections that should be deep-merged instead of overwritten</td>
+</tr>
+<tr>
+<td><code>flavor</code></td>
+<td>string</td>
+<td>OS family: <code>"linux"</code>, <code>"unix"</code>, or <code>"windows"</code></td>
+</tr>
+<tr>
+<td><code>platforms</code></td>
+<td>array</td>
+<td>Which platforms this spec supports (e.g., <code>["virtualbox", "vmware", "vsphere"]</code>)</td>
+</tr>
+<tr>
+<td><code>locations</code></td>
+<td>array</td>
+<td>Optional filter restricting which locations can use this spec</td>
+</tr>
+<tr>
+<td><code>install_notice</code></td>
+<td>array</td>
+<td>Informational messages displayed before build</td>
+</tr>
+<tr>
+<td><code>defs</code></td>
+<td>object</td>
+<td>Definition variables available for template substitution</td>
+</tr>
+<tr>
+<td><code>config</code></td>
+<td>object</td>
+<td>Packer builder configuration (boot_command, shutdown_command, firmware, etc.)</td>
+</tr>
+<tr>
+<td><code>variables</code></td>
+<td>object</td>
+<td>Packer user variables passed to the build</td>
+</tr>
+<tr>
+<td><code>evars</code></td>
+<td>object</td>
+<td>Environment variables set during the build</td>
+</tr>
+<tr>
+<td><code>files</code></td>
+<td>array</td>
+<td>Installer file generation recipes -- each entry has <code>sources</code> (array of file paths concatenated) and <code>dest</code> (output filename)</td>
+</tr>
+<tr>
+<td><code>pre_provisioners</code></td>
+<td>array</td>
+<td>Packer provisioners that run before the main Ansible provisioner</td>
+</tr>
+<tr>
+<td><code>provisioners</code></td>
+<td>array</td>
+<td>Main Packer provisioners (default: Ansible playbook)</td>
+</tr>
+<tr>
+<td><code>post_provisioners</code></td>
+<td>array</td>
+<td>Packer provisioners that run after the main provisioner</td>
+</tr>
+<tr>
+<td><code>venv</code></td>
+<td>string</td>
+<td>Python virtual environment name (for older distros needing legacy Ansible)</td>
+</tr>
+<tr>
+<td><code>required_files</code></td>
+<td>array</td>
+<td>Files that must exist before build starts, with download instructions</td>
+</tr>
+<tr>
+<td><code>platform_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the target platform</td>
+</tr>
+<tr>
+<td><code>location_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the target location</td>
+</tr>
+<tr>
+<td><code>dist_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the distribution name</td>
+</tr>
+<tr>
+<td><code>version_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the version string</td>
+</tr>
+<tr>
+<td><code>arch_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the architecture</td>
+</tr>
+<tr>
+<td><code>firmware_specific</code></td>
+<td>array</td>
+<td>Conditional overrides matched against the firmware type (bios/efi)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="the-provides-object">The <code>provides</code> Object<a class="headerlink" href="#the-provides-object" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">{</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span><span class="nt">&quot;provides&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span><span class="nt">&quot;dist&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rhel&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">      </span><span class="s2">&quot;8.[0,1,2,3,5,6,7,8,9,10]&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">      </span><span class="s2">&quot;9.[0-7]&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">      </span><span class="s2">&quot;10.[0-1]&quot;</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="p">],</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nt">&quot;arches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">      </span><span class="s2">&quot;x86_64&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">      </span><span class="s2">&quot;aarch64&quot;</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="p">]</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li><strong><code>dist</code></strong> -- The distribution identifier used in build targets (e.g., <code>rhel</code>, <code>alma</code>, <code>debian</code>).</li>
+<li><strong><code>versions</code></strong> -- Array of version strings, supporting range expansion syntax (see <a href="#version-expansion-syntax">Version Expansion Syntax</a>).</li>
+<li><strong><code>arches</code></strong> -- Array of supported architectures. Common values: <code>i386</code>, <code>x86_64</code>, <code>aarch64</code>.</li>
+</ul>
+<h3 id="the-files-array">The <code>files</code> Array<a class="headerlink" href="#the-files-array" title="Permanent link">&para;</a></h3>
+<p>Each entry in <code>files</code> concatenates multiple source files into a single output file used during installation:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">&quot;files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">      </span><span class="nt">&quot;sources&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_&gt;&gt;major&lt;&lt;.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">        </span><span class="s2">&quot;rhel/ks-part.sh&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_end.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_post.cfg&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">        </span><span class="s2">&quot;rhel/install_vmwtools.sh&quot;</span><span class="p">,</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="s2">&quot;rhel/kickstart_end.cfg&quot;</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">      </span><span class="p">],</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="w">      </span><span class="nt">&quot;dest&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;ks.cfg&quot;</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="p">}</span>
+</code></pre></div>
+<p>Source paths are relative to <code>osimager/data/files/</code>. Template substitution is applied to both source paths and file contents.</p>
+<h3 id="the-required_files-array">The <code>required_files</code> Array<a class="headerlink" href="#the-required_files-array" title="Permanent link">&para;</a></h3>
+<p>Declares files that must be present before a build can start. If missing, OSImager prints download instructions and exits:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="p">{</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span><span class="nt">&quot;required_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">      </span><span class="nt">&quot;file&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;esxi/esx-tools-for-esxi-9.7.2-0.0.5911061.i386.vib&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;VMware Tools VIB required for ESXi 5.x/6.x installation&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">      </span><span class="nt">&quot;url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://my.vmware.com/group/vmware/downloads/details?downloadGroup=ESXI55U3&quot;</span><span class="p">,</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">      </span><span class="nt">&quot;location&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;esxi/&quot;</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="p">}</span>
+</code></pre></div>
+<hr />
+<h2 id="inheritance-system">Inheritance System<a class="headerlink" href="#inheritance-system" title="Permanent link">&para;</a></h2>
+<p>Specs use the <code>include</code> key to form inheritance chains. When a spec includes another, the parent spec is loaded first, then the child's data is merged on top. This allows distribution-specific specs to share common configuration from base specs.</p>
+<h3 id="inheritance-chains">Inheritance Chains<a class="headerlink" href="#inheritance-chains" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>alma -----&gt; rhel -----&gt; linux -----&gt; ssh
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>rocky ----&gt; rhel -----&gt; linux -----&gt; ssh
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>centos ---&gt; rhel -----&gt; linux -----&gt; ssh
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>oel ------&gt; rhel -----&gt; linux -----&gt; ssh
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>debian ---&gt; linux ----&gt; ssh
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>ubuntu ---&gt; linux ----&gt; ssh
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>sles -----&gt; linux ----&gt; ssh
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>windows-server -&gt; windows -&gt; winrm
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>esxi        (standalone -- no includes)
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>sysvr4      (standalone -- no includes)
+</code></pre></div>
+<h3 id="what-each-base-level-contributes">What Each Base Level Contributes<a class="headerlink" href="#what-each-base-level-contributes" title="Permanent link">&para;</a></h3>
+<h4 id="ssh-ssh-communicator-base"><code>ssh</code> -- SSH Communicator Base<a class="headerlink" href="#ssh-ssh-communicator-base" title="Permanent link">&para;</a></h4>
+<p>The lowest-level base for all Linux/Unix specs. Configures the Packer SSH communicator:</p>
+<ul>
+<li><code>config.communicator</code> = <code>"ssh"</code></li>
+<li><code>config.ssh_username</code> / <code>config.ssh_password</code> via Packer user variables</li>
+<li><code>config.ssh_timeout</code> = <code>"25m"</code></li>
+<li>Dynamic <code>ssh_host</code> and <code>ssh_port</code> using Python eval expressions that adapt to the platform type</li>
+</ul>
+<h4 id="winrm-winrm-communicator-base"><code>winrm</code> -- WinRM Communicator Base<a class="headerlink" href="#winrm-winrm-communicator-base" title="Permanent link">&para;</a></h4>
+<p>The lowest-level base for all Windows specs. Configures the Packer WinRM communicator:</p>
+<ul>
+<li><code>config.communicator</code> = <code>"winrm"</code></li>
+<li><code>config.winrm_username</code> / <code>config.winrm_password</code> via Packer user variables</li>
+<li><code>config.winrm_timeout</code> = <code>"4h"</code></li>
+<li>Dynamic <code>winrm_host</code> based on platform type</li>
+</ul>
+<h4 id="linux-linux-base"><code>linux</code> -- Linux Base<a class="headerlink" href="#linux-linux-base" title="Permanent link">&para;</a></h4>
+<p>Inherits from <code>ssh</code>. Adds Linux-specific defaults:</p>
+<ul>
+<li><code>defs.boot_disk_size</code> = <code>16384</code> (16 GB)</li>
+<li><code>variables.ssh-username</code> and <code>variables.ssh-password</code> referencing the <code>images/linux</code> vault path</li>
+</ul>
+<h4 id="windows-windows-base"><code>windows</code> -- Windows Base<a class="headerlink" href="#windows-windows-base" title="Permanent link">&para;</a></h4>
+<p>Inherits from <code>winrm</code>. Adds Windows-specific defaults:</p>
+<ul>
+<li><code>defs.boot_disk_size</code> = <code>131072</code> (128 GB)</li>
+<li><code>variables.winrm-username</code> and <code>variables.winrm-password</code> referencing the <code>images/windows</code> vault path</li>
+</ul>
+<h3 id="merge-behavior">Merge Behavior<a class="headerlink" href="#merge-behavior" title="Permanent link">&para;</a></h3>
+<p>The <code>method</code> key controls how inherited data combines:</p>
+<ul>
+<li><strong><code>"merge"</code></strong> (default) -- Dictionaries are merged key-by-key (<code>update()</code>). Lists are appended to.</li>
+<li><strong><code>"replace"</code></strong> -- Lists are cleared before new items are added. Dictionaries still merge.</li>
+</ul>
+<p>The <code>merge</code> key within dict sections (like <code>config</code>) lists keys that should be deep-merged rather than overwritten:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="p">{</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">  </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nt">&quot;merge&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;vmx_data&quot;</span><span class="p">],</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span><span class="nt">&quot;vmx_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">      </span><span class="nt">&quot;scsi0.virtualdev&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;pvscsi&quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="p">}</span>
+</code></pre></div>
+<p>In this example, the <code>vmx_data</code> dictionary is merged into any existing <code>vmx_data</code> from the parent spec rather than replacing it entirely.</p>
+<h3 id="load-order">Load Order<a class="headerlink" href="#load-order" title="Permanent link">&para;</a></h3>
+<p>The loading process in <code>core.py</code> follows this sequence:</p>
+<ol>
+<li><strong>Platform file</strong> is loaded first</li>
+<li><strong>Location file</strong> is loaded second</li>
+<li><strong>Spec file</strong> is loaded third, which recursively loads its <code>include</code> chain (deepest parent first)</li>
+<li>At each level, after loading data, all six <code>*_specific</code> sections are evaluated against the current build context</li>
+</ol>
+<hr />
+<h2 id="the-6-specific-section-types">The 6 Specific Section Types<a class="headerlink" href="#the-6-specific-section-types" title="Permanent link">&para;</a></h2>
+<p>Specific sections provide conditional overrides. Each entry in a specific section has a name field that is matched using <code>re.fullmatch()</code> with <code>re.IGNORECASE</code> against the current build value.</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>Match Key</th>
+<th>Matched Against</th>
+<th>Example Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platform_specific</code></td>
+<td><code>platform</code></td>
+<td>Target platform name</td>
+<td><code>"vsphere"</code>, <code>"proxmox"</code></td>
+</tr>
+<tr>
+<td><code>location_specific</code></td>
+<td><code>location</code></td>
+<td>Target location name</td>
+<td><code>"datacenter1"</code>, <code>"lab.*"</code></td>
+</tr>
+<tr>
+<td><code>dist_specific</code></td>
+<td><code>dist</code></td>
+<td>Distribution name</td>
+<td><code>"rhel"</code>, <code>"alma\|rocky"</code></td>
+</tr>
+<tr>
+<td><code>version_specific</code></td>
+<td><code>version</code></td>
+<td>Full version string</td>
+<td><code>"9.*"</code>, <code>"[23].*"</code>, <code>"8.10"</code></td>
+</tr>
+<tr>
+<td><code>arch_specific</code></td>
+<td><code>arch</code></td>
+<td>Architecture string</td>
+<td><code>"x86_64"</code>, <code>"i386"</code></td>
+</tr>
+<tr>
+<td><code>firmware_specific</code></td>
+<td><code>firmware</code></td>
+<td>Firmware type</td>
+<td><code>"efi"</code>, <code>"bios"</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="processing-order">Processing Order<a class="headerlink" href="#processing-order" title="Permanent link">&para;</a></h3>
+<p>The six specific types are always processed in this fixed order:</p>
+<ol>
+<li><code>platform_specific</code></li>
+<li><code>location_specific</code></li>
+<li><code>dist_specific</code></li>
+<li><code>version_specific</code></li>
+<li><code>arch_specific</code></li>
+<li><code>firmware_specific</code></li>
+</ol>
+<h3 id="recursive-nesting">Recursive Nesting<a class="headerlink" href="#recursive-nesting" title="Permanent link">&para;</a></h3>
+<p>Any specific section can contain any other specific section type. This enables precise conditional logic. For example, a <code>version_specific</code> entry can contain <code>platform_specific</code> entries:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="p">{</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">  </span><span class="nt">&quot;version_specific&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">      </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7.*&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">      </span><span class="nt">&quot;arches&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;x86_64&quot;</span><span class="p">],</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">      </span><span class="nt">&quot;defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">        </span><span class="nt">&quot;spec_config&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;specs/rhel/config_7.yml&quot;</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">      </span><span class="nt">&quot;platform_specific&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">          </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;virtualbox&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="w">          </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">            </span><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RedHat7_64&quot;</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="w">          </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vmware&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="w">          </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="w">            </span><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rhel7-64&quot;</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="w">        </span><span class="p">},</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="w">          </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vsphere&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="w">          </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="w">            </span><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rhel7_64Guest&quot;</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="p">}</span>
+</code></pre></div>
+<p>And a <code>platform_specific</code> entry can contain <code>version_specific</code> entries:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">  </span><span class="nt">&quot;platform_specific&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">      </span><span class="nt">&quot;platform&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vsphere&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">      </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">        </span><span class="nt">&quot;NestedHV&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">      </span><span class="nt">&quot;version_specific&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">        </span><span class="p">{</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">          </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;7.*&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">          </span><span class="nt">&quot;defs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">            </span><span class="nt">&quot;memory&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8192</span><span class="p">,</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="w">            </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;efi&quot;</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">          </span><span class="p">},</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">          </span><span class="nt">&quot;config&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">            </span><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vmkernel7Guest&quot;</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">          </span><span class="p">}</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">        </span><span class="p">}</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">      </span><span class="p">]</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="p">}</span>
+</code></pre></div>
+<h3 id="additional-override-keys">Additional Override Keys<a class="headerlink" href="#additional-override-keys" title="Permanent link">&para;</a></h3>
+<p>Within any specific entry, beyond the standard data keys (<code>defs</code>, <code>config</code>, <code>files</code>, etc.), these override keys can also appear:</p>
+<ul>
+<li><strong><code>arches</code></strong> -- Restricts the architectures this entry applies to (narrows the parent spec's <code>provides.arches</code>)</li>
+<li><strong><code>method</code></strong> -- Can be set to <code>"replace"</code> within a specific entry to clear lists before adding new items</li>
+<li><strong><code>venv</code></strong> -- Overrides the Python virtual environment for that match</li>
+</ul>
+<hr />
+<h2 id="version-expansion-syntax">Version Expansion Syntax<a class="headerlink" href="#version-expansion-syntax" title="Permanent link">&para;</a></h2>
+<p>The <code>provides.versions</code> array supports compact range syntax to define many versions without listing each individually.</p>
+<h3 id="range-expansion-start-end">Range Expansion: <code>[start-end]</code><a class="headerlink" href="#range-expansion-start-end" title="Permanent link">&para;</a></h3>
+<p>Generates all integers from <code>start</code> to <code>end</code> (inclusive):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;9.[0-7]&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Expands to: <code>9.0</code>, <code>9.1</code>, <code>9.2</code>, <code>9.3</code>, <code>9.4</code>, <code>9.5</code>, <code>9.6</code>, <code>9.7</code></p>
+<h3 id="explicit-list-abc">Explicit List: <code>[a,b,c]</code><a class="headerlink" href="#explicit-list-abc" title="Permanent link">&para;</a></h3>
+<p>Lists specific values separated by commas:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;8.[0,1,2,3,5,6,7,8,9,10]&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Expands to: <code>8.0</code>, <code>8.1</code>, <code>8.2</code>, <code>8.3</code>, <code>8.5</code>, <code>8.6</code>, <code>8.7</code>, <code>8.8</code>, <code>8.9</code>, <code>8.10</code></p>
+<h3 id="zero-padded-range-01-03">Zero-Padded Range: <code>[01-03]</code><a class="headerlink" href="#zero-padded-range-01-03" title="Permanent link">&para;</a></h3>
+<p>Preserves leading zeros in the expansion:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;12.[01-03]&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Expands to: <code>12.01</code>, <code>12.02</code>, <code>12.03</code></p>
+<h3 id="plain-versions">Plain Versions<a class="headerlink" href="#plain-versions" title="Permanent link">&para;</a></h3>
+<p>Versions without brackets are used as-is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;5.5U3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;6.0U2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;6.5&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;7.0U3n&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8.0U2&quot;</span><span class="p">]</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Mixed Syntax Not Supported</p>
+<p>Combined range and list syntax like <code>[0-3,5-7]</code> is <strong>not</strong> supported. Use separate entries instead:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">&quot;versions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;8.[0-3]&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;8.[5-7]&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+</div>
+<hr />
+<h2 id="template-substitution-patterns">Template Substitution Patterns<a class="headerlink" href="#template-substitution-patterns" title="Permanent link">&para;</a></h2>
+<p>OSImager uses a marker-based template substitution system. Markers in spec values are replaced at build time with computed values.</p>
+<table>
+<thead>
+<tr>
+<th>Syntax</th>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&gt;&gt;key&lt;&lt;</code></td>
+<td>Def substitution</td>
+<td>Replaces marker with the value of <code>defs[key]</code></td>
+</tr>
+<tr>
+<td><code>%&gt;key&lt;%</code></td>
+<td>Full-value substitution</td>
+<td>Replaces the entire JSON value (including quotes) with <code>defs[key]</code> -- allows injecting non-string types</td>
+</tr>
+<tr>
+<td><code>+&gt;key&lt;+</code></td>
+<td>Basename substitution</td>
+<td>Replaces marker with the basename (filename only) of <code>defs[key]</code></td>
+</tr>
+<tr>
+<td><code>*&gt;key&lt;*</code></td>
+<td>DNS lookup</td>
+<td>Replaces marker with the IP address from an nslookup of <code>defs[key]</code></td>
+</tr>
+<tr>
+<td><code>\|&gt;path&lt;\|</code></td>
+<td>Vault secret</td>
+<td>Replaces marker with a value retrieved from HashiCorp Vault (or local secrets file)</td>
+</tr>
+<tr>
+<td><code>#&gt;expr&lt;#</code></td>
+<td>Numeric eval</td>
+<td>Evaluates a numeric expression using def values (e.g., <code>#&gt;memory * 2&lt;#</code>)</td>
+</tr>
+<tr>
+<td><code>$&gt;VAR&lt;$</code></td>
+<td>Environment variable</td>
+<td>Replaces marker with the value of environment variable <code>VAR</code></td>
+</tr>
+<tr>
+<td><code>1&gt;path&lt;1</code></td>
+<td>MD5 password hash</td>
+<td>Retrieves a secret and returns its MD5 crypt hash</td>
+</tr>
+<tr>
+<td><code>5&gt;path&lt;5</code></td>
+<td>SHA-256 password hash</td>
+<td>Retrieves a secret and returns its SHA-256 crypt hash</td>
+</tr>
+<tr>
+<td><code>6&gt;path&lt;6</code></td>
+<td>SHA-512 password hash</td>
+<td>Retrieves a secret and returns its SHA-512 crypt hash</td>
+</tr>
+<tr>
+<td><code>E&gt;expr&lt;E</code></td>
+<td>Python eval</td>
+<td>Evaluates a Python expression with access to defs -- used for conditional logic</td>
+</tr>
+<tr>
+<td><code>[&gt;key&lt;]</code></td>
+<td>List expansion</td>
+<td>Expands a defs list value inline, inserting each item as a separate element</td>
+</tr>
+</tbody>
+</table>
+<h3 id="common-def-variables">Common Def Variables<a class="headerlink" href="#common-def-variables" title="Permanent link">&para;</a></h3>
+<p>These variables are automatically available in <code>defs</code> during a build:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Source</th>
+<th>Example Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platform</code></td>
+<td>Target platform</td>
+<td><code>vmware</code></td>
+</tr>
+<tr>
+<td><code>platform_name</code></td>
+<td>Target platform</td>
+<td><code>vmware</code></td>
+</tr>
+<tr>
+<td><code>platform_type</code></td>
+<td>Packer builder type</td>
+<td><code>vmware-iso</code></td>
+</tr>
+<tr>
+<td><code>location</code></td>
+<td>Target location</td>
+<td><code>lab</code></td>
+</tr>
+<tr>
+<td><code>location_name</code></td>
+<td>Target location</td>
+<td><code>lab</code></td>
+</tr>
+<tr>
+<td><code>dist</code></td>
+<td>Distribution name</td>
+<td><code>rhel</code></td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>Full version string</td>
+<td><code>9.4</code></td>
+</tr>
+<tr>
+<td><code>major</code></td>
+<td>Major version number</td>
+<td><code>9</code></td>
+</tr>
+<tr>
+<td><code>minor</code></td>
+<td>Minor version number</td>
+<td><code>4</code></td>
+</tr>
+<tr>
+<td><code>arch</code></td>
+<td>Architecture</td>
+<td><code>x86_64</code></td>
+</tr>
+<tr>
+<td><code>name</code></td>
+<td>Instance name</td>
+<td><code>rhel-9.4-x86_64</code></td>
+</tr>
+<tr>
+<td><code>fqdn</code></td>
+<td>Fully qualified domain name</td>
+<td><code>rhel-9.4-x86_64.lab.local</code></td>
+</tr>
+<tr>
+<td><code>ip</code></td>
+<td>Resolved IP address</td>
+<td><code>192.168.1.100</code></td>
+</tr>
+<tr>
+<td><code>base_path</code></td>
+<td>OSImager base directory</td>
+<td><code>/opt/osimager</code></td>
+</tr>
+<tr>
+<td><code>data_path</code></td>
+<td>Data directory path</td>
+<td><code>/opt/osimager/data</code></td>
+</tr>
+<tr>
+<td><code>spec_dir</code></td>
+<td>Directory containing the active spec file</td>
+<td><code>/opt/osimager/data/specs/rhel</code></td>
+</tr>
+<tr>
+<td><code>temp_dir</code></td>
+<td>Temporary build directory</td>
+<td><code>/tmp/tmpXXXXXX</code></td>
+</tr>
+<tr>
+<td><code>user_dir</code></td>
+<td>User config directory</td>
+<td><code>~/.config/osimager</code></td>
+</tr>
+<tr>
+<td><code>boot_disk_size</code></td>
+<td>Boot disk size in MB</td>
+<td><code>16384</code></td>
+</tr>
+<tr>
+<td><code>dns1</code>, <code>dns2</code>, ...</td>
+<td>DNS server addresses</td>
+<td><code>192.168.1.1</code></td>
+</tr>
+<tr>
+<td><code>dns_search</code></td>
+<td>DNS search domains</td>
+<td><code>lab.local</code></td>
+</tr>
+<tr>
+<td><code>ntp1</code>, <code>ntp2</code>, ...</td>
+<td>NTP server addresses</td>
+<td><code>pool.ntp.org</code></td>
+</tr>
+<tr>
+<td><code>subnet</code></td>
+<td>Network subnet from CIDR</td>
+<td><code>192.168.1.0</code></td>
+</tr>
+<tr>
+<td><code>prefix</code></td>
+<td>Network prefix from CIDR</td>
+<td><code>24</code></td>
+</tr>
+<tr>
+<td><code>netmask</code></td>
+<td>Calculated netmask</td>
+<td><code>255.255.255.0</code></td>
+</tr>
+<tr>
+<td><code>gateway</code> / <code>gw</code></td>
+<td>Gateway address</td>
+<td><code>192.168.1.254</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="python-eval-expressions">Python Eval Expressions<a class="headerlink" href="#python-eval-expressions" title="Permanent link">&para;</a></h3>
+<p>The <code>E&gt;...&lt;E</code> syntax allows inline Python expressions with access to all defs as local variables. This is used extensively in spec files for conditional logic:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">&quot;ssh_host&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E&gt;&#39;&gt;&gt;ip&lt;&lt;&#39; if &#39;&gt;&gt;ip&lt;&lt;&#39; != &#39;&#39; and &#39;&gt;&gt;ip&lt;&lt;&#39; != &#39;dhcp&#39; else (None if &#39;&gt;&gt;platform_type&lt;&lt;&#39; in [&#39;vsphere-iso&#39;, &#39;amazon-ebs&#39;, &#39;azure-arm&#39;, &#39;googlecompute&#39;] else &#39;{{ .Host }}&#39;)&lt;E&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RedHat6E&gt;&#39;_64&#39; if &#39;&gt;&gt;arch&lt;&lt;&#39; == &#39;x86_64&#39; else &#39;&#39;&lt;E&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">&quot;deb_arch&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E&gt;&#39;amd64&#39; if &#39;&gt;&gt;arch&lt;&lt;&#39; == &#39;x86_64&#39; else (&#39;arm64&#39; if &#39;&gt;&gt;arch&lt;&lt;&#39; == &#39;aarch64&#39; else &#39;&gt;&gt;arch&lt;&lt;&#39;)&lt;E&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="per-distribution-details">Per-Distribution Details<a class="headerlink" href="#per-distribution-details" title="Permanent link">&para;</a></h2>
+<h3 id="rhel-red-hat-enterprise-linux">RHEL (Red Hat Enterprise Linux)<a class="headerlink" href="#rhel-red-hat-enterprise-linux" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>rhel</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>2.1, 3.0, 4.8, 5.[1,9,10,11], 6.[9-10], 7.[5-9], 8.[0,1,2,3,5,6,7,8,9,10], 9.[0-7], 10.[0-1]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>i386, x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>rhel -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 7.x: Azure (RHEL 7lvm-gen2), GCP (rhel-7), AWS (RHEL-7 HVM)</li>
+<li>Versions 8.x: Azure (RHEL 8-lvm-gen2), GCP (rhel-8), AWS (RHEL-8 HVM)</li>
+<li>Versions 9.x: Azure (RHEL 9-lvm-gen2), GCP (rhel-9), AWS (RHEL-9 HVM)</li>
+<li>Versions 10.x: Azure (RHEL 10-lvm-gen2), GCP (rhel-10), AWS (RHEL-10 HVM)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 2.x-3.x: i386 only, legacy SSH algorithms, Ansible 2.10 venv, IDE disks, custom <code>configure_system</code> pre-provisioner</li>
+<li>Versions 4.x: i386/x86_64, legacy SSH, Ansible 2.10 venv, boot via <code>ks=cdrom:/ks.cfg</code></li>
+<li>Versions 5.x: i386/x86_64, legacy SSH, Ansible 2.10 venv, Python 2 interpreter</li>
+<li>Versions 6.x: Ansible 2.10 venv, Python 2 interpreter, legacy SSH ciphers</li>
+<li>Versions 7.x+: x86_64 only, EFI firmware, OEMDRV-based boot</li>
+<li>Versions 8.x+: x86_64/aarch64, EFI firmware, Python 3 interpreter</li>
+<li>Versions 9.x+: 4 CPU cores, 4096 MB memory, pvscsi on VMware</li>
+</ul>
+<p><strong>Key platform-specific patterns:</strong></p>
+<ul>
+<li>Proxmox: firmware set to empty string (uses Proxmox defaults), QEMU agent disabled for legacy versions</li>
+<li>VirtualBox: version-specific <code>guest_os_type</code> (RedHat7_64, RedHat8_64, RedHat9_64)</li>
+<li>VMware: version-specific <code>guest_os_type</code>, pvscsi for 9.x+, VMX data merging for legacy VMware tools ISOs</li>
+<li>vSphere: version-specific <code>guest_os_type</code> (rhel7_64Guest, rhel8_64Guest, rhel9_64Guest)</li>
+</ul>
+<hr />
+<h3 id="almalinux">AlmaLinux<a class="headerlink" href="#almalinux" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>alma</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>8.[3-10], 9.[0-7], 10.[0-1]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>alma -&gt; rhel -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart (inherited from RHEL)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>Inherited from RHEL: virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 8.x: Azure (almalinux 8-gen2), GCP (almalinux-8), AWS (AlmaLinux OS 8)</li>
+<li>Versions 9.x: Azure (almalinux 9-gen2), GCP (almalinux-9), AWS (AlmaLinux OS 9)</li>
+<li>Versions 10.x: Azure (almalinux 10-gen2), GCP (almalinux-10), AWS (AlmaLinux OS 10)</li>
+</ul>
+<p>Uses merge method to overlay AlmaLinux-specific ISO URLs and cloud image references on top of the full RHEL configuration. Version 8.3 is restricted to x86_64 only.</p>
+<hr />
+<h3 id="rocky-linux">Rocky Linux<a class="headerlink" href="#rocky-linux" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>rocky</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>8.[3-9], 9.[0-7], 10.[0-1]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>rocky -&gt; rhel -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart (inherited from RHEL)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>Inherited from RHEL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 8.x: Azure (rockylinux-x86_64 8-lvm), GCP (rocky-linux-8, rocky-linux-cloud), AWS (Rocky-8-EC2-Base)</li>
+<li>Versions 9.x: Azure (rockylinux-x86_64 9-lvm), GCP (rocky-linux-9, rocky-linux-cloud), AWS (Rocky-9-EC2-Base)</li>
+<li>Versions 10.x: Azure (rockylinux-x86_64 10-lvm), GCP (rocky-linux-10, rocky-linux-cloud), AWS (Rocky-10-EC2-Base)</li>
+</ul>
+<p>Version 8.x uses a different ISO URL pattern (<code>-dvd1.iso</code> suffix) compared to 9.x/10.x (<code>-dvd.iso</code>).</p>
+<hr />
+<h3 id="centos">CentOS<a class="headerlink" href="#centos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>centos</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>5.[0-10], 6.[0-10], 7.[0-9], 8.[0-5]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>i386, x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>centos -&gt; rhel -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart (inherited from RHEL)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>Inherited from RHEL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 7.x: Azure (CentOS-LVM 7-lvm-gen2), GCP (centos-7, centos-cloud), AWS (CentOS Linux 7)</li>
+<li>Versions 8.x: Azure (CentOS-LVM 8-lvm-gen2), GCP (centos-stream-8, centos-cloud), AWS (CentOS Stream 8)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 5.x: i386/x86_64, ISOs from vault.centos.org</li>
+<li>Versions 6.x: i386/x86_64, ISOs from vault.centos.org</li>
+<li>Versions 7.x: x86_64 only, each minor version has a unique ISO naming convention with build date suffixes (e.g., <code>7.0.1406</code>, <code>7.9.2009</code>)</li>
+<li>Versions 8.x: x86_64/aarch64, ISOs from vault.centos.org with build date suffixes</li>
+<li>vSphere guest OS types: centos5Guest, centos6Guest, centos7_64Guest, centos8_64Guest</li>
+</ul>
+<hr />
+<h3 id="oracle-enterprise-linux-oel">Oracle Enterprise Linux (OEL)<a class="headerlink" href="#oracle-enterprise-linux-oel" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>oel</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>5.[0-10], 6.[0-10], 7.[0-9], 8.[0-10], 9.[0-7], 10.[0-1]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>i386, x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>oel -&gt; rhel -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart (inherited from RHEL)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>Inherited from RHEL</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 7.x: Azure (Oracle-Linux ol79-lvm-gen2), GCP (oracle-linux-7), AWS (OL7 HVM)</li>
+<li>Versions 8.x: Azure (Oracle-Linux ol89-lvm-gen2), GCP (oracle-linux-8), AWS (OL8 HVM)</li>
+<li>Versions 9.x: Azure (Oracle-Linux ol9-lvm-gen2), GCP (oracle-linux-9), AWS (OL9 HVM)</li>
+<li>Versions 10.x: Azure (Oracle-Linux ol10-lvm-gen2), GCP (oracle-linux-10), AWS (OL10 HVM)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 5.x/6.x: i386/x86_64, ISOs from yum.oracle.com using <code>u&gt;&gt;minor&lt;&lt;</code> URL pattern</li>
+<li>Version 6.x: custom kickstart file (<code>oel/kickstart_6.cfg</code>) with OEL-specific post-install</li>
+<li>Versions 7.x: x86_64 only, OEL-specific vSphere guest types (oracleLinux7_64Guest)</li>
+<li>Versions 8.x+: x86_64/aarch64</li>
+<li>VMware guest types use <code>oraclelinux-64</code> (legacy) or <code>oraclelinux8-64</code> / <code>oraclelinux9-64</code> (modern)</li>
+</ul>
+<hr />
+<h3 id="debian">Debian<a class="headerlink" href="#debian" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>debian</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>8.[0-11], 9.[0-13], 10.[0-13], 11.[0-11], 12.[0-13], 13.[0-3]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>i386, x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>debian -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Preseed</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 11.x: Azure (debian-11 11-gen2), GCP (debian-11, debian-cloud), AWS (debian-11-amd64)</li>
+<li>Versions 12.x: Azure (debian-12 12-gen2), GCP (debian-12, debian-cloud), AWS (debian-12-amd64)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 8.x: i386/x86_64, uses <code>method: "replace"</code> for files with a Debian 8-specific preseed (<code>debian-8-preseed.cfg</code>), custom boot command that mounts and runs <code>debian.fix</code></li>
+<li>Versions 9.x: i386/x86_64, uses <code>method: "replace"</code> for files with <code>debian_pre10.seed</code></li>
+<li>Versions 10.x+: x86_64/aarch64, uses the standard <code>debian.seed</code> preseed file</li>
+<li>Architecture mapping: <code>deb_arch</code> def converts <code>x86_64</code> to <code>amd64</code> and <code>aarch64</code> to <code>arm64</code> using a Python eval expression</li>
+<li>ISO URLs reference <code>cdimage.debian.org/cdimage/archive/</code></li>
+<li>Boot disk size: 32768 MB (32 GB), overriding the Linux base of 16 GB</li>
+</ul>
+<p><strong>Boot process:</strong> Uses a multi-step boot command that boots the installer, switches to a virtual console to mount the CD media, then switches back to continue the preseed-driven installation.</p>
+<hr />
+<h3 id="ubuntu">Ubuntu<a class="headerlink" href="#ubuntu" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>ubuntu</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>18.04, 20.04, 22.04, 24.04</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>ubuntu -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Preseed (18.04), Cloud-init/Autoinstall (20.04+)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>20.04: Azure (ubuntu-server-focal 20_04-lts-gen2), GCP (ubuntu-2004-lts), AWS (ubuntu-focal-20.04)</li>
+<li>22.04: Azure (ubuntu-server-jammy 22_04-lts-gen2), GCP (ubuntu-2204-lts), AWS (ubuntu-jammy-22.04)</li>
+<li>24.04: Azure (ubuntu-24_04-lts server), GCP (ubuntu-2404-lts-amd64), AWS (ubuntu-noble-24.04)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Version 18.04: x86_64 only, uses legacy preseed installer (<code>ubuntu.seed</code>), <code>method: "replace"</code> for files, cd_label is <code>"media"</code>, different boot command using <code>/install/vmlinuz</code></li>
+<li>Versions 20.04+: Uses cloud-init autoinstall (<code>user-data</code> + <code>meta-data</code>), cd_label is <code>"cidata"</code>, boot command edits GRUB to add <code>autoinstall</code> parameter</li>
+<li>Version 20.04: Different boot command using <code>/casper/vmlinuz</code> directly</li>
+<li>Versions 22.04/24.04: Use the default GRUB-edit boot command</li>
+<li>Architecture mapping: same <code>deb_arch</code> conversion as Debian</li>
+<li>Boot disk size: 32768 MB (32 GB)</li>
+</ul>
+<hr />
+<h3 id="sles-suse-linux-enterprise-server">SLES (SUSE Linux Enterprise Server)<a class="headerlink" href="#sles-suse-linux-enterprise-server" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>sles</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>12.[1-5], 15.[0-7], 16.[0-0]</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>x86_64, aarch64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>sles -&gt; linux -&gt; ssh</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>AutoYaST (XML)</td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloud support:</strong></p>
+<ul>
+<li>Versions 15.x: Azure (sles-15-spN gen2), GCP (sles-15, suse-cloud), AWS (suse-sles-15-spN)</li>
+</ul>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 12.x: x86_64 only, Python 2 interpreter, uses <code>autoinst_12.xml</code>, ISOs from local file paths</li>
+<li>Versions 15.x: x86_64/aarch64, Python 3 interpreter, uses <code>autoinst_15.xml</code>, cloud image refs with SP (service pack) number in names</li>
+<li>Versions 16.x: uses <code>autoinst_16.xml</code></li>
+<li>Version 15.0: Special ISO URL pattern without SP suffix</li>
+<li>Boot command uses <code>textmode=1</code> and <code>autoyast=device://OEMDRV/autoinst.xml</code></li>
+<li>Boot disk size: 32768 MB (32 GB)</li>
+<li>Timezone default: <code>America/Chicago</code></li>
+</ul>
+<p><strong>Platform-specific guest OS types:</strong></p>
+<ul>
+<li>VirtualBox: <code>OpenSUSE_64</code> (all versions)</li>
+<li>VMware: <code>sles12-64</code>, <code>sles15-64</code>, <code>sles16-64</code></li>
+<li>vSphere: <code>sles12_64Guest</code>, <code>sles15_64Guest</code>, <code>sles16_64Guest</code></li>
+</ul>
+<hr />
+<h3 id="esxi-vmware-esxi">ESXi (VMware ESXi)<a class="headerlink" href="#esxi-vmware-esxi" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>esxi</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>x86_64</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>None (standalone)</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Kickstart</td>
+</tr>
+<tr>
+<td><strong>Flavor</strong></td>
+<td><code>linux</code></td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>vmware, vsphere</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key version-specific patterns:</strong></p>
+<ul>
+<li>Versions 5.x, 6.0, 6.5: Require a VMware Tools VIB file (<code>required_files</code>), included on the CD alongside the kickstart</li>
+<li>Versions 7.x: No VIB required, 8192 MB memory, EFI firmware on vSphere</li>
+<li>Versions 8.x: No VIB required, 12288 MB memory, 4 CPU cores, EFI firmware on vSphere</li>
+<li>Default firmware is <code>bios</code>, overridden per-version on vSphere</li>
+</ul>
+<p><strong><code>firmware_specific</code> usage:</strong> ESXi uses <code>firmware_specific</code> to change the boot command for EFI builds (shorter boot_wait, no initial Enter keypress).</p>
+<p><strong>Platform-specific patterns:</strong></p>
+<ul>
+<li>vSphere: Enables <code>NestedHV</code> (nested virtualization), version-specific guest types (vmkernel5Guest through vmkernel8Guest), kickstart includes <code>kickstart_post.cfg</code> for post-install on virtual hardware, lsilogic-sas controller for older versions</li>
+<li>VMware Workstation/Fusion: Sets <code>vmx_data</code> for pvscsi, vmxnet3, VNC, nested HV; older versions override with lsisas1068 SCSI controller</li>
+</ul>
+<hr />
+<h3 id="sysvr4-system-v-release-4">SysVR4 (System V Release 4)<a class="headerlink" href="#sysvr4-system-v-release-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Property</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dist name</strong></td>
+<td><code>sysvr4</code></td>
+</tr>
+<tr>
+<td><strong>Versions</strong></td>
+<td>2.1</td>
+</tr>
+<tr>
+<td><strong>Architectures</strong></td>
+<td>i386</td>
+</tr>
+<tr>
+<td><strong>Include chain</strong></td>
+<td>None (standalone)</td>
+</tr>
+<tr>
+<td><strong>Installer type</strong></td>
+<td>Manual (with <code>configure_system</code> script)</td>
+</tr>
+<tr>
+<td><strong>Flavor</strong></td>
+<td><code>unix</code></td>
+</tr>
+<tr>
+<td><strong>Platforms</strong></td>
+<td>virtualbox, vmware, proxmox</td>
+</tr>
+</tbody>
+</table>
+<p>The most minimal spec in the system. Uses a <code>configure_system</code> script uploaded via <code>pre_provisioners</code> and an Ansible playbook referenced via `&gt;&gt;spec_dir&lt;</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

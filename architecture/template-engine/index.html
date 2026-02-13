@@ -1,0 +1,2386 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/architecture/template-engine/">
+      
+      
+        <link rel="prev" href="../configuration-merging/">
+      
+      
+        <link rel="next" href="../file-generation/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Template Engine - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#template-engine" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Template Engine
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#processing-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Processing Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do_subitem-imager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        do_sub(item, imager)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do_substrtext-imager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        do_substr(text, imager)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_alltext-start_pat-end_pat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_all(text, start_pat, end_pat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-actions-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ACTIONS List
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action_handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ACTION_HANDLERS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-1-complete-value-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 1: Complete Value Replacement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-2-inline-string-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 2: Inline String Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-3-basename-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 3: Basename Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-4-dns-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 4: DNS Lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-5-secret-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 5: Secret Retrieval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-6-numeric-expression-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 6: Numeric Expression Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-7-environment-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 7: Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-8-md5-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 8: MD5 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-9-sha-256-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 9: SHA-256 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-10-sha-512-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 10: SHA-512 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-11-python-eval-expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 11: Python Eval Expression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-12-list-item-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 12: List Item Expansion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-behaviors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Behaviors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Behaviors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-processing-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Processing Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-preservation-action-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Preservation (Action 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret-dependent-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret-Dependent Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#none-and-false-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        None and False Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supporting-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supporting Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supporting Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#explode_string_with_dynamic_range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        explode_string_with_dynamic_range()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hash_password()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prefix_to_netmask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prefix_to_netmask()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_ip()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#natural_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        natural_key()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval_expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eval_expression()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval_expression_safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eval_expression_safe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_default()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isvarname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isvarname()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#insert_list_items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        insert_list_items()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#processing-flow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Processing Flow
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Processing Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#do_subitem-imager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        do_sub(item, imager)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#do_substrtext-imager" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        do_substr(text, imager)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extract_alltext-start_pat-end_pat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        extract_all(text, start_pat, end_pat)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-actions-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The ACTIONS List
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action_handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ACTION_HANDLERS
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#action-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Action Reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-1-complete-value-replacement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 1: Complete Value Replacement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-2-inline-string-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 2: Inline String Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-3-basename-substitution" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 3: Basename Substitution
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-4-dns-lookup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 4: DNS Lookup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-5-secret-retrieval" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 5: Secret Retrieval
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-6-numeric-expression-evaluation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 6: Numeric Expression Evaluation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-7-environment-variable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 7: Environment Variable
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-8-md5-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 8: MD5 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-9-sha-256-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 9: SHA-256 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-10-sha-512-password-hash" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 10: SHA-512 Password Hash
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-11-python-eval-expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 11: Python Eval Expression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action-12-list-item-expansion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action 12: List Item Expansion
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-behaviors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Behaviors
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Key Behaviors">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#action-processing-order" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Action Processing Order
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-preservation-action-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type Preservation (Action 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#secret-dependent-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Secret-Dependent Actions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#none-and-false-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        None and False Handling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#supporting-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supporting Functions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Supporting Functions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#explode_string_with_dynamic_range" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        explode_string_with_dynamic_range()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hash_password" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        hash_password()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prefix_to_netmask" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        prefix_to_netmask()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_ip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_ip()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#natural_key" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        natural_key()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval_expression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eval_expression()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#eval_expression_safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        eval_expression_safe()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get_default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        get_default()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#isvarname" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        isvarname()
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#insert_list_items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        insert_list_items()
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="template-engine">Template Engine<a class="headerlink" href="#template-engine" title="Permanent link">&para;</a></h1>
+<p>OSImager includes a template substitution engine that processes all configuration data before the final Packer build JSON is generated. The engine replaces marker tokens with computed values, supporting variable interpolation, secret retrieval, expression evaluation, password hashing, and list expansion. All substitution logic resides in <code>utils.py</code>.</p>
+<h2 id="processing-flow">Processing Flow<a class="headerlink" href="#processing-flow" title="Permanent link">&para;</a></h2>
+<p>Template substitution is driven by two functions working together:</p>
+<h3 id="do_subitem-imager">do_sub(item, imager)<a class="headerlink" href="#do_subitem-imager" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 301-334.</p>
+<p><code>do_sub()</code> is the top-level recursive walker. It traverses any Python data structure (dict, list, tuple, set, str) and applies <code>do_substr()</code> to every string it encounters.</p>
+<ul>
+<li><strong>dict</strong>: Recurses into both keys and values. Returns a new dict.</li>
+<li><strong>list</strong>: Recurses into each element. Has special handling for <code>[&gt;token&lt;]</code> list expansion markers (see Action 12 below).</li>
+<li><strong>tuple/set</strong>: Recurses into each element. Returns new tuple/set.</li>
+<li><strong>str</strong>: Delegates to <code>do_substr()</code>.</li>
+<li><strong>other types</strong> (int, bool, None, etc.): Returned unchanged.</li>
+</ul>
+<p>The list handling for Action 12 is done inline in <code>do_sub()</code> rather than in <code>do_substr()</code>. When a list element is a string of the form <code>[&gt;token&lt;]</code> (where the entire string is the marker), <code>do_sub()</code> checks if the token references a list in <code>imager.defs</code>. If so, it expands the list items directly into the parent list via <code>result.extend()</code>. If the token does not exist in defs, the element is silently dropped.</p>
+<h3 id="do_substrtext-imager">do_substr(text, imager)<a class="headerlink" href="#do_substrtext-imager" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 796-846.</p>
+<p><code>do_substr()</code> processes a single string through all 12 actions in order. For each action:</p>
+<ol>
+<li>Calls <code>extract_all()</code> to find all marker tokens in the string.</li>
+<li>For each token found, validates it with <code>isvarname()</code> (except Actions 6 and 11 which allow expressions).</li>
+<li>Calls the action's handler from <code>ACTION_HANDLERS</code>.</li>
+<li><strong>Type preservation</strong>: If the entire string (stripped) equals the full marker, the raw handler return value is returned directly -- preserving non-string types (int, bool, list, dict). This is critical for Action 1.</li>
+<li><strong>Inline substitution</strong>: Otherwise, <code>str(repl)</code> replaces the marker text within the string.</li>
+</ol>
+<h3 id="extract_alltext-start_pat-end_pat">extract_all(text, start_pat, end_pat)<a class="headerlink" href="#extract_alltext-start_pat-end_pat" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 172-179.</p>
+<p>Finds all tokens between the given delimiters. Operates line by line using <code>re.findall()</code> with escaped delimiter patterns. Returns a list of the inner token strings (without delimiters).</p>
+<hr />
+<h2 id="the-actions-list">The ACTIONS List<a class="headerlink" href="#the-actions-list" title="Permanent link">&para;</a></h2>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 698-711.</p>
+<p>Actions are processed sequentially from 1 through 12. The order matters: earlier actions may produce values that later actions consume (e.g., Action 2 substitutions within Action 11 expressions).</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">ACTIONS</span> <span class="o">=</span> <span class="p">[</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;%&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;%&quot;</span><span class="p">)),</span>   <span class="c1"># Complete value replacement</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;&gt;&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;&lt;&quot;</span><span class="p">)),</span>   <span class="c1"># Inline string substitution</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;+&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;+&quot;</span><span class="p">)),</span>   <span class="c1"># Basename substitution</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;*&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;*&quot;</span><span class="p">)),</span>   <span class="c1"># DNS lookup</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;|&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;|&quot;</span><span class="p">)),</span>   <span class="c1"># Secret retrieval</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;#&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;#&quot;</span><span class="p">)),</span>   <span class="c1"># Numeric expression evaluation</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;$&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;$&quot;</span><span class="p">)),</span>   <span class="c1"># Environment variable</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;1&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;1&quot;</span><span class="p">)),</span>   <span class="c1"># MD5 password hash</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;5&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;5&quot;</span><span class="p">)),</span>   <span class="c1"># SHA-256 password hash</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;6&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;6&quot;</span><span class="p">)),</span>  <span class="c1"># SHA-512 password hash</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;E&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;E&quot;</span><span class="p">)),</span>  <span class="c1"># Python eval expression</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;[&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&lt;]&quot;</span><span class="p">)),</span>  <span class="c1"># List item expansion</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="p">]</span>
+</code></pre></div>
+<h2 id="action_handlers">ACTION_HANDLERS<a class="headerlink" href="#action_handlers" title="Permanent link">&para;</a></h2>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 683-696.</p>
+<p>Each handler is a lambda that takes <code>(token, imager)</code> and returns the replacement value.</p>
+<hr />
+<h2 id="action-reference">Action Reference<a class="headerlink" href="#action-reference" title="Permanent link">&para;</a></h2>
+<h3 id="action-1-complete-value-replacement">Action 1: Complete Value Replacement<a class="headerlink" href="#action-1-complete-value-replacement" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>%&gt;token&lt;%</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>get_default(imager.defs, token, 1)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Raw value from <code>imager.defs[token]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the value of <code>token</code> from <code>imager.defs</code> and returns it with full type preservation. When the entire string is <code>%&gt;token&lt;%</code>, the return value can be any type: bool, int, list, dict, or string. This is the only action that intentionally preserves non-string types.</p>
+<p><strong>Use case:</strong> Passing structured data like lists or booleans directly into the Packer config without stringification.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nt">&quot;cd_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%&gt;cd_files&lt;%&quot;</span>
+</code></pre></div>
+If <code>defs["cd_files"]</code> is a string, it replaces the value. If it is a list, the JSON value becomes that list.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nt">&quot;disk_thin_provisioned&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;%&gt;thin_disk&lt;%&quot;</span>
+</code></pre></div>
+If <code>defs["thin_disk"]</code> is <code>false</code> (Python bool), the JSON value becomes <code>false</code>, not the string <code>"false"</code>.</p>
+<hr />
+<h3 id="action-2-inline-string-substitution">Action 2: Inline String Substitution<a class="headerlink" href="#action-2-inline-string-substitution" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>&gt;&gt;token&lt;&lt;</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>get_default(imager.defs, token, 2)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Value from <code>imager.defs[token]</code>, converted to string if used inline</td>
+</tr>
+</tbody>
+</table>
+<p>The workhorse substitution. Replaces the marker with the string representation of the defs value. If the entire string is only the marker, type preservation applies (same as Action 1). When the marker is embedded within a larger string, the value is converted to string via <code>str()</code>.</p>
+<p><strong>Use case:</strong> Building paths, URLs, filenames, and any templated string.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nt">&quot;iso_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;https://vault.almalinux.org/&gt;&gt;version&lt;&lt;/isos/&gt;&gt;arch&lt;&lt;/AlmaLinux-&gt;&gt;version&lt;&lt;-&gt;&gt;arch&lt;&lt;-dvd.iso&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-3-basename-substitution">Action 3: Basename Substitution<a class="headerlink" href="#action-3-basename-substitution" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>+&gt;token&lt;+</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>get_default(imager.defs, token, 3)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td><code>os.path.basename()</code> of the defs value</td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the value from defs and returns only the filename component (stripping any directory path).</p>
+<p><strong>Use case:</strong> Extracting just the filename from a full path stored in defs.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">&quot;iso_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;+&gt;iso_file&lt;+&quot;</span>
+</code></pre></div>
+If <code>defs["iso_file"]</code> is <code>/iso/RedHat/rhel-9.3-x86_64-dvd.iso</code>, the result is <code>rhel-9.3-x86_64-dvd.iso</code>.</p>
+<hr />
+<h3 id="action-4-dns-lookup">Action 4: DNS Lookup<a class="headerlink" href="#action-4-dns-lookup" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>*&gt;token&lt;*</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>get_default(imager.defs, token, 4)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>IPv4 address string from DNS A record lookup via <code>get_ip()</code></td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the hostname from <code>imager.defs[token]</code>, then performs a DNS A record lookup using <code>get_ip()</code>. Returns the resolved IP address as a string.</p>
+<p><strong>Use case:</strong> Resolving hostnames to IP addresses at build time.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nt">&quot;ip_address&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;*&gt;fqdn&lt;*&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-5-secret-retrieval">Action 5: Secret Retrieval<a class="headerlink" href="#action-5-secret-retrieval" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>\|&gt;token&lt;\|</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>imager.get_secret(token)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Secret value string</td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves a secret using <code>imager.get_secret()</code>, which dispatches to either HashiCorp Vault or the local secrets file based on the <code>credential_source</code> setting. The token format is <code>path:key</code> where <code>path</code> is the secret path and <code>key</code> is the specific field within the secret.</p>
+<p><strong>Use case:</strong> Injecting passwords, API keys, or other sensitive values into configurations.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">&quot;root_password&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;|&gt;images/linux:password&lt;|&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-6-numeric-expression-evaluation">Action 6: Numeric Expression Evaluation<a class="headerlink" href="#action-6-numeric-expression-evaluation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>#&gt;expr&lt;#</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>eval_expression(token, imager.defs)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Integer result of arithmetic evaluation</td>
+</tr>
+</tbody>
+</table>
+<p>Evaluates arithmetic expressions where operands are defs variable names. The expression is split on <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> operators. Each operand is looked up in <code>imager.defs</code>, then the resulting numeric expression is evaluated with Python <code>eval()</code> and cast to <code>int()</code>.</p>
+<p><strong>Use case:</strong> Computing derived numeric values from defs at build time.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nt">&quot;CPUs&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#&gt;cpu_sockets*cpu_cores&lt;#&quot;</span>
+</code></pre></div>
+If <code>defs["cpu_sockets"]</code> is <code>1</code> and <code>defs["cpu_cores"]</code> is <code>2</code>, the result is <code>2</code>.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nt">&quot;RAM&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;#&gt;memory&lt;#&quot;</span>
+</code></pre></div>
+Single-variable expressions also work -- the value is looked up and returned as int.</p>
+<hr />
+<h3 id="action-7-environment-variable">Action 7: Environment Variable<a class="headerlink" href="#action-7-environment-variable" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>$&gt;token&lt;$</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>get_env(token)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Value of <code>os.environ[token]</code>, or empty string if not set</td>
+</tr>
+</tbody>
+</table>
+<p>Reads a system environment variable by name.</p>
+<p><strong>Use case:</strong> Incorporating host environment values into the build configuration.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">&quot;http_proxy&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;$&gt;HTTP_PROXY&lt;$&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-8-md5-password-hash">Action 8: MD5 Password Hash<a class="headerlink" href="#action-8-md5-password-hash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>1&gt;token&lt;1</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>hash_password(imager.get_secret(token), 'md5')</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>MD5-crypt hash string (prefix <code>$1$</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the secret identified by <code>token</code>, then generates an MD5-crypt hash compatible with <code>/etc/shadow</code> format. The hash uses the <code>$1$</code> prefix.</p>
+<p><strong>Use case:</strong> Generating hashed passwords for legacy OS kickstart files that require MD5-crypt format.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nt">&quot;rootpw&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;1&gt;images/linux:password&lt;1&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-9-sha-256-password-hash">Action 9: SHA-256 Password Hash<a class="headerlink" href="#action-9-sha-256-password-hash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>5&gt;token&lt;5</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>hash_password(imager.get_secret(token), 'sha256')</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>SHA-256-crypt hash string (prefix <code>$5$</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the secret and generates a SHA-256-crypt hash compatible with <code>/etc/shadow</code>.</p>
+<p><strong>Use case:</strong> Generating hashed passwords for kickstart files on modern RHEL-family systems.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nt">&quot;rootpw&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;5&gt;images/linux:password&lt;5&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-10-sha-512-password-hash">Action 10: SHA-512 Password Hash<a class="headerlink" href="#action-10-sha-512-password-hash" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>6&gt;token&lt;6</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>hash_password(imager.get_secret(token), 'sha512')</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>SHA-512-crypt hash string (prefix <code>$6$</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>Retrieves the secret and generates a SHA-512-crypt hash compatible with <code>/etc/shadow</code>.</p>
+<p><strong>Use case:</strong> The most common hash format for modern Linux kickstart root passwords.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nt">&quot;rootpw&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;6&gt;images/linux:password&lt;6&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="action-11-python-eval-expression">Action 11: Python Eval Expression<a class="headerlink" href="#action-11-python-eval-expression" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>E&gt;expr&lt;E</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>eval_expression_safe(token, imager)</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>Result of Python <code>eval()</code> on the processed expression</td>
+</tr>
+</tbody>
+</table>
+<p>Two-phase evaluation:</p>
+<ol>
+<li><strong>Phase 1</strong>: All <code>&gt;&gt;var&lt;&lt;</code> markers (Action 2 syntax) within the expression are substituted with their defs values. This happens inside <code>eval_expression_safe()</code> using a regex replacement, not via the normal Action 2 pipeline.</li>
+<li><strong>Phase 2</strong>: The resulting string is passed to Python <code>eval()</code>.</li>
+</ol>
+<p>This allows arbitrary Python expressions that reference defs variables.</p>
+<p><strong>Use case:</strong> Conditional logic, string manipulation, and computed values that go beyond simple arithmetic.</p>
+<p><strong>Examples:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nt">&quot;iso_url&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E&gt;&#39;&gt;&gt;iso_path&lt;&lt;/&gt;&gt;iso_name&lt;&lt;&#39; if &gt;&gt;local_only&lt;&lt; else &#39;&gt;&gt;iso_url&lt;&lt;&#39;&lt;E&quot;</span>
+</code></pre></div>
+This produces a different ISO URL depending on whether <code>local_only</code> is true or false.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nt">&quot;guest_os_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;RedHat6E&gt;&#39;_64&#39; if &#39;&gt;&gt;arch&lt;&lt;&#39; == &#39;x86_64&#39; else &#39;&#39;&lt;E&quot;</span>
+</code></pre></div>
+Appends <code>_64</code> to the guest OS type only when the architecture is x86_64.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nt">&quot;iso_paths&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;[] /vmimages/tools-isoimages/E&gt;&#39;windows&#39; if &#39;&gt;&gt;spec_name&lt;&lt;&#39;.startswith(&#39;win&#39;) else &#39;linux&#39;&lt;E.iso&quot;</span><span class="p">]</span>
+</code></pre></div>
+Selects between Windows and Linux VMware Tools ISO based on the spec name.</p>
+<hr />
+<h3 id="action-12-list-item-expansion">Action 12: List Item Expansion<a class="headerlink" href="#action-12-list-item-expansion" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Delimiters</strong></td>
+<td><code>[&gt;token&lt;]</code></td>
+</tr>
+<tr>
+<td><strong>Handler</strong></td>
+<td><code>insert_list_items(token, imager)</code> (in handler table) / inline in <code>do_sub()</code></td>
+</tr>
+<tr>
+<td><strong>Returns</strong></td>
+<td>List of items, or empty list</td>
+</tr>
+</tbody>
+</table>
+<p>Expands a single list element into multiple elements. When a list contains an element <code>"[&gt;token&lt;]"</code>, the token is looked up in <code>imager.defs</code>:</p>
+<ul>
+<li>If the value is a <strong>list</strong>, all items are inserted into the parent list.</li>
+<li>If the value is a <strong>string</strong>, it is split on commas and whitespace into multiple items.</li>
+<li>If the token <strong>does not exist</strong> in defs, the element is silently removed (no output).</li>
+</ul>
+<p>The primary expansion logic is in <code>do_sub()</code> (lines 311-323), not in <code>do_substr()</code>. The <code>do_sub()</code> function detects pure list expansion markers in list elements before delegating to the normal substitution pipeline.</p>
+<p><strong>Use case:</strong> Dynamically injecting variable-length argument lists into provisioner configurations.</p>
+<p><strong>Example:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nt">&quot;extra_arguments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="w">    </span><span class="s2">&quot;[&gt;ansible_extra_args&lt;]&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="w">    </span><span class="s2">&quot;--extra-vars&quot;</span><span class="p">,</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="w">    </span><span class="s2">&quot;platform={{user `platform-name`}}&quot;</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="p">]</span>
+</code></pre></div>
+If <code>defs["ansible_extra_args"]</code> is <code>["--scp-extra-args='-O'", "-e", "ansible_scp_extra_args='-O'"]</code>, the resulting list is:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="p">[</span><span class="s2">&quot;--scp-extra-args=&#39;-O&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;-e&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ansible_scp_extra_args=&#39;-O&#39;&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;--extra-vars&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;platform={{user `platform-name`}}&quot;</span><span class="p">]</span>
+</code></pre></div></p>
+<hr />
+<h2 id="key-behaviors">Key Behaviors<a class="headerlink" href="#key-behaviors" title="Permanent link">&para;</a></h2>
+<h3 id="action-processing-order">Action Processing Order<a class="headerlink" href="#action-processing-order" title="Permanent link">&para;</a></h3>
+<p>Actions are always processed in order 1 through 12 on every string. A single string can contain markers from multiple actions. Earlier actions run first, so their results are visible to later actions.</p>
+<p>The one exception is Action 11 (<code>E&gt;...&lt;E</code>), which performs its own internal <code>&gt;&gt;var&lt;&lt;</code> substitution (Action 2 syntax) before <code>eval()</code>. This two-phase design means Action 2 markers inside Action 11 expressions are resolved even though Action 2 has already been processed at the outer level.</p>
+<h3 id="type-preservation-action-1">Type Preservation (Action 1)<a class="headerlink" href="#type-preservation-action-1" title="Permanent link">&para;</a></h3>
+<p>When the <strong>entire string</strong> (after stripping) matches a single marker, <code>do_substr()</code> returns the handler's raw value directly (line 835-837):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">full</span><span class="p">:</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="k">return</span> <span class="n">repl</span>
+</code></pre></div>
+<p>This is what allows <code>%&gt;thin_disk&lt;%</code> to produce a JSON boolean <code>false</code> instead of the string <code>"False"</code>, or <code>%&gt;cd_files&lt;%</code> to produce a list instead of a string.</p>
+<p>This behavior applies to all actions, not just Action 1. If a string consists of nothing but a single <code>&gt;&gt;token&lt;&lt;</code> marker and the defs value is an integer, the integer is returned.</p>
+<h3 id="secret-dependent-actions">Secret-Dependent Actions<a class="headerlink" href="#secret-dependent-actions" title="Permanent link">&para;</a></h3>
+<p>Actions 5, 8, 9, and 10 all use <code>imager.get_secret()</code> to retrieve sensitive values. The <code>get_secret()</code> method dispatches based on the <code>credential_source</code> setting:</p>
+<ul>
+<li><strong><code>vault</code></strong>: Uses the HashiCorp Vault client (<code>hvac</code>) to read from Vault's KV v2 secrets engine.</li>
+<li><strong><code>config</code></strong>: Reads from <code>~/.config/osimager/secrets</code>, a local file with format <code>path key=val key=val</code>.</li>
+</ul>
+<p>The token format for all secret actions is <code>path:key</code> (e.g., <code>images/linux:password</code>).</p>
+<h3 id="none-and-false-handling">None and False Handling<a class="headerlink" href="#none-and-false-handling" title="Permanent link">&para;</a></h3>
+<ul>
+<li>If a handler returns <code>None</code>, it is converted to an empty string <code>""</code> for substitution (line 828).</li>
+<li>If a handler returns <code>False</code>, the substitution is skipped entirely -- the marker remains in the string (line 830).</li>
+</ul>
+<hr />
+<h2 id="supporting-functions">Supporting Functions<a class="headerlink" href="#supporting-functions" title="Permanent link">&para;</a></h2>
+<h3 id="explode_string_with_dynamic_range">explode_string_with_dynamic_range()<a class="headerlink" href="#explode_string_with_dynamic_range" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 78-113.</p>
+<p>Expands version range expressions in spec <code>provides.versions</code> strings. Supports two bracket syntaxes:</p>
+<ul>
+<li><strong>Range</strong>: <code>[start-end]</code> -- generates all integers from start to end inclusive. Preserves zero-padding when the original values have leading zeros.</li>
+<li><strong>List</strong>: <code>[a,b,c]</code> -- generates the explicit list of values.</li>
+</ul>
+<p>Multiple bracket groups in a single string produce the Cartesian product of all groups.</p>
+<p><strong>Examples:</strong>
+- <code>"8.[3-10]"</code> -&gt; <code>["8.3", "8.4", "8.5", "8.6", "8.7", "8.8", "8.9", "8.10"]</code>
+- <code>"5.[1,9,10,11]"</code> -&gt; <code>["5.1", "5.9", "5.10", "5.11"]</code>
+- <code>"12.[01-05]"</code> -&gt; <code>["12.01", "12.02", "12.03", "12.04", "12.05"]</code> (zero-padded)</p>
+<p>Note: Mixed range-and-list syntax within a single bracket group (e.g., <code>[0-3,5-7]</code>) is not supported. Use separate version strings instead.</p>
+<h3 id="hash_password">hash_password()<a class="headerlink" href="#hash_password" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 543-582.</p>
+<p>Generates crypt-compatible password hashes for <code>/etc/shadow</code> format. Supports three methods:</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Prefix</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>md5</code></td>
+<td><code>$1$</code></td>
+<td><code>_md5_crypt()</code></td>
+</tr>
+<tr>
+<td><code>sha256</code></td>
+<td><code>$5$</code></td>
+<td><code>_sha_crypt()</code> with 5000 rounds</td>
+</tr>
+<tr>
+<td><code>sha512</code></td>
+<td><code>$6$</code></td>
+<td><code>_sha_crypt()</code> with 5000 rounds</td>
+</tr>
+</tbody>
+</table>
+<p>On Python &lt; 3.13, the function uses the stdlib <code>crypt</code> module. On Python 3.13+, where <code>crypt</code> was removed, it falls back to pure-Python implementations (<code>_md5_crypt()</code> at line 336, <code>_sha_crypt()</code> at line 404) that produce identical output to glibc's <code>crypt()</code>.</p>
+<h3 id="prefix_to_netmask">prefix_to_netmask()<a class="headerlink" href="#prefix_to_netmask" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 219-227.</p>
+<p>Converts a CIDR prefix length to a dotted-decimal netmask string.</p>
+<p><strong>Example:</strong> <code>prefix_to_netmask("24")</code> -&gt; <code>"255.255.255.0"</code></p>
+<h3 id="get_ip">get_ip()<a class="headerlink" href="#get_ip" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 229-250.</p>
+<p>Performs a DNS A record lookup for a hostname. Uses <code>dns.resolver.Resolver</code> with optional custom search domains and nameservers (from the location's DNS configuration). Returns the IP address string, or <code>None</code> if resolution fails.</p>
+<h3 id="natural_key">natural_key()<a class="headerlink" href="#natural_key" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 32-34.</p>
+<p>Produces sort keys for version-aware natural ordering. Splits a string on digit boundaries and converts numeric segments to integers, enabling proper sorting where <code>"9.10"</code> sorts after <code>"9.9"</code> rather than between <code>"9.1"</code> and <code>"9.2"</code>.</p>
+<p>Used by <code>make_index()</code> in <code>core.py</code> (line 864) to sort the spec index by version number.</p>
+<h3 id="eval_expression">eval_expression()<a class="headerlink" href="#eval_expression" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 601-636.</p>
+<p>Evaluates arithmetic expressions for Action 6. Splits the expression on <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code> operators, looks up each operand in <code>imager.defs</code>, reconstructs a numeric expression string, and evaluates it with <code>eval()</code>. Returns the result as <code>int</code>.</p>
+<h3 id="eval_expression_safe">eval_expression_safe()<a class="headerlink" href="#eval_expression_safe" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 584-599.</p>
+<p>Evaluates arbitrary Python expressions for Action 11. First performs <code>&gt;&gt;var&lt;&lt;</code> substitution using a regex scan, then passes the result to <code>eval()</code>. Returns whatever <code>eval()</code> produces (string, int, bool, etc.).</p>
+<h3 id="get_default">get_default()<a class="headerlink" href="#get_default" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 669-681.</p>
+<p>Central dispatcher for Actions 1-4 and 7. Takes the defs dict, a key, and an action number. Returns the appropriate transformation:</p>
+<table>
+<thead>
+<tr>
+<th>Action</th>
+<th>Transformation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1, 2</td>
+<td>Raw defs value</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>os.path.basename()</code> of defs value</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>get_ip()</code> DNS lookup on defs value</td>
+</tr>
+<tr>
+<td>7</td>
+<td><code>get_env()</code> environment variable lookup on key</td>
+</tr>
+</tbody>
+</table>
+<h3 id="isvarname">isvarname()<a class="headerlink" href="#isvarname" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 162-167.</p>
+<p>Validates that a token looks like a variable name or path. Allows alphanumeric characters, underscores, forward slashes, commas, and colons. Rejects tokens containing spaces. Used by <code>do_substr()</code> to skip tokens that are not valid variable references (except for Actions 6 and 11 which accept expressions).</p>
+<h3 id="insert_list_items">insert_list_items()<a class="headerlink" href="#insert_list_items" title="Permanent link">&para;</a></h3>
+<p><strong>Location:</strong> <code>utils.py</code>, lines 641-667.</p>
+<p>Implements the handler side of Action 12. Looks up the token in <code>imager.defs</code>:
+- If the value is already a list, returns it directly.
+- If the value is a string, splits on commas and whitespace into a list.
+- If the token does not exist, returns an empty list.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
