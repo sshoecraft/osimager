@@ -13,6 +13,18 @@
   },
   "include": "windows",
   "method": "merge",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
+  ],
   "defs": {
     "timezone": "Central Standard Time",
     "cpu_cores": 4,
@@ -63,7 +75,15 @@
       "defs": {
         "memory": 4096,
         "product_key": "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO"
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO",
+        "azure_image_publisher": "MicrosoftWindowsServer",
+        "azure_image_offer": "WindowsServer",
+        "azure_image_sku": "2016-datacenter-g2",
+        "gcp_source_image_family": "windows-2016",
+        "gcp_source_image_project_id": "windows-cloud",
+        "gcp_image_family": "windows-16",
+        "aws_ami_filter_name": "Windows_Server-2016-English-Full-Base-*",
+        "aws_ami_owners": ["801119661308"]
       },
       "platform_specific": [
         {
@@ -90,7 +110,15 @@
       "version": "2019",
       "defs": {
         "product_key": "N69G4-B89J2-4G8F4-WWYCC-J464C",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO"
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO",
+        "azure_image_publisher": "MicrosoftWindowsServer",
+        "azure_image_offer": "WindowsServer",
+        "azure_image_sku": "2019-datacenter-g2",
+        "gcp_source_image_family": "windows-2019",
+        "gcp_source_image_project_id": "windows-cloud",
+        "gcp_image_family": "windows-19",
+        "aws_ami_filter_name": "Windows_Server-2019-English-Full-Base-*",
+        "aws_ami_owners": ["801119661308"]
       },
       "platform_specific": [
         {
@@ -105,7 +133,15 @@
       "version": "2022",
       "defs": {
         "product_key": "VDYBN-27WPP-V4HQT-9VMD4-VMK7H",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO"
+        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO",
+        "azure_image_publisher": "MicrosoftWindowsServer",
+        "azure_image_offer": "WindowsServer",
+        "azure_image_sku": "2022-datacenter-g2",
+        "gcp_source_image_family": "windows-2022",
+        "gcp_source_image_project_id": "windows-cloud",
+        "gcp_image_family": "windows-22",
+        "aws_ami_filter_name": "Windows_Server-2022-English-Full-Base-*",
+        "aws_ami_owners": ["801119661308"]
       },
       "platform_specific": [
         {
@@ -120,7 +156,15 @@
       "version": "2025",
       "defs": {
         "product_key": "TVRH6-WHNXV-R9WG3-9XRFY-MY832",
-        "iso_url": "file:///iso/Windows/windows_server_2025_x64_dvd.iso"
+        "iso_url": "file:///iso/Windows/windows_server_2025_x64_dvd.iso",
+        "azure_image_publisher": "MicrosoftWindowsServer",
+        "azure_image_offer": "WindowsServer",
+        "azure_image_sku": "2025-datacenter-g2",
+        "gcp_source_image_family": "windows-2025",
+        "gcp_source_image_project_id": "windows-cloud",
+        "gcp_image_family": "windows-25",
+        "aws_ami_filter_name": "Windows_Server-2025-English-Full-Base-*",
+        "aws_ami_owners": ["801119661308"]
       },
       "platform_specific": [
         {

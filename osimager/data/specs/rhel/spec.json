@@ -9,7 +9,8 @@
         "6.[9-10]",
         "7.[5-9]",
         "8.[0,1,2,3,5,6,7,8,9,10]",
-        "9.[0-5]"
+        "9.[0-7]",
+        "10.[0-1]"
     ],
     "arches": [
       "i386",
@@ -25,7 +26,15 @@
     "virtualbox",
     "vmware",
     "vsphere",
-    "proxmox"
+    "proxmox",
+    "qemu",
+    "libvirt",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
   ],
   "files": [
     {
@@ -568,7 +577,15 @@
       "arches": ["x86_64"],
       "defs": {
         "spec_config": "specs/rhel/config_7.yml",
-        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python"
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python",
+        "azure_image_publisher": "RedHat",
+        "azure_image_offer": "RHEL",
+        "azure_image_sku": "7lvm-gen2",
+        "gcp_source_image_family": "rhel-7",
+        "gcp_source_image_project_id": "",
+        "gcp_image_family": "rhel-7",
+        "aws_ami_filter_name": "RHEL-7.*_HVM-*-x86_64-*-Hourly2-GP3",
+        "aws_ami_owners": ["309956199498"]
       },
       "config": {
         "firmware": "efi",
@@ -641,7 +658,15 @@
       "arches": ["x86_64", "aarch64"],
       "defs": {
         "spec_config": "specs/rhel/config_8.yml",
-        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
+        "azure_image_publisher": "RedHat",
+        "azure_image_offer": "RHEL",
+        "azure_image_sku": "8-lvm-gen2",
+        "gcp_source_image_family": "rhel-8",
+        "gcp_source_image_project_id": "",
+        "gcp_image_family": "rhel-8",
+        "aws_ami_filter_name": "RHEL-8.*_HVM-*-x86_64-*-Hourly2-GP3",
+        "aws_ami_owners": ["309956199498"]
       },
       "config": {
         "firmware": "efi",
@@ -747,7 +772,15 @@
         "memory": 4096,
         "spec_config": "specs/rhel/config_9.yml",
         "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
-        "iso_url": "https://archive.org/download/rhel->>version<</rhel->>version<<->>arch<<-dvd.iso"
+        "iso_url": "https://archive.org/download/rhel->>version<</rhel->>version<<->>arch<<-dvd.iso",
+        "azure_image_publisher": "RedHat",
+        "azure_image_offer": "RHEL",
+        "azure_image_sku": "9-lvm-gen2",
+        "gcp_source_image_family": "rhel-9",
+        "gcp_source_image_project_id": "",
+        "gcp_image_family": "rhel-9",
+        "aws_ami_filter_name": "RHEL-9.*_HVM-*-x86_64-*-Hourly2-GP3",
+        "aws_ami_owners": ["309956199498"]
       },
       "config": {
         "firmware": "efi",
@@ -803,6 +836,67 @@
       "defs": {
         "iso_url": "https://archive.org/download/rhel-9.1/rhel-baseos-9.1->>arch<<-dvd.iso"
       }
+    },
+    {
+      "version": "10.*",
+      "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "cpu_cores": 4,
+        "memory": 4096,
+        "spec_config": "specs/rhel/config_9.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
+        "iso_url": "https://archive.org/download/rhel->>version<</rhel->>version<<->>arch<<-dvd.iso",
+        "azure_image_publisher": "RedHat",
+        "azure_image_offer": "RHEL",
+        "azure_image_sku": "10-lvm-gen2",
+        "gcp_source_image_family": "rhel-10",
+        "gcp_source_image_project_id": "",
+        "gcp_image_family": "rhel-10",
+        "aws_ami_filter_name": "RHEL-10.*_HVM-*-x86_64-*-Hourly2-GP3",
+        "aws_ami_owners": ["309956199498"]
+      },
+      "config": {
+        "firmware": "efi",
+        "boot_command": [
+          "<up>e<down><down><end><bs><bs><bs><bs><bs>",
+          "inst.ks=hd:LABEL=OEMDRV:/ks.cfg",
+          " inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "firmware": ""
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat9_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "defs": {
+            "cpu_sockets": 2
+          },
+          "config": {
+            "guest_os_type": "rhel9-64",
+            "merge": [ "vmx_data" ],
+            "vmx_data": {
+              "scsi0.virtualdev": "pvscsi"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel9_64Guest"
+          }
+        }
+      ]
     }
   ]
 }

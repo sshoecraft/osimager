@@ -1,0 +1,56 @@
+{
+  "include": "all",
+  "arches": [
+    "x86_64"
+  ],
+  "defs": {
+    "boot": false,
+    "shutcmd": false,
+    "vm_size": "Standard_D2s_v3",
+    "image_version": "latest"
+  },
+  "variables": {
+    "client-id": "{{vault `azure/>>location_name<<` `client_id`}}",
+    "client-secret": "{{vault `azure/>>location_name<<` `client_secret`}}",
+    "tenant-id": "{{vault `azure/>>location_name<<` `tenant_id`}}",
+    "subscription-id": "{{vault `azure/>>location_name<<` `subscription_id`}}",
+    "gallery-subscription-id": "{{vault `azure/>>location_name<<` `gallery_subscription_id`}}",
+    "gallery-resource-group": "{{vault `azure/>>location_name<<` `gallery_resource_group`}}",
+    "gallery-name": "{{vault `azure/>>location_name<<` `gallery_name`}}",
+    "az-bastion-hostname": "{{vault `azure/>>location_name<<` `bastion_hostname`}}",
+    "az-bastion-username": "{{vault `azure/>>location_name<<` `bastion_username`}}",
+    "az-bastion-keyfile": "{{vault `azure/>>location_name<<` `bastion_keyfile`}}"
+  },
+  "config": {
+    "type": "azure-arm",
+    "client_id": "{{user `client-id`}}",
+    "client_secret": "{{user `client-secret`}}",
+    "tenant_id": "{{user `tenant-id`}}",
+    "subscription_id": "{{user `subscription-id`}}",
+    "location": ">>azure_location<<",
+    "vm_size": ">>vm_size<<",
+    "managed_image_name": ">>name<<",
+    "managed_image_resource_group_name": ">>azure_resource_group<<",
+    "temp_resource_group_name": "rg-packer-build->>name<<->>azure_location<<",
+    "image_publisher": ">>azure_image_publisher<<",
+    "image_offer": ">>azure_image_offer<<",
+    "image_sku": ">>azure_image_sku<<",
+    "image_version": ">>image_version<<",
+    "os_type": "E>'Windows' if '>>spec_name<<'.startswith('win') else 'Linux'<E",
+    "shared_image_gallery_destination": {
+      "subscription": "{{user `gallery-subscription-id`}}",
+      "resource_group": "{{user `gallery-resource-group`}}",
+      "gallery_name": "{{user `gallery-name`}}",
+      "image_name": ">>name<<",
+      "image_version": "{{isotime `2006.01.02`}}",
+      "replication_regions": "%>azure_replication_regions<%",
+      "storage_account_type": "Standard_LRS"
+    },
+    "shared_image_gallery_replica_count": 2,
+    "ssh_bastion_host": "{{user `az-bastion-hostname`}}",
+    "ssh_bastion_username": "{{user `az-bastion-username`}}",
+    "ssh_bastion_private_key_file": "{{user `az-bastion-keyfile`}}",
+    "ssh_clear_authorized_keys": true,
+    "ssh_pty": "true"
+  }
+}

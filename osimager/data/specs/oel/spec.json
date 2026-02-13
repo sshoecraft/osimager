@@ -6,7 +6,8 @@
         "6.[0-10]",
         "7.[0-9]",
         "8.[0-10]",
-        "9.[0-6]"
+        "9.[0-7]",
+        "10.[0-1]"
     ],
     "arches": [
       "i386",
@@ -93,7 +94,15 @@
       "version": "7.*",
       "arches": ["x86_64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u>>minor<</>>arch<</OracleLinux-R7-U>>minor<<-Server->>arch<<-dvd.iso"
+        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u>>minor<</>>arch<</OracleLinux-R7-U>>minor<<-Server->>arch<<-dvd.iso",
+        "azure_image_publisher": "Oracle",
+        "azure_image_offer": "Oracle-Linux",
+        "azure_image_sku": "ol79-lvm-gen2",
+        "gcp_source_image_family": "oracle-linux-7",
+        "gcp_source_image_project_id": "oracle-linux-cloud",
+        "gcp_image_family": "oracle-7",
+        "aws_ami_filter_name": "OL7.*-x86_64-HVM-*",
+        "aws_ami_owners": ["131827586825"]
       },
       "platform_specific": [
         {
@@ -174,7 +183,15 @@
       "version": "8.*",
       "arches": ["x86_64", "aarch64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u>>minor<</>>arch<</OracleLinux-R8-U>>minor<<->>arch<<-dvd.iso"
+        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u>>minor<</>>arch<</OracleLinux-R8-U>>minor<<->>arch<<-dvd.iso",
+        "azure_image_publisher": "Oracle",
+        "azure_image_offer": "Oracle-Linux",
+        "azure_image_sku": "ol89-lvm-gen2",
+        "gcp_source_image_family": "oracle-linux-8",
+        "gcp_source_image_project_id": "oracle-linux-cloud",
+        "gcp_image_family": "oracle-8",
+        "aws_ami_filter_name": "OL8.*-x86_64-HVM-*",
+        "aws_ami_owners": ["131827586825"]
       },
       "platform_specific": [
         {
@@ -261,7 +278,15 @@
       "version": "9.*",
       "arches": ["x86_64", "aarch64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u>>minor<</>>arch<</OracleLinux-R9-U>>minor<<->>arch<<-dvd.iso"
+        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u>>minor<</>>arch<</OracleLinux-R9-U>>minor<<->>arch<<-dvd.iso",
+        "azure_image_publisher": "Oracle",
+        "azure_image_offer": "Oracle-Linux",
+        "azure_image_sku": "ol9-lvm-gen2",
+        "gcp_source_image_family": "oracle-linux-9",
+        "gcp_source_image_project_id": "oracle-linux-cloud",
+        "gcp_image_family": "oracle-9",
+        "aws_ami_filter_name": "OL9.*-x86_64-HVM-*",
+        "aws_ami_owners": ["131827586825"]
       },
       "platform_specific": [
         {
@@ -319,6 +344,41 @@
       "defs": {
         "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u6/>>arch<</OracleLinux-R9-U6->>arch<<-dvd.iso"
       }
+    },
+    {
+      "version": "9.7",
+      "defs": {
+        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u7/>>arch<</OracleLinux-R9-U7->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "10.*",
+      "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL10/u>>minor<</>>arch<</OracleLinux-R10-U>>minor<<->>arch<<-dvd.iso",
+        "azure_image_publisher": "Oracle",
+        "azure_image_offer": "Oracle-Linux",
+        "azure_image_sku": "ol10-lvm-gen2",
+        "gcp_source_image_family": "oracle-linux-10",
+        "gcp_source_image_project_id": "oracle-linux-cloud",
+        "gcp_image_family": "oracle-10",
+        "aws_ami_filter_name": "OL10.*-x86_64-HVM-*",
+        "aws_ami_owners": ["131827586825"]
+      },
+      "platform_specific": [
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "oracleLinux9_64Guest"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "oraclelinux9-64"
+          }
+        }
+      ]
     }
   ]
 }

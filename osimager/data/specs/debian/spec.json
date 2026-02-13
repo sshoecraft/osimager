@@ -20,7 +20,15 @@
     "virtualbox",
     "vmware",
     "vsphere",
-    "proxmox"
+    "proxmox",
+    "qemu",
+    "libvirt",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
   ],
   "defs": {
     "boot_disk_size": 32768,
@@ -190,6 +198,16 @@
     {
       "version": "11.*",
       "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "azure_image_publisher": "Debian",
+        "azure_image_offer": "debian-11",
+        "azure_image_sku": "11-gen2",
+        "gcp_source_image_family": "debian-11",
+        "gcp_source_image_project_id": "debian-cloud",
+        "gcp_image_family": "debian-11",
+        "aws_ami_filter_name": "debian-11-amd64-*",
+        "aws_ami_owners": ["136693071363"]
+      },
       "platform_specific": [
         {
           "platform": "virtualbox",
@@ -214,6 +232,16 @@
     {
       "version": "12.*",
       "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "azure_image_publisher": "Debian",
+        "azure_image_offer": "debian-12",
+        "azure_image_sku": "12-gen2",
+        "gcp_source_image_family": "debian-12",
+        "gcp_source_image_project_id": "debian-cloud",
+        "gcp_image_family": "debian-12",
+        "aws_ami_filter_name": "debian-12-amd64-*",
+        "aws_ami_owners": ["136693071363"]
+      },
       "platform_specific": [
         {
           "platform": "virtualbox",

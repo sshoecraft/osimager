@@ -49,6 +49,16 @@
     {
       "version": "7.*",
       "arches": ["x86_64"],
+      "defs": {
+        "azure_image_publisher": "OpenLogic",
+        "azure_image_offer": "CentOS-LVM",
+        "azure_image_sku": "7-lvm-gen2",
+        "gcp_source_image_family": "centos-7",
+        "gcp_source_image_project_id": "centos-cloud",
+        "gcp_image_family": "centos-7",
+        "aws_ami_filter_name": "CentOS Linux 7*x86_64*",
+        "aws_ami_owners": ["125523088429"]
+      },
       "platform_specific": [
         {
           "platform": "vsphere",
@@ -121,6 +131,16 @@
     {
       "version": "8.*",
       "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "azure_image_publisher": "OpenLogic",
+        "azure_image_offer": "CentOS-LVM",
+        "azure_image_sku": "8-lvm-gen2",
+        "gcp_source_image_family": "centos-stream-8",
+        "gcp_source_image_project_id": "centos-cloud",
+        "gcp_image_family": "centos-8",
+        "aws_ami_filter_name": "CentOS Stream 8*x86_64*",
+        "aws_ami_owners": ["125523088429"]
+      },
       "platform_specific": [
         {
           "platform": "vsphere",

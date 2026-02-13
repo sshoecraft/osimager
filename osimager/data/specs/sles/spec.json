@@ -3,7 +3,7 @@
     "dist": "sles",
     "versions": [
         "12.[1-5]",
-        "15.[0-6]",
+        "15.[0-7]",
         "16.[0-0]"
     ],
     "arches": [
@@ -16,7 +16,15 @@
     "virtualbox",
     "vmware",
     "vsphere",
-    "proxmox"
+    "proxmox",
+    "qemu",
+    "libvirt",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
   ],
   "defs": {
     "boot_disk_size": 32768,
@@ -75,7 +83,15 @@
       "version": "15.*",
       "defs": {
         "iso_url": "file:///iso/SUSE/SLE-15-SP>>minor<<-Full->>arch<<-GM-Media1.iso",
-        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
+        "azure_image_publisher": "SUSE",
+        "azure_image_offer": "sles-15-sp>>minor<<",
+        "azure_image_sku": "gen2",
+        "gcp_source_image_family": "sles-15",
+        "gcp_source_image_project_id": "suse-cloud",
+        "gcp_image_family": "sles-15",
+        "aws_ami_filter_name": "suse-sles-15-sp>>minor<<-*-hvm-ssd-x86_64",
+        "aws_ami_owners": ["013907871322"]
       },
       "files": [
         {

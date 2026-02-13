@@ -8,7 +8,7 @@ configuration constants to maintain consistency across the codebase.
 """
 
 # Version information
-OSIMAGER_VERSION = "1.2.0"
+OSIMAGER_VERSION = "1.3.0"
 OSIMAGER_NAME = "OSImager"
 
 # Default paths and directories
@@ -51,11 +51,16 @@ SUPPORTED_PLATFORMS = [
     "vmware",
     "vmware-vmx",
     "virtualbox",
-    "qemu", 
+    "qemu",
     "libvirt",
     "proxmox",
     "vsphere",
-    "hyperv"
+    "hyperv",
+    "xenserver",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
 ]
 
 # Supported operating systems

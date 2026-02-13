@@ -1,0 +1,9 @@
+{
+  "defs": {
+    "boot": false,
+    "shutcmd": false
+  },
+  "config": {
+    "type": "null"
+  }
+}

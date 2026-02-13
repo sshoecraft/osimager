@@ -4,25 +4,25 @@
     "x86_64"
   ],
   "defs": {
-    "local": true
+    "local": true,
+    "switch_name": "Default Switch",
+    "hyperv_generation": 2
   },
   "config": {
-    "type": "qemu",
+    "type": "hyperv-iso",
     "vm_name": ">>name<<",
-    "output_directory": ">>vms_path<</libvirt/>>name<<",
+    "output_directory": ">>vms_path<</hyperv/>>name<<",
+    "headless": true,
+    "enable_secure_boot": false,
+    "generation": "#>hyperv_generation<#",
+    "cpus": "#>cpu_sockets*cpu_cores<#",
+    "memory": "#>memory<#",
     "iso_url": "E>'>>iso_path<</>>iso_name<<' if >>local_only<< else '>>iso_url<<'<E",
     "iso_checksum": "E>'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'<E",
     "iso_target_path": "E>'' if >>local_only<< else '>>iso_path<</>>iso_name<<'<E",
     "cd_files": "%>cd_files<%",
     "cd_label": ">>cd_label<<",
-    "sockets": "#>cpu_sockets<#",
-    "cores": "#>cpu_cores<#",
-    "memory": "#>memory<#",
-    "firmware": ">>firmware<<",
-    "disk_size": ">>boot_disk_size<<M",
-    "format": "qcow2",
-    "accelerator": "kvm",
-    "net_device": "virtio-net",
-    "disk_interface": "virtio"
+    "switch_name": ">>switch_name<<",
+    "disk_size": "#>boot_disk_size<#"
   }
 }

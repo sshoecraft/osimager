@@ -20,7 +20,41 @@
     {
       "version": "8.*",
       "defs": {
-        "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd1.iso"
+        "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd1.iso",
+        "azure_image_publisher": "resf",
+        "azure_image_offer": "rockylinux-x86_64",
+        "azure_image_sku": "8-lvm",
+        "gcp_source_image_family": "rocky-linux-8",
+        "gcp_source_image_project_id": "rocky-linux-cloud",
+        "gcp_image_family": "rocky-8",
+        "aws_ami_filter_name": "Rocky-8-EC2-Base-8*x86_64*",
+        "aws_ami_owners": ["792107900819"]
+      }
+    },
+    {
+      "version": "9.*",
+      "defs": {
+        "azure_image_publisher": "resf",
+        "azure_image_offer": "rockylinux-x86_64",
+        "azure_image_sku": "9-lvm",
+        "gcp_source_image_family": "rocky-linux-9",
+        "gcp_source_image_project_id": "rocky-linux-cloud",
+        "gcp_image_family": "rocky-9",
+        "aws_ami_filter_name": "Rocky-9-EC2-Base-9*x86_64*",
+        "aws_ami_owners": ["792107900819"]
+      }
+    },
+    {
+      "version": "10.*",
+      "defs": {
+        "azure_image_publisher": "resf",
+        "azure_image_offer": "rockylinux-x86_64",
+        "azure_image_sku": "10-lvm",
+        "gcp_source_image_family": "rocky-linux-10",
+        "gcp_source_image_project_id": "rocky-linux-cloud",
+        "gcp_image_family": "rocky-10",
+        "aws_ami_filter_name": "Rocky-10-EC2-Base-10*x86_64*",
+        "aws_ami_owners": ["792107900819"]
       }
     }
   ]

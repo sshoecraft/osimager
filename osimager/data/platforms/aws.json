@@ -1,0 +1,41 @@
+{
+  "include": "all",
+  "arches": [
+    "x86_64"
+  ],
+  "defs": {
+    "boot": false,
+    "shutcmd": false,
+    "instance_type": "t3.medium"
+  },
+  "variables": {
+    "aws-access-key": "{{vault `aws/>>location_name<<` `access_key`}}",
+    "aws-secret-key": "{{vault `aws/>>location_name<<` `secret_key`}}"
+  },
+  "config": {
+    "type": "amazon-ebs",
+    "access_key": "{{user `aws-access-key`}}",
+    "secret_key": "{{user `aws-secret-key`}}",
+    "region": ">>aws_region<<",
+    "instance_type": ">>instance_type<<",
+    "ami_name": ">>name<<-{{isotime `2006-01-02`}}",
+    "ami_description": ">>name<< Image",
+    "source_ami_filter": {
+      "filters": {
+        "name": ">>aws_ami_filter_name<<",
+        "root-device-type": "ebs",
+        "virtualization-type": "hvm"
+      },
+      "most_recent": true,
+      "owners": "%>aws_ami_owners<%"
+    },
+    "ssh_clear_authorized_keys": true,
+    "vpc_id": ">>aws_vpc_id<<",
+    "subnet_id": ">>aws_subnet_id<<",
+    "associate_public_ip_address": true,
+    "tags": {
+      "Name": ">>name<<",
+      "Builder": "packer"
+    }
+  }
+}

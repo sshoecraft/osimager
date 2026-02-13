@@ -17,7 +17,15 @@
     "virtualbox",
     "vmware",
     "vsphere",
-    "proxmox"
+    "proxmox",
+    "qemu",
+    "libvirt",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
   ],
   "defs": {
     "boot_disk_size": 32768,
@@ -114,7 +122,15 @@
     {
       "version": "20.04",
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server->>deb_arch<<.iso"
+        "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server->>deb_arch<<.iso",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "0001-com-ubuntu-server-focal",
+        "azure_image_sku": "20_04-lts-gen2",
+        "gcp_source_image_family": "ubuntu-2004-lts",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-20",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
       },
       "config": {
         "boot_command": [
@@ -133,13 +149,29 @@
     {
       "version": "22.04",
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server->>deb_arch<<.iso"
+        "iso_url": "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server->>deb_arch<<.iso",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "0001-com-ubuntu-server-jammy",
+        "azure_image_sku": "22_04-lts-gen2",
+        "gcp_source_image_family": "ubuntu-2204-lts",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-22",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
       }
     },
     {
       "version": "24.04",
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server->>deb_arch<<.iso"
+        "iso_url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server->>deb_arch<<.iso",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "ubuntu-24_04-lts",
+        "azure_image_sku": "server",
+        "gcp_source_image_family": "ubuntu-2404-lts-amd64",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-24",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
       }
     }
   ]

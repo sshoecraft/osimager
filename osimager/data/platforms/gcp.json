@@ -1,0 +1,48 @@
+{
+  "include": "all",
+  "arches": [
+    "x86_64"
+  ],
+  "defs": {
+    "boot": false,
+    "shutcmd": false,
+    "machine_type": "n1-standard-2",
+    "disk_type": "pd-ssd",
+    "state_timeout": "15m"
+  },
+  "variables": {
+    "gcp-creds": "{{vault `gcp/>>location_name<<` `credentials_json`}}",
+    "project-id": "{{vault `gcp/>>location_name<<` `project_id`}}",
+    "service-account-email": "{{vault `gcp/>>location_name<<` `service_account_email`}}",
+    "gcp-bastion-hostname": "{{vault `gcp/>>location_name<<` `bastion_hostname`}}",
+    "gcp-bastion-username": "{{vault `gcp/>>location_name<<` `bastion_username`}}",
+    "gcp-bastion-password": "{{vault `gcp/>>location_name<<` `bastion_password`}}"
+  },
+  "config": {
+    "type": "googlecompute",
+    "credentials_json": "{{user `gcp-creds`}}",
+    "project_id": "{{user `project-id`}}",
+    "service_account_email": "{{user `service-account-email`}}",
+    "region": ">>gcp_region<<",
+    "zone": ">>gcp_zone<<",
+    "machine_type": ">>machine_type<<",
+    "disk_type": ">>disk_type<<",
+    "instance_name": "build->>name<<",
+    "image_name": ">>name<<-{{isotime | clean_resource_name}}",
+    "image_family": ">>gcp_image_family<<",
+    "image_description": ">>name<< Image",
+    "source_image_family": ">>gcp_source_image_family<<",
+    "source_image_project_id": ">>gcp_source_image_project_id<<",
+    "image_labels": {
+      "img-region": ">>gcp_region<<"
+    },
+    "state_timeout": ">>state_timeout<<",
+    "ssh_bastion_host": "{{user `gcp-bastion-hostname`}}",
+    "ssh_bastion_username": "{{user `gcp-bastion-username`}}",
+    "ssh_bastion_password": "{{user `gcp-bastion-password`}}",
+    "ssh_clear_authorized_keys": true,
+    "tags": [
+      "packer"
+    ]
+  }
+}
