@@ -1,0 +1,41 @@
+{
+  "_comment": "Example location configuration - copy and customize for your environment",
+  "platforms": [
+    "virtualbox",
+    "vmware"
+  ],
+  "defs": {
+    "domain": "lab.example.com",
+    "cidr": "192.168.1.0/24",
+    "dns": {
+      "search": [
+        "lab.example.com"
+      ],
+      "servers": [
+        "192.168.1.1"
+      ]
+    },
+    "gateway": "192.168.1.1",
+    "ntp": {
+      "servers": [
+        "pool.ntp.org"
+      ]
+    },
+    "vms_path": "/vms",
+    "iso_path": "/iso"
+  },
+  "platform_specific": [
+    {
+      "platform": "vmware",
+      "config": {
+        "vnc_bind_address": "192.168.1.1",
+        "vmx_data": {
+          "ethernet0.present": "TRUE",
+          "ethernet0.startConnected": "TRUE",
+          "ethernet0.connectiontype": "custom",
+          "ethernet0.vnet": "/dev/vmnet0"
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "include": "all",
+  "arches": [
+    "i386",
+    "x86_64"
+  ],
+  "defs": {
+    "shutcmd": false
+  },
+  "variables": {
+    "proxmox-server": "{{vault `proxmox/>>location_name<<` `server`}}",
+    "proxmox-username": "{{vault `proxmox/>>location_name<<` `username`}}",
+    "proxmox-password": "{{vault `proxmox/>>location_name<<` `password`}}",
+    "name": "{{ build_name }}"
+  },
+  "config": {
+    "type": "proxmox-iso",
+    "node": ">>proxmox_node<<",
+    "proxmox_url": "https://{{user `proxmox-server`}}:8006/api2/json",
+    "username": "{{user `proxmox-username`}}",
+    "password": "{{user `proxmox-password`}}",
+    "qemu_agent": true,
+    "insecure_skip_tls_verify": true,
+    "vm_name": ">>name<<",
+    "sockets": "#>cpu_sockets<#",
+    "cores": "#>cpu_cores<#",
+    "cpu_type": "host",
+    "memory": "#>memory<#",
+    "numa": true,
+    "task_timeout": "1h",
+    "boot_iso": {
+      "type": "ide",
+      "E>'iso_file' if >>local_only<< else 'iso_url'<E": "E>'local:iso/>>iso_name<<' if >>local_only<< else '>>iso_url<<'<E",
+      "iso_download_pve": "E>'false' if >>local_only<< else 'true'<E",
+      "iso_checksum": "E>'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'<E",
+      "iso_target_path": "E>'' if >>local_only<< else '>>iso_path<</>>iso_name<<'<E",
+      "iso_storage_pool": ">>iso_storage_pool<<",
+      "unmount": true
+    },
+    "additional_iso_files": [
+      {
+        "type": "ide",
+        "cd_files": "%>cd_files<%",
+        "cd_label": ">>cd_label<<",
+        "unmount": true,
+        "iso_storage_pool": ">>iso_storage_pool<<"
+      }
+    ],
+    "network_adapters": [
+      {
+        "model": "virtio",
+        "bridge": "vmbr0",
+        "firewall": false
+      }
+    ],
+    "scsi_controller": "virtio-scsi-single",
+    "disks": [
+      {
+        "type": "virtio",
+        "disk_size": ">>boot_disk_size<<M",
+        "storage_pool": ">>vm_storage_pool<<"
+      }
+    ]
+  }
+}

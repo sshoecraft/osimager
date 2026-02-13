@@ -1,0 +1,37 @@
+# RHEL 5 specific configuration tasks
+# Included via spec_config from data/config.yml
+---
+
+# RHEL 5 specific tasks
+- name: Set hostname (RHEL 5)
+  lineinfile:
+    path: /etc/sysconfig/network
+    regexp: '^HOSTNAME='
+    line: 'HOSTNAME={{ fqdn | default(ansible_hostname) }}'
+
+- name: Update /etc/hosts for hostname
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1'
+    line: '127.0.1.1 {{ fqdn | default(ansible_hostname) }} {{ ansible_hostname }}'
+
+- name: Ensure SSH is enabled at boot (RHEL 5)
+  service:
+    name: sshd
+    enabled: yes
+    state: started
+
+- name: Update all packages (RHEL 5)
+  yum:
+    name: '*'
+    state: latest
+
+- name: Install common packages (RHEL 5)
+  yum:
+    name:
+      - wget
+      - curl
+      - vim
+      - nano
+      - net-tools
+    state: present

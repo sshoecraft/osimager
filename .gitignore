@@ -64,11 +64,6 @@ temp/
 packer_cache/
 output-*/
 
-# Node modules (frontend)
-node_modules/
-.npm/
-.pnpm-store/
-
 # OS-specific
 Thumbs.db
 .Trash-*/

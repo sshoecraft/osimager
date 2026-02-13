@@ -1,0 +1,44 @@
+# OSImager HashiCorp Vault Setup
+#
+# Setup:
+#   mkosimage --set credential_source=vault
+#   mkosimage --set vault_addr=http://your-vault-server:8200
+#   mkosimage --set vault_token=your-vault-token
+#
+# OSImager uses the KV v2 secrets engine. The secret paths correspond to
+# how specs and platform configs reference secrets. There are two types:
+#
+#   images/<os>           - OS image credentials used by all builds of that
+#                           OS type. Referenced in spec files (e.g.
+#                           specs/linux/spec.json). The username/password are
+#                           used for SSH or WinRM access during the build, and
+#                           for setting the root/admin password in kickstart/
+#                           preseed/autoinst templates.
+#
+#   <platform>/<location> - Platform credentials for a specific location.
+#                           Referenced in platform files (e.g.
+#                           platforms/vsphere.json). The <location> matches
+#                           the location name you use in the build target:
+#                           mkosimage <platform>/<location>/<spec>
+#
+# Enable the KV v2 secrets engine for each mount point:
+
+vault secrets enable -path=images -version=2 kv
+vault secrets enable -path=vsphere -version=2 kv
+vault secrets enable -path=proxmox -version=2 kv
+
+# Image credentials (required for all builds)
+
+vault kv put images/linux username=root password=Ch@ng3m3
+vault kv put images/windows username=Administrator password=Ch@ng3m3
+
+# vSphere credentials (one entry per location that uses vsphere)
+# e.g. for "mkosimage vsphere/lab/..." the path is vsphere/lab
+
+vault kv put vsphere/lab server=vcenter.example.com username=administrator@vsphere.local password=Ch@ng3m3
+vault kv put vsphere/esx server=esxhost1.example.com username=root password=Ch@ng3m3
+
+# Proxmox credentials (one entry per location that uses proxmox)
+# e.g. for "mkosimage proxmox/pnet/..." the path is proxmox/pnet
+
+vault kv put proxmox/pnet server=proxmox.example.com username=root@pam password=Ch@ng3m3

@@ -1,327 +1,204 @@
 # OSImager
 
-OSImager is a comprehensive OS image building and automation system that provides a unified interface for creating virtual machine images across multiple platforms using HashiCorp Packer as the core engine.
+Multi-platform OS image builder using HashiCorp Packer. Build virtual machine images for any operating system -- from RHEL 2.1 (2002) to the latest RHEL 9, CentOS, Debian, Ubuntu, SLES, and Windows Server -- on any supported hypervisor, from a single command.
 
-## 🎯 Features
+## Quick Install
 
-- **Multi-Platform Support**: VMware, VirtualBox, QEMU, libvirt, Proxmox, vSphere, Hyper-V
-- **OS Coverage**: RHEL, CentOS, AlmaLinux, Rocky Linux, Oracle Linux (OEL), Debian, Ubuntu, SLES, Windows
-- **Automated Provisioning**: Ansible-based configuration management
-- **Secrets Management**: HashiCorp Vault integration
-- **Web Interface**: Visual spec editor using Webix framework
-- **Network Management**: IP pool management and DNS integration
-- **Flexible Configuration**: JSON-based platform, location, and spec definitions
-
-## 🚀 Quick Start
+```bash
+pip install osimager
+```
 
 ### Prerequisites
 
-- Python 3.6 or higher
-- HashiCorp Packer
-- Ansible (for provisioning)
-- Virtualization platform (VMware, VirtualBox, etc.)
-- **mkisofs** (from cdrtools) - required for creating kickstart CD images. On macOS: `brew install cdrtools`. On Linux: install `cdrtools` or `genisoimage` from your package manager. Without this, Packer falls back to macOS `hdiutil` which creates hybrid ISOs with Mac partition tables that Linux installers cannot mount.
+- **Python 3.8+**
+- **HashiCorp Packer** -- https://developer.hashicorp.com/packer/install
+- **Ansible** -- `pip install ansible`
+- **A hypervisor** -- VirtualBox is free and the easiest to start with
+- **Packer plugins** -- At minimum, the Ansible provisioner and your target platform plugin:
+  ```bash
+  packer plugins install github.com/hashicorp/ansible
+  packer plugins install github.com/hashicorp/virtualbox
+  ```
+- **mkisofs** (recommended) -- `brew install cdrtools` (macOS) or `apt install genisoimage` (Linux)
 
-### Installation
+## Getting Started
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/sshoecraft/OSImager.git
-   cd OSImager
-   ```
-
-2. **Install Python dependencies** (if developing):
-   ```bash
-   pip install -r backend/requirements.txt
-   ```
-
-3. **Quick Setup** (recommended):
-   ```bash
-   # For Linux production installation:
-   sudo ./install.sh
-   
-   # For development:
-   ./start-dev.sh
-   ```
-
-### Basic Usage
-
-1. **List available specs**:
-   ```bash
-   python3 bin/mkosimage.py --list
-   # or if installed via install.sh:
-   mkosimage --list
-   ```
-
-2. **Build an image**:
-   ```bash
-   python3 bin/mkosimage.py platform/location/spec
-   # or if installed:
-   mkosimage platform/location/spec
-   ```
-
-   Example:
-   ```bash
-   mkosimage vmware/lab/rhel-9.0-x86_64
-   ```
-
-## 📁 Project Structure
+After installing, run `mkosimage` with no arguments -- it will tell you exactly what to set up:
 
 ```
-osimager/
-├── bin/                   # Command-line interface programs
-│   ├── mkosimage.py       # Main CLI script
-│   ├── rfosimage.py       # RetroFit OS Image utility
-│   └── mkvenv.py          # Virtual environment manager
-├── lib/                   # Python libraries
-│   └── osimager/          # OSImager Python package
-│       ├── core.py        # Main OSImager class
-│       ├── utils.py       # Utility functions
-│       └── constants.py   # Constants and configuration
-├── platforms/             # Platform definitions
-├── locations/             # Location configurations
-├── specs/                # OS specifications
-├── tasks/                # Ansible playbooks
-├── files/                # Template files
-├── install/              # Installation-specific files
-├── backend/              # FastAPI backend server
-├── frontend/             # Modern React/TypeScript web interface
-├── logs/                 # Log files (configurable)
-│   ├── backend.log       # Backend server logs
-│   ├── frontend.log      # Frontend dev server logs
-│   └── builds.log       # Build process logs
-├── osimager.conf        # Main configuration file
-├── osimager_config.py   # Configuration module
-└── install.sh           # Linux installer script
+$ mkosimage
+Usage: mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
+
+No locations configured.
+  Create a location file in ~/.config/osimager/locations/
+  ...
 ```
 
-## ⚙️ Configuration
+### 1. Create a location
 
-### Settings File
+A location defines your build environment -- network settings, DNS, and where ISOs/VMs live.
 
-OSImager stores settings in `~/.config/osimager/settings.json`:
-
-```json
-{
-    "packer_cmd": "packer",
-    "base_dir": "/opt/osimager",
-    "packer_cache_dir": "/tmp",
-    "local_only": false
-}
-```
-
-### Platform Configuration
-
-Define virtualization platforms in `data/platforms/`:
-
-```json
-{
-    "type": "vmware-vmx",
-    "guest_os_type": "rhel8-64",
-    "memory": 2048,
-    "cpus": 2,
-    "disk_size": 20480
-}
-```
-
-### Location Configuration
-
-Define network environments in `data/locations/`:
-
-```json
-{
-    "platforms": ["vmware", "virtualbox"],
-    "defs": {
-        "domain": "example.com",
-        "dns": {
-            "servers": ["8.8.8.8", "8.8.4.4"]
-        },
-        "ntp": {
-            "servers": ["pool.ntp.org"]
-        }
-    }
-}
-```
-
-## 🔧 CLI Reference
-
-### mkosimage
-
-Main image building command:
+Copy the quickstart template and edit it:
 
 ```bash
-python3 bin/mkosimage.py [OPTIONS] PLATFORM/LOCATION/SPEC
-# or if installed:
-mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC
+cp $(python3 -c "import osimager; import os; print(os.path.join(os.path.dirname(osimager.__file__), 'data', 'examples', 'quickstart-location.toml'))") \
+   ~/.config/osimager/locations/local.toml
 ```
 
-**Options**:
-- `-l, --list`: List available specs with dist-version-arch details
-- `-a, --avail`: Only list specs where ISO is present
-- `-d, --debug`: Enable debug mode
-- `-v, --verbose`: Enable verbose output
-- `-f, --force`: Force rebuild
-- `-k, --keep`: Keep temporary files
-- `-n, --dry`: Dry run (show commands without executing)
-- `-D, --define KEY=VALUE`: Define custom variables
-- `-F, --fqdn FQDN`: Set fully qualified domain name
-- `--local-only`: Use local ISO files instead of downloading
+Edit `~/.config/osimager/locations/local.toml` -- set your network, gateway, DNS, and paths:
 
-**Examples**:
+```toml
+platforms = ["virtualbox"]
+
+[defs]
+domain = "home.local"
+gateway = "192.168.1.1"
+cidr = "192.168.1.0/24"
+vms_path = "/vms"
+iso_path = "/iso"
+
+[defs.dns]
+servers = ["192.168.1.1"]
+
+[defs.ntp]
+servers = ["pool.ntp.org"]
+```
+
+Locations support both TOML and JSON formats. If both `lab.toml` and `lab.json` exist, JSON takes priority.
+
+### 2. Set up credentials
+
+OS image builds need credentials for SSH/WinRM access and root passwords. OSImager supports two credential sources:
+
+**Option A: Local secrets file** (simplest)
+
 ```bash
-# List all available specs (shows dist-version-arch combinations)
+mkosimage --set credential_source=config
+```
+
+Create `~/.config/osimager/secrets`:
+
+```
+images/linux username=root password=YourPassword
+images/windows username=Administrator password=YourPassword
+```
+
+**Option B: HashiCorp Vault**
+
+```bash
+mkosimage --set vault_addr=http://your-vault:8200
+mkosimage --set vault_token=your-token
+```
+
+See the example files shipped with the package for the full secret path reference (including platform credentials for vSphere and Proxmox).
+
+### 3. Build
+
+```bash
+# List all available OS specs
 mkosimage --list
 
-# Build RHEL 9.0 x86_64 on VMware in lab environment
-mkosimage vmware/lab/rhel-9.0-x86_64
+# Dry run -- generates the Packer config without executing
+mkosimage -n virtualbox/local/alma-9.5-x86_64
 
-# Build with custom variables and hostname
-mkosimage --define hostname=myserver --fqdn myserver.example.com vmware/lab/rhel-9.0-x86_64
-
-# Dry run to see what would be executed
-mkosimage --dry vmware/lab/rhel-9.0-x86_64
-
-# Use local ISO instead of downloading
-mkosimage --local-only vmware/lab/centos-7.9-x86_64
+# Build
+mkosimage virtualbox/local/alma-9.5-x86_64
 ```
 
-### rfosimage
+## How It Works
 
-RetroFit OS Image utility for updating and modifying existing images without complete rebuilds:
+```
+mkosimage <platform>/<location>/<spec>
+```
+
+- **Platform** = your hypervisor (ships with package)
+- **Location** = your environment: network, DNS, storage paths (you create this)
+- **Spec** = the OS to build (ships with package)
+
+OSImager merges these three configs together, performs template substitution, generates the appropriate answer file (kickstart, preseed, autoyast, or autounattend), produces a Packer build JSON, and executes it.
+
+## Features
+
+- **330 OS specs** covering 15 distributions across decades of releases
+- **7 hypervisor platforms**: VirtualBox, VMware Workstation/Fusion, vSphere, Proxmox, QEMU/KVM, libvirt, Hyper-V
+- **Automated installation**: Kickstart (RHEL/CentOS/Alma/Rocky/OEL), preseed (Debian), cloud-init (Ubuntu 20.04+), AutoYaST (SLES), Autounattend (Windows)
+- **Ansible provisioning**: Post-install configuration via Ansible playbooks
+- **Hierarchical configuration**: Platform/location/spec system with deep inheritance and per-version/per-platform overrides
+- **Flexible credentials**: Local secrets file or optional HashiCorp Vault integration
+- **TOML or JSON locations**: User-editable location configs in either format
+
+## Supported Operating Systems
+
+| Distribution | Versions | Install Method |
+|-------------|----------|----------------|
+| RHEL | 2.1, 3.0, 4.8, 5.x, 6.x, 7.x, 8.x, 9.0-9.5 | Kickstart |
+| CentOS | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.5 | Kickstart |
+| AlmaLinux | 8.3-8.10, 9.0-9.7 | Kickstart |
+| Rocky Linux | 8.3-8.9, 9.0-9.7, 10.0-10.1 | Kickstart |
+| Oracle Linux | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.10, 9.0-9.6 | Kickstart |
+| Debian | 8-13 | Preseed |
+| Ubuntu | 18.04, 20.04, 22.04, 24.04 | Preseed / Cloud-Init |
+| SLES | 12.1-12.5, 15.0-15.6, 16.0 | AutoYaST |
+| VMware ESXi | 5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2 | Kickstart |
+| Windows Server | 2016, 2019, 2022, 2025 | Autounattend |
+
+## Supported Platforms
+
+| Platform | Type | Plugin |
+|----------|------|--------|
+| VirtualBox | Local | `github.com/hashicorp/virtualbox` |
+| VMware Workstation/Fusion | Local | `github.com/hashicorp/vmware` |
+| vSphere | Remote | `github.com/hashicorp/vsphere` |
+| Proxmox | Remote | `github.com/hashicorp/proxmox` |
+| QEMU/KVM | Local | `github.com/hashicorp/qemu` |
+| libvirt | Local | `github.com/thomasklein94/libvirt` |
+| Hyper-V | Local | Built-in |
+
+## Configuration
+
+All user configuration lives in `~/.config/osimager/`:
+
+| File | Purpose |
+|------|---------|
+| `locations/*.toml` or `*.json` | Build environments (you create these) |
+| `secrets` | Credentials when using `credential_source=config` |
+| `osimager.conf` | Persistent settings (managed via `--set`) |
+
+Settings are configured with `--set`:
 
 ```bash
-python3 bin/rfosimage.py [OPTIONS] IMAGE_PATH [RETROFIT_SPEC]
-# or if installed:
-rfosimage [OPTIONS] IMAGE_PATH [RETROFIT_SPEC]
+mkosimage --set credential_source=config    # use local secrets file
+mkosimage --set vault_addr=http://vault:8200 # vault server address
+mkosimage --set local_only=True              # only use local ISOs
+mkosimage --set packer_cache_dir=/var/cache  # ISO download cache
 ```
 
-### mkvenv
-
-Virtual environment management utility:
-
-```bash
-python3 bin/mkvenv.py [OPTIONS] ENV_NAME
-# or if installed:
-mkvenv [OPTIONS] ENV_NAME
-```
-
-## 🌐 Web Interface
-
-OSImager provides two web interfaces:
-
-### Modern React Frontend (Recommended)
-
-A modern, responsive web application built with React and TypeScript:
-
-**Features**:
-- 📊 **Real-time Dashboard**: Live system overview and build monitoring
-- 🚀 **Build Management**: Complete build lifecycle with real-time progress
-- 🔄 **Live Updates**: WebSocket-based real-time status updates
-- 📱 **Responsive Design**: Works on desktop, tablet, and mobile
-- 🎯 **Type Safety**: Full TypeScript implementation
-
-**Quick Start**:
-```bash
-# Start both backend and frontend
-./start-dev.sh
-
-# Or start individually:
-# Backend: cd backend && python run_server.py
-# Frontend: cd frontend && npm run dev
-```
-
-**Access**:
-- **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:8000
-- **Backend Documentation**: http://localhost:8000/docs
-
-### Legacy Webix Interface
-
-Original web interface using Webix framework:
-
-**Access**: Open `http://localhost:8000` in a web browser (modern React interface)
-
-**Features**:
-- **Spec Editor**: Visual editor for OS specifications
-- **Configuration Management**: Basic JSON configuration editing
-- **Legacy Support**: Maintained for backward compatibility
-
-## 🔐 Vault Integration
-
-OSImager supports HashiCorp Vault for secrets management. Configure vault access in `data/.vaultconfig`:
+## CLI Reference
 
 ```
-addr=https://vault.example.com:8200
-token=your-vault-token
+mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
+
+Options:
+  -l, --list          List all available specs
+  -a, --avail         List only specs with local ISOs present
+  -n, --dry           Dry run (show commands without executing)
+  -d, --debug         Enable debug output
+  -v, --verbose       Enable verbose output
+  -f, --force         Force rebuild
+  -k, --keep          Keep temporary files after build
+  -F, --fqdn FQDN    Set fully qualified domain name
+  -D, --define K=V    Define custom variables
+  -u, --dump          Dump build configuration as JSON
+  -x, --defs          Dump resolved definitions as JSON
+  --local-only        Use local ISO files only
+  --set KEY=VALUE     Set a persistent configuration value
+  -V, --version       Show version
 ```
 
-## 🧪 Development
+## Documentation
 
-### Running Tests
+For detailed documentation on location setup, platform configuration, spec format, template syntax, and the credential system, see the [OSImager Wiki](https://github.com/sshoecraft/osimager/wiki).
 
-```bash
-python -m pytest tests/
-```
+## License
 
-### Code Formatting
-
-```bash
-black lib/osimager/
-```
-
-### Type Checking
-
-```bash
-mypy lib/osimager/
-```
-
-### Development Setup
-
-1. **Clone and setup**:
-   ```bash
-   git clone https://github.com/sshoecraft/OSImager.git
-   cd OSImager
-   ```
-
-2. **Run development servers**:
-   ```bash
-   ./start-dev.sh  # Starts both backend and frontend
-   ```
-
-3. **Test CLI tools**:
-   ```bash
-   python3 bin/mkosimage.py --list
-   python3 bin/mkosimage.py --help
-   ```
-
-## 📚 Documentation
-
-- [PLANNING.md](PLANNING.md): Project architecture and design principles
-- [TASK.md](TASK.md): Current development tasks and roadmap
-- [DEPLOYMENT.md](DEPLOYMENT.md): Deployment guide and remote server setup
-- [CONFIGURATION.md](CONFIGURATION.md): Detailed configuration format documentation
-- [INSTALL.md](INSTALL.md): Linux installation guide and system requirements
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙋 Support
-
-- **Issues**: [GitHub Issues](https://github.com/sshoecraft/OSImager/issues)
-- **Documentation**: See docs/ directory
-- **Community**: [GitHub Discussions](https://github.com/sshoecraft/OSImager/discussions)
-
-## 🔄 Version History
-
-- **0.1.0**: Initial release with basic Packer integration
-- **Current**: Active development - see TASK.md for roadmap
+MIT License -- see [LICENSE](LICENSE) for details.

@@ -1,0 +1,808 @@
+{
+  "provides": {
+    "dist": "rhel",
+    "versions": [
+        "2.1",
+        "3.0",
+        "4.8",
+        "5.[1,9,10,11]",
+        "6.[9-10]",
+        "7.[5-9]",
+        "8.[0,1,2,3,5,6,7,8,9,10]",
+        "9.[0-5]"
+    ],
+    "arches": [
+      "i386",
+      "x86_64",
+      "aarch64"
+    ]
+  },
+  "install_notice": [
+    "blah"
+  ],
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox"
+  ],
+  "files": [
+    {
+      "sources": [
+        "rhel/kickstart_>>major<<.cfg",
+        "rhel/ks-part.sh",
+        "rhel/kickstart_end.cfg",
+        "rhel/kickstart_post.cfg",
+        "rhel/install_vmwtools.sh",
+        "rhel/kickstart_end.cfg"
+      ],
+      "dest": "ks.cfg"
+    }
+  ],
+  "defs": {
+    "cd_files": ">>temp_dir<</ks.cfg",
+    "cd_label": "OEMDRV",
+    "merge": [ "ansible_extra_args" ],
+    "ansible_extra_args": [ "--scp-extra-args='-O'", "-e", "ansible_scp_extra_args='-O'" ]
+  },
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "version_specific": [
+    {
+      "version": "[23].*",
+      "arches": ["i386"],
+      "venv": "2.10",
+      "defs": {
+        "spec_config": "specs/rhel/config_legacy.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2",
+        "cd_files": ">>temp_dir<</ks.cfg",
+        "cd_label": "OEMDRV"
+      },
+      "files": [
+        {
+          "sources": [
+            "rhel/kickstart_3.cfg",
+            "rhel/ks-part.sh",
+            "rhel/kickstart_post.cfg",
+            "rhel/install_vmwtools.sh",
+            "rhel/kickstart_end.cfg"
+          ],
+          "dest": "ks.cfg"
+        }
+      ],
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      },
+      "config": {
+        "boot_wait": "10s",
+        "boot_command": [
+          "<tab>linux ks=hd:hdd:/ks.cfg<enter>"
+        ],
+        "shutdown_command": "/sbin/shutdown -h now",
+        "ssh_key_exchange_algorithms": [
+          "diffie-hellman-group-exchange-sha1"
+        ],
+        "ssh_ciphers": [
+          "aes128-cbc"
+        ]
+      },
+      "pre_provisioners": [
+        {
+          "type": "file",
+          "source": ">>spec_dir<</configure_system",
+          "destination": "/root/configure_system"
+        },
+        {
+          "type": "shell",
+          "inline": "chmod +x /root/configure_system && /root/configure_system"
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "post_provisioners": [
+            {
+              "type": "shell",
+              "inline": "poweroff"
+            }
+          ],
+          "config": {
+            "qemu_agent": false,
+            "boot_command": [
+              "<tab>linux ks=hd:hdc:/ks.cfg<enter>"
+            ],
+            "disks": [
+              {
+                "type": "ide",
+                "disk_size": ">>boot_disk_size<<M",
+                "storage_pool": "{{ user `vm-storage-pool`}}"
+              }
+            ],
+            "network_adapters": [
+              {
+                "model": "e1000-82540em",
+                "bridge": "vmbr0",
+                "firewall": false
+              }
+            ]
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "post_provisioners": [
+            {
+              "type": "shell",
+              "inline": "poweroff"
+            },
+            {
+              "type": "shell-local",
+              "inline": [
+                "sleep 30",
+                "VBoxManage controlvm \">>name<<\" poweroff"
+              ]
+            }
+          ],
+          "config": {
+            "shutdown_command": "",
+            "disable_shutdown": true,
+            "guest_os_type": "RedHat3",
+            "rtc_time_base": "UTC",
+            "hard_drive_interface": "ide",
+            "vboxmanage": [
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--nic-type1=82540EM",
+                "--nic1=bridged",
+                "--bridge-adapter1=vbnet"
+              ],
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--ioapic",
+                "on",
+                "--rtcuseutc",
+                "on",
+                "--hwvirtex",
+                "on",
+                "--vtxvpid",
+                "on",
+                "--nestedpaging",
+                "on"
+              ]
+            ]
+          }
+        },
+        {
+          "platform": "vmware",
+          "post_provisioners": [
+            {
+              "type": "shell",
+              "inline": "poweroff"
+            },
+            {
+              "type": "shell-local",
+              "inline": "sleep 30"
+            }
+          ],
+          "config": {
+            "shutdown_command": "",
+            "guest_os_type": "rhel3",
+            "disk_adapter_type": "ide",
+            "cdrom_adapter_type": "ide",
+            "network_adapter_type": "e1000",
+            "merge": [
+              "vmx_data"
+            ],
+            "vmx_data": {
+              "ide1:0.present": "TRUE",
+              "ide1:0.deviceType": "cdrom-image",
+              "ide1:0.fileName": "/usr/lib/vmware/isoimages/linux.iso"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "version": "2.1",
+      "defs": {
+        "iso_url": "file:///iso/RedHat/RHEL2.1-i386-DVD.iso"
+      }
+    },
+    {
+      "version": "3.0",
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file:///iso/RedHat/RHEL3.0-i386-ES-DVD.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "4.*",
+      "arches": ["i386", "x86_64"],
+      "venv": "2.10",
+      "defs": {
+        "spec_config": "specs/rhel/config_legacy.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2",
+        "iso_url": "file:///iso/RedHat/RHEL>>version<<->>arch<<-AS-DVD.iso"
+      },
+      "files": [
+        {
+          "sources": [
+            "rhel/kickstart_4.cfg",
+            "rhel/ks-part.sh",
+            "rhel/kickstart_post.cfg",
+            "rhel/install_vmwtools.sh",
+            "rhel/kickstart_end.cfg"
+          ],
+          "dest": "ks.cfg"
+        }
+      ],
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      },
+      "config": {
+        "boot_wait": "10s",
+        "boot_command": [
+          "<tab>linux ks=cdrom:/ks.cfg<enter>"
+        ],
+        "shutdown_command": "/sbin/shutdown -h now",
+        "ssh_key_exchange_algorithms": [
+          "diffie-hellman-group-exchange-sha1",
+          "diffie-hellman-group14-sha1",
+          "diffie-hellman-group1-sha1"
+        ]
+      },
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "qemu_agent": false
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat5_64",
+            "hard_drive_interface": "scsi",
+            "vboxmanage": [
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--nic-type1=82540EM",
+                "--nic1=bridged",
+                "--bridge-adapter1=vbnet"
+              ],
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--ioapic",
+                "on",
+                "--rtcuseutc",
+                "on",
+                "--hwvirtex",
+                "on",
+                "--vtxvpid",
+                "on",
+                "--nestedpaging",
+                "on"
+              ]
+            ]
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "rhel4-64",
+            "disk_adapter_type": "ide",
+            "cdrom_adapter_type": "ide",
+            "network_adapter_type": "e1000",
+            "merge": [
+              "vmx_data"
+            ],
+            "vmx_data": {
+              "ide1:0.present": "TRUE",
+              "ide1:0.deviceType": "cdrom-image",
+              "ide1:0.fileName": "/usr/lib/vmware/isoimages/linux.iso"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel4_64Guest",
+            "disk_controller_type": "lsilogic-sas",
+            "network_adapters": [
+              {
+                "network": ">>vm_network<<",
+                "network_card": "e1000"
+              }
+            ],
+            "iso_paths": [
+              "{{user `iso-volume`}} >>iso<<",
+              "[iso] legacy-vmtools.iso"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "version": "5.*",
+      "arches": ["i386", "x86_64"],
+      "venv": "2.10",
+      "defs": {
+        "spec_config": "specs/rhel/config_5.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2"
+      },
+      "files": [
+        {
+          "sources": [
+            "rhel/kickstart_5.cfg",
+            "rhel/ks-part.sh",
+            "rhel/kickstart_end.cfg",
+            "rhel/kickstart_post.cfg",
+            "rhel/install_vmwtools.sh",
+            "rhel/kickstart_end.cfg"
+          ],
+          "dest": "ks.cfg"
+        }
+      ],
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      },
+      "config": {
+        "boot_wait": "10s",
+        "boot_command": [
+          "<tab>linux ks=cdrom:/ks.cfg<enter>"
+        ],
+        "shutdown_command": "/sbin/shutdown -h now",
+        "ssh_key_exchange_algorithms": [
+          "diffie-hellman-group14-sha1"
+        ]
+      },
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "qemu_agent": false
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat5_64",
+            "hard_drive_interface": "scsi",
+            "vboxmanage": [
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--nic-type1=82540EM",
+                "--nic1=bridged",
+                "--bridge-adapter1=vbnet"
+              ]
+            ]
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "rhel5-64",
+            "disk_adapter_type": "sata",
+            "cdrom_adapter_type": "ide",
+            "network_adapter_type": "e1000",
+            "merge": [
+              "vmx_data"
+            ],
+            "vmx_data": {
+              "ide0:1.fileName": "/iso/legacy-vmtools.iso"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel5_64Guest",
+            "disk_controller_type": "lsilogic-sas",
+            "network_adapters": [
+              {
+                "network": ">>vm_network<<",
+                "network_card": "e1000"
+              }
+            ],
+            "iso_paths": [
+              "[iso] legacy-vmtools.iso"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "version": "5.1",
+      "defs": {
+        "spec_config": "specs/rhel/config_prejson.yml"
+      },
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "https://archive.org/download/RHEL-5.1-Complete/RHEL%205.1%20i386%20Installer%20DVD.iso"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://archive.org/download/RHEL-5.1-Complete/RHEL%205.1%20x86_64%20Installer%20DVD.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "5.9",
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file:///iso/RedHat/rhel-server-5.9-i386-dvd.iso"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file:///iso/RedHat/rhel-server-5.9-x86_64-dvd.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "5.10",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file:///iso/RedHat/rhel-server-5.10-x86_64-dvd.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "5.11",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file:///iso/RedHat/rhel-server-5.11-x86_64-dvd.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "6.*",
+      "venv": "2.10",
+      "defs": {
+        "spec_config": "specs/rhel/config_6.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2"
+      },
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      },
+      "config": {
+        "boot_command": [
+          "<tab> ks=cdrom:/ks.cfg biosdevname=0<enter>"
+        ],
+        "ssh_key_exchange_algorithms": ["diffie-hellman-group1-sha1", "diffie-hellman-group14-sha1"],
+        "ssh_ciphers": ["aes128-cbc", "aes192-cbc", "aes256-cbc"]
+      },
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat6E>'_64' if '>>arch<<' == 'x86_64' else ''<E",
+            "hard_drive_interface": "scsi",
+            "vboxmanage": [
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--nic-type1=82540EM",
+                "--nic1=bridged",
+                "--bridge-adapter1=vbnet"
+              ]
+            ]
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "rhel6E>'-64' if '>>arch<<' == 'x86_64' else ''<E",
+            "merge": [
+              "vmx_data"
+            ],
+            "vmx_data": {
+              "ide0:1.fileName": "/usr/lib/vmware/isoimages/linux.iso"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel6E>'_64Guest' if '>>arch<<' == 'x86_64' else 'Guest'<E"
+          }
+        }
+      ]
+    },
+    {
+      "version": "6.9",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://archive.org/download/rhel-server-6.9-x86_64-dvd/rhel-server-6.9-x86_64-dvd.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "6.10",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://archive.org/download/rhel-server-6.10-x86_64-dvd/rhel-server-6.10-x86_64-dvd.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "7.*",
+      "arches": ["x86_64"],
+      "defs": {
+        "spec_config": "specs/rhel/config_7.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python"
+      },
+      "config": {
+        "firmware": "efi",
+        "boot_command": [
+          "<up>e<down><down><end><bs><bs><bs><bs><bs>",
+          "inst.ks=hd:LABEL=OEMDRV:/ks.cfg",
+          " inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "firmware": ""
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat7_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "rhel7-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel7_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "7.5",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-7.5-x86_64-dvd/rhel-server-7.5-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "7.6",
+      "defs": {
+        "iso_url": "https://archive.org/download/redhat_rhel_server_7.6_od_hessfr_fr/rhel-server-7.6-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "7.7",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-7.7-x86_64-dvd/rhel-server-7.7-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "7.8",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-7.8-x86_64-dvd/rhel-server-7.8-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "7.9",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-7.9-x86_64-dvd/rhel-server-7.9-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.*",
+      "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "spec_config": "specs/rhel/config_8.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+      },
+      "config": {
+        "firmware": "efi",
+        "boot_command": [
+          "<up>e<down><down><end><bs><bs><bs><bs><bs>",
+          "inst.ks=hd:LABEL=OEMDRV:/ks.cfg",
+          " inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "firmware": ""
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat8_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "rhel8-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel8_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "8.0",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.0-x86_64-dvd/rhel-8.0-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.1",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.1-x86_64-dvd/rhel-8.1-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.2",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.2-x86_64-dvd/rhel-8.2-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.3",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.3-x86_64-resources/rhel-8.3-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.5",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.5-x86_64-resources/rhel-8.5-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.6",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.6/rhel-8.6->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "8.7",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.7-x86_64-resources/rhel-8.7-x86_64-dvd.iso"
+      }
+    },
+    {
+      "version": "8.8",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.8/rhel-8.8->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "8.9",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.9/rhel-8.9->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "8.10",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-8.10-x86_64-dvd/rhel-8.10->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "9.*",
+      "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "cpu_cores": 4,
+        "memory": 4096,
+        "spec_config": "specs/rhel/config_9.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
+        "iso_url": "https://archive.org/download/rhel->>version<</rhel->>version<<->>arch<<-dvd.iso"
+      },
+      "config": {
+        "firmware": "efi",
+        "boot_command": [
+          "<up>e<down><down><end><bs><bs><bs><bs><bs>",
+          "inst.ks=hd:LABEL=OEMDRV:/ks.cfg",
+          " inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "firmware": ""
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "RedHat9_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "defs": {
+            "cpu_sockets": 2
+          },
+          "config": {
+            "guest_os_type": "rhel9-64",
+            "merge": [ "vmx_data" ],
+            "vmx_data": {
+              "scsi0.virtualdev": "pvscsi"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "rhel9_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "9.0",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-9.0/rhel-baseos-9.0->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "9.1",
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-9.1/rhel-baseos-9.1->>arch<<-dvd.iso"
+      }
+    }
+  ]
+}

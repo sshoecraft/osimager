@@ -1,0 +1,124 @@
+{
+  "provides": {
+    "dist": "sysvr4",
+    "versions": [
+      "2.1"
+    ],
+    "arches": [
+      "i386"
+    ]
+  },
+  "flavor": "unix",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "proxmox"
+  ],
+  "defs": {
+    "iso_url": "file:///iso/SystemV/sysvr4-2.1-i386.iso",
+    "ansible_playbook": ">>spec_dir<</config.yml"
+  },
+  "pre_provisioners": [
+    {
+      "type": "file",
+      "source": ">>spec_dir<</configure_system",
+      "destination": "/root/configure_system"
+    },
+    {
+      "type": "shell",
+      "inline": "chmod +x /root/configure_system && /root/configure_system"
+    }
+  ],
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "/sbin/shutdown -h now"
+  },
+  "platform_specific": [
+    {
+      "platform": "proxmox",
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        }
+      ],
+      "config": {
+        "qemu_agent": false,
+        "disks": [
+          {
+            "type": "ide",
+            "disk_size": ">>boot_disk_size<<M",
+            "storage_pool": "{{ user `vm-storage-pool`}}"
+          }
+        ],
+        "network_adapters": [
+          {
+            "model": "e1000-82540em",
+            "bridge": "vmbr0",
+            "firewall": false
+          }
+        ]
+      }
+    },
+    {
+      "platform": "virtualbox",
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        },
+        {
+          "type": "shell-local",
+          "inline": [
+            "sleep 30",
+            "VBoxManage controlvm \">>name<<\" poweroff"
+          ]
+        }
+      ],
+      "config": {
+        "shutdown_command": "",
+        "disable_shutdown": true,
+        "guest_os_type": "RedHat3",
+        "rtc_time_base": "UTC",
+        "hard_drive_interface": "ide",
+        "vboxmanage": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--nic-type1=82540EM",
+            "--nic1=bridged",
+            "--bridge-adapter1=vbnet"
+          ]
+        ]
+      }
+    },
+    {
+      "platform": "vmware",
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        },
+        {
+          "type": "shell-local",
+          "inline": "sleep 30"
+        }
+      ],
+      "config": {
+        "shutdown_command": "",
+        "guest_os_type": "other",
+        "disk_adapter_type": "ide",
+        "cdrom_adapter_type": "ide",
+        "network_adapter_type": "e1000",
+        "merge": [
+          "vmx_data"
+        ],
+        "vmx_data": {
+          "ide1:0.present": "TRUE",
+          "ide1:0.deviceType": "cdrom-image",
+          "ide1:0.fileName": "/usr/lib/vmware/isoimages/linux.iso"
+        }
+      }
+    }
+  ]
+}

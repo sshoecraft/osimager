@@ -1,0 +1,55 @@
+# Example OSImager location configuration
+# Copy to ~/.config/osimager/locations/lab.toml and customize for your environment.
+#
+# A location defines the network environment and infrastructure where
+# OS images are built. Each location supports one or more platforms.
+
+platforms = ["virtualbox", "vmware"]
+
+[defs]
+domain = "lab.example.com"
+cidr = "192.168.1.0/24"
+gateway = "192.168.1.1"
+vms_path = "/vms"
+iso_path = "/iso"
+
+[defs.dns]
+servers = ["192.168.1.1"]
+search = ["lab.example.com"]
+
+[defs.ntp]
+servers = ["pool.ntp.org"]
+
+# Platform-specific overrides (optional)
+# Uncomment and customize for your platforms.
+
+# [[platform_specific]]
+# platform = "vmware"
+#
+# [platform_specific.config]
+# vnc_bind_address = "192.168.1.1"
+#
+# [platform_specific.config.vmx_data]
+# "ethernet0.present" = "TRUE"
+# "ethernet0.startConnected" = "TRUE"
+# "ethernet0.connectiontype" = "custom"
+# "ethernet0.vnet" = "/dev/vmnet0"
+
+# [[platform_specific]]
+# platform = "vsphere"
+#
+# [platform_specific.defs]
+# datacenter = "dc1"
+# cluster = "cluster1"
+# esxi_host = "esxi1.lab.example.com"
+# datastore = "datastore1"
+# folder = "templates"
+# vm_network = "VM Network"
+
+# [[platform_specific]]
+# platform = "proxmox"
+#
+# [platform_specific.defs]
+# proxmox_node = "pve1"
+# iso_storage_pool = "local"
+# vm_storage_pool = "local-lvm"

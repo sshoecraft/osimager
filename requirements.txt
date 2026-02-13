@@ -1,4 +1,0 @@
-# Core library dependencies
-dnspython==2.8.0
-hvac==2.4.0
-requests==2.32.5

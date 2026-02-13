@@ -1,87 +1,13 @@
 #!/usr/bin/env python3
+"""rfosimage - development wrapper for osimager retrofit CLI."""
 
 import sys
 import os
 
-# Add the lib directory to the path to import osimager
+# Add the project root to path for development
 script_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.dirname(script_dir)
+sys.path.insert(0, project_root)
 
-if os.path.exists('/opt/osimager/lib'):
-    # Installation environment
-    sys.path.insert(0, '/opt/osimager/lib')
-else:
-    # Development environment - lib directory is in project root
-    lib_path = os.path.join(project_root, 'lib')
-    sys.path.insert(0, lib_path)
-
-from osimager.core import OSImager
-
-VERSION = 1.0
-
-
-def version():
-    print("rfosimage version " + str(VERSION))
-
-
-def usage():
-    print("usage: rfosimage [options] platform/location/spec name [ip]")
-    sys.exit()
-
-
-def main(argv):
-    extra_args = {
-        "plan": {"flags": [], "kwargs": {"help": "platform/location/spec", "dest": "plan"}},
-        "name": {"flags": [], "kwargs": {"help": "hostname", "dest": "name", "nargs": "?", "default": None}},
-        "ip": {"flags": [], "kwargs": {"help": "ip", "dest": "ip", "nargs": "?", "default": None}},
-    }
-    img = OSImager(argv, "full", extra_args)
-    plan = img.args.plan
-    name = img.args.name
-    ip = img.args.ip
-    
-    # If name/ip aren't parsed, try to get them from argv directly
-    non_flag_args = [arg for arg in argv if not arg.startswith('-')]
-    if len(non_flag_args) >= 2 and not name:
-        name = non_flag_args[1]
-    if len(non_flag_args) >= 3 and not ip:
-        ip = non_flag_args[2]
-    
-    build = img.make_build(plan, name, ip)
-    if not build:
-        sys.exit(1)
-    defs = img.defs
-
-    # Remove files so we dont gen them
-    if 'files' in img.spec:
-        del img.spec['files']
-
-    # Create a new config of type null with just the communicator
-    builders = build['builders']
-    config = builders[0]
-    comm = config.get('communicator', None)
-    if not comm:
-        print("error: build does not have a communicator defined")
-        sys.exit(1)
-
-    new_config = {
-        "name": defs.get("spec_name", "name"),
-        "type": "null"
-    }
-    for key in config:
-        if key.startswith(comm):
-            new_config[key] = config[key]
-
-    # The ssh_host should be set by the SSH spec logic based on platform_type=null
-
-    del builders[0]
-    builders.append(new_config)
-    build['builders'] = builders
-
-    img.run_packer()
-
-
-if __name__ == "__main__":
-    main(sys.argv[1:])
-
-sys.exit(0)
+from osimager.cli import main_rfosimage
+sys.exit(main_rfosimage())

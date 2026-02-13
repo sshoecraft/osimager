@@ -1,0 +1,13 @@
+---
+# RHEL 5.1 through 5.6 did not have simplejson or json
+- name: OS Configuration
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Run uptime via raw
+      raw: /usr/bin/uptime
+      register: uptime_output
+
+    - name: Show uptime output
+      debug:
+        msg: "{{ uptime_output.stdout }}"
