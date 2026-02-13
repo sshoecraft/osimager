@@ -20,6 +20,80 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
     try:
         osimager = OSImager(argv=argv, which="full")
 
+        if osimager.list_platforms:
+            platforms = osimager.get_platforms()
+            print("Available platforms:")
+            for plat in platforms:
+                name = plat.get('name', '')
+                if name == 'all':
+                    continue
+                config = plat.get('config', {})
+                builder_type = config.get('type', 'unknown')
+                arches = plat.get('arches', [])
+                arches_str = ', '.join(arches) if arches else 'any'
+                print(f"  {name:<14} {builder_type:<20} ({arches_str})")
+            return EXIT_SUCCESS
+
+        if osimager.list_defs:
+            platforms = osimager.get_platforms()
+            # Collect all defs from all.json and all platforms
+            all_defs = {}
+            for plat in platforms:
+                name = plat.get('name', '')
+                plat_defs = plat.get('defs', {})
+                for key, val in plat_defs.items():
+                    if key not in all_defs:
+                        all_defs[key] = {'value': val, 'source': name}
+                    elif name == 'all':
+                        all_defs[key] = {'value': val, 'source': name}
+
+            # Add computed defs
+            computed = {
+                'name': 'hostname or spec name',
+                'fqdn': 'name + domain',
+                'ip': 'CLI arg or DNS lookup',
+                'platform': 'from target',
+                'location': 'from target',
+                'dist': 'from spec provides',
+                'version': 'from spec provides',
+                'major': 'major version number',
+                'minor': 'minor version number',
+                'arch': 'from spec provides',
+                'subnet': 'from CIDR',
+                'prefix': 'from CIDR',
+                'netmask': 'from CIDR prefix',
+                'gateway': 'from location or CIDR',
+                'domain': 'from location',
+                'dns1': 'from location dns.servers',
+                'dns_search': 'from location dns.search',
+                'ntp1': 'from location ntp.servers',
+                'iso_url': 'from spec',
+                'iso_path': 'from location',
+                'vms_path': 'from location',
+            }
+
+            print("Base defs (from all.json):")
+            for key, info in sorted(all_defs.items()):
+                if info['source'] == 'all':
+                    print(f"  {key:<20} = {info['value']}")
+
+            print("\nPlatform defs:")
+            for key, info in sorted(all_defs.items()):
+                if info['source'] != 'all':
+                    val_str = str(info['value'])
+                    if len(val_str) > 50:
+                        val_str = val_str[:47] + '...'
+                    print(f"  {key:<20} = {val_str:<50}  ({info['source']})")
+
+            print("\nComputed defs:")
+            for key, desc in sorted(computed.items()):
+                if key not in all_defs:
+                    print(f"  {key:<20}   {desc}")
+
+            print("\nUse -D KEY=VALUE to override any def at build time.")
+            print("Use -x PLATFORM/LOCATION/SPEC to see all resolved defs for a specific build.")
+            return EXIT_SUCCESS
+
         if osimager.list:
             index = osimager.get_index()
             if index:

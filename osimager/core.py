@@ -67,6 +67,8 @@ class OSImager:
             "--config": {"flags": ["-c", "--config"], "kwargs": {"default": "osimager.conf", "help": "Path to osimager.conf file", "dest": "config"}},
             "--list": {"flags": ["-l", "--list"], "kwargs": {"default": False, "action": "store_true", "help": "List available specs", "dest": "list"}},
             "--avail": {"flags": ["-a", "--avail"], "kwargs": {"default": False, "action": "store_true", "help": "Only list specs where an iso is present", "dest": "list"}},
+            "--list-platforms": {"flags": ["--list-platforms"], "kwargs": {"default": False, "action": "store_true", "help": "List available platforms", "dest": "list_platforms"}},
+            "--list-defs": {"flags": ["--list-defs"], "kwargs": {"default": False, "action": "store_true", "help": "List available defs and their defaults", "dest": "list_defs"}},
             "--debug": {"flags": ["-d", "--debug"], "kwargs": {"default": False, "action": "store_true", "help": "Enable debug mode", "dest": "debug"}},
             "--verbose": {"flags": ["-v", "--verbose"], "kwargs": {"default": False, "action": "store_true", "help": "Enable verbose output", "dest": "verbose"}},
             "--version": {"flags": ["-V", "--version"], "kwargs": {"default": False, "action": "store_true", "help": "Show version and exit", "dest": "version"}},
@@ -113,6 +115,8 @@ class OSImager:
         # Set the attributes on the object based on the parsed arguments
         self.config_file = os.path.expanduser(args.config) if args.config else "osimager.conf"
         self.list = args.list
+        self.list_platforms = args.list_platforms
+        self.list_defs = args.list_defs
         self.verbose = args.verbose
         self.debug = args.debug
         

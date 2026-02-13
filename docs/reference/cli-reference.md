@@ -31,6 +31,8 @@ mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 | `-V` | `--version` | Print the OSImager version and exit. |
 | `-l` | `--list` | List all available specs. Specs with a local ISO in your `iso_path` are marked with `*`. |
 | `-a` | `--avail` | List only specs that have a matching local ISO present. |
+| | `--list-platforms` | List all available platforms with their Packer builder type and supported architectures. |
+| | `--list-defs` | List all available defs (template variables) with their default values and sources. Shows base defaults, platform defs, and computed defs. |
 | `-d` | `--debug` | Enable debug output. Prints internal variable resolution, file loading paths, and Packer debug flag. |
 | `-v` | `--verbose` | Enable verbose output. Prints loaded settings, file paths, and environment variables as they are set. |
 | `-c` | `--config` | Path to the osimager.conf configuration file. Default: `osimager.conf` (resolved in `~/.config/osimager/`). |
@@ -155,7 +157,7 @@ Certain specs include a `venv` key that references a named virtual environment. 
 
 ## Examples
 
-### Listing Specs
+### Listing
 
 ```bash
 # List all available specs (* marks those with local ISOs)
@@ -163,6 +165,12 @@ mkosimage --list
 
 # List only specs with local ISOs
 mkosimage --avail
+
+# List all available platforms with builder type and architectures
+mkosimage --list-platforms
+
+# List all available defs with defaults and sources
+mkosimage --list-defs
 ```
 
 ### Building Images
