@@ -4,6 +4,8 @@
 # This is a minimal location for building VMs locally with VirtualBox.
 # Edit the network settings to match your environment and set iso_path
 # to the directory containing your OS installation ISOs.
+#
+# Full documentation: https://sshoecraft.github.io/osimager
 
 platforms = ["virtualbox"]
 

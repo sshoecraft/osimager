@@ -1,0 +1,62 @@
+site_name: OSImager
+site_url: https://sshoecraft.github.io/osimager
+site_description: Multi-platform OS image builder using HashiCorp Packer
+repo_url: https://github.com/sshoecraft/osimager
+repo_name: sshoecraft/osimager
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: deep purple
+      accent: amber
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.highlight
+    - content.code.copy
+    - toc.follow
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
+  - attr_list
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Getting Started: getting-started.md
+  - Configuration:
+    - Location Setup: configuration/location-setup.md
+    - Credential Setup: configuration/credential-setup.md
+  - Architecture:
+    - Overview: architecture/overview.md
+    - Build Pipeline: architecture/build-pipeline.md
+    - Configuration Merging: architecture/configuration-merging.md
+    - Template Engine: architecture/template-engine.md
+    - File Generation: architecture/file-generation.md
+  - Reference:
+    - CLI Reference: reference/cli-reference.md
+    - Platform Reference: reference/platform-reference.md
+    - Spec Reference: reference/spec-reference.md
+    - Defs Reference: reference/defs-reference.md
+    - Supported OS: reference/supported-os.md

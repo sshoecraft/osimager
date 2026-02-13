@@ -41,7 +41,7 @@ dependencies = [
 [project.urls]
 Homepage = "https://github.com/sshoecraft/osimager"
 Repository = "https://github.com/sshoecraft/osimager"
-Documentation = "https://github.com/sshoecraft/osimager/blob/main/doc/GETTING_STARTED.md"
+Documentation = "https://sshoecraft.github.io/osimager"
 Issues = "https://github.com/sshoecraft/osimager/issues"
 
 [project.scripts]

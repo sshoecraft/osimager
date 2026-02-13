@@ -8,7 +8,7 @@ configuration constants to maintain consistency across the codebase.
 """
 
 # Version information
-OSIMAGER_VERSION = "1.3.0"
+OSIMAGER_VERSION = "1.4.0"
 OSIMAGER_NAME = "OSImager"
 
 # Default paths and directories

@@ -1,5 +1,7 @@
 # OSImager HashiCorp Vault Setup
 #
+# Full documentation: https://sshoecraft.github.io/osimager
+#
 # Setup:
 #   mkosimage --set credential_source=vault
 #   mkosimage --set vault_addr=http://your-vault-server:8200

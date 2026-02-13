@@ -47,6 +47,9 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
 
             examples_dir = os.path.join(osimager.settings['base_dir'], 'data', 'examples')
 
+            docs_url = "https://sshoecraft.github.io/osimager"
+            need_docs = False
+
             if not locations:
                 print("No locations configured.")
                 print(f"  Create a location file in {os.path.join(user_dir, 'locations/')}")
@@ -56,8 +59,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 print(f"    cp {os.path.join(examples_dir, 'quickstart-location.toml')} \\")
                 print(f"       {os.path.join(user_dir, 'locations', 'local.toml')}")
                 print("")
-                print(f"  Full examples: {examples_dir}")
-                print("")
+                need_docs = True
 
             if cred_source == "vault":
                 vault_addr = osimager.settings.get('vault_addr', '')
@@ -67,20 +69,23 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     print("  Option 1 - HashiCorp Vault:")
                     print("    mkosimage --set vault_addr=http://your-vault:8200")
                     print("    mkosimage --set vault_token=your-token")
-                    print(f"    See: {os.path.join(examples_dir, 'example-vault')}")
                     print("")
                     print("  Option 2 - Local secrets file:")
                     print("    mkosimage --set credential_source=config")
                     print(f"    Then create {os.path.join(user_dir, 'secrets')}")
-                    print(f"    See: {os.path.join(examples_dir, 'example-secrets')}")
                     print("")
+                    need_docs = True
             elif cred_source == "config":
                 secrets_path = os.path.join(user_dir, 'secrets')
                 if not os.path.exists(secrets_path):
                     print("No secrets file found.")
                     print(f"  Create {secrets_path}")
-                    print(f"  See: {os.path.join(examples_dir, 'example-secrets')}")
                     print("")
+                    need_docs = True
+
+            if need_docs:
+                print(f"  Full documentation: {docs_url}")
+                print("")
 
             if locations:
                 print("Available platforms/locations:")

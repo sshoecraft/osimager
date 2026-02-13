@@ -119,8 +119,8 @@ OSImager merges these three configs together, performs template substitution, ge
 
 ## Features
 
-- **330 OS specs** covering 15 distributions across decades of releases
-- **7 hypervisor platforms**: VirtualBox, VMware Workstation/Fusion, vSphere, Proxmox, QEMU/KVM, libvirt, Hyper-V
+- **700+ OS specs** covering 12 distributions across decades of releases
+- **13 platforms**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, libvirt, Hyper-V, XenServer, Azure, GCP, AWS
 - **Automated installation**: Kickstart (RHEL/CentOS/Alma/Rocky/OEL), preseed (Debian), cloud-init (Ubuntu 20.04+), AutoYaST (SLES), Autounattend (Windows)
 - **Ansible provisioning**: Post-install configuration via Ansible playbooks
 - **Hierarchical configuration**: Platform/location/spec system with deep inheritance and per-version/per-platform overrides
@@ -131,14 +131,14 @@ OSImager merges these three configs together, performs template substitution, ge
 
 | Distribution | Versions | Install Method |
 |-------------|----------|----------------|
-| RHEL | 2.1, 3.0, 4.8, 5.x, 6.x, 7.x, 8.x, 9.0-9.5 | Kickstart |
+| RHEL | 2.1, 3.0, 4.8, 5.x, 6.x, 7.x, 8.x, 9.x, 10.x | Kickstart |
 | CentOS | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.5 | Kickstart |
-| AlmaLinux | 8.3-8.10, 9.0-9.7 | Kickstart |
+| AlmaLinux | 8.3-8.10, 9.0-9.7, 10.0-10.1 | Kickstart |
 | Rocky Linux | 8.3-8.9, 9.0-9.7, 10.0-10.1 | Kickstart |
-| Oracle Linux | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.10, 9.0-9.6 | Kickstart |
-| Debian | 8-13 | Preseed |
-| Ubuntu | 18.04, 20.04, 22.04, 24.04 | Preseed / Cloud-Init |
-| SLES | 12.1-12.5, 15.0-15.6, 16.0 | AutoYaST |
+| Oracle Linux | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.10, 9.0-9.7, 10.0-10.1 | Kickstart |
+| Debian | 8-13 | Preseed / Cloud-Init |
+| Ubuntu | 18.04, 20.04, 22.04, 24.04 | Cloud-Init |
+| SLES | 12.1-12.5, 15.0-15.7, 16.0 | AutoYaST |
 | VMware ESXi | 5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2 | Kickstart |
 | Windows Server | 2016, 2019, 2022, 2025 | Autounattend |
 
@@ -148,11 +148,15 @@ OSImager merges these three configs together, performs template substitution, ge
 |----------|------|--------|
 | VirtualBox | Local | `github.com/hashicorp/virtualbox` |
 | VMware Workstation/Fusion | Local | `github.com/hashicorp/vmware` |
-| vSphere | Remote | `github.com/hashicorp/vsphere` |
-| Proxmox | Remote | `github.com/hashicorp/proxmox` |
+| vSphere | Enterprise | `github.com/hashicorp/vsphere` |
+| Proxmox | Enterprise | `github.com/hashicorp/proxmox` |
 | QEMU/KVM | Local | `github.com/hashicorp/qemu` |
 | libvirt | Local | `github.com/thomasklein94/libvirt` |
 | Hyper-V | Local | Built-in |
+| XenServer | Local | `github.com/ddelnano/xenserver` |
+| Azure | Cloud | `github.com/hashicorp/azure` |
+| GCP | Cloud | `github.com/hashicorp/googlecompute` |
+| AWS | Cloud | `github.com/hashicorp/amazon` |
 
 ## Configuration
 
@@ -197,7 +201,7 @@ Options:
 
 ## Documentation
 
-For detailed documentation on location setup, platform configuration, spec format, template syntax, and the credential system, see the [OSImager Wiki](https://github.com/sshoecraft/osimager/wiki).
+For detailed documentation on location setup, platform configuration, spec format, template syntax, and the credential system, see the [OSImager Documentation](https://sshoecraft.github.io/osimager).
 
 ## License
 
