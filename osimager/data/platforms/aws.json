@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/amazon",
   "include": "all",
   "arches": [
     "x86_64"

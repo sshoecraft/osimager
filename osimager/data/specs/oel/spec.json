@@ -22,7 +22,7 @@
       "version": "5.*",
       "arches": ["i386", "x86_64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL5/u>>minor<</>>arch<</OracleLinux-R5-U>>minor<<-Server->>arch<<-dvd.iso"
+        "iso_url": "file:///iso/OracleLinux/OracleLinux-R5-U>>minor<<-Server->>arch<<-dvd.iso"
       },
       "platform_specific": [
         {
@@ -38,12 +38,6 @@
           }
         }
       ]
-    },
-    {
-      "version": "5.0",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL5/GA/>>arch<</OracleLinux-R5-U0-Server->>arch<<-dvd.iso"
-      }
     },
     {
       "version": "6.*",
@@ -85,10 +79,21 @@
       ]
     },
     {
-      "version": "6.0",
+      "version": "6\\.[0-7]",
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL6/GA/>>arch<</OracleLinux-R6-U0-Server->>arch<<-dvd.iso"
+        "iso_url": "file:///iso/OracleLinux/OracleLinux-R6-U>>minor<<-Server->>arch<<-dvd.iso"
       }
+    },
+    {
+      "version": "6\\.(8|9|10)",
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file:///iso/OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.*",
@@ -120,33 +125,9 @@
       ]
     },
     {
-      "version": "7.0",
+      "version": "7\\.[0-4]",
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u0/>>arch<</OracleLinux-R7-U0-Server->>arch<<-dvd.iso"
-      }
-    },
-    {
-      "version": "7.1",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u1/>>arch<</OracleLinux-R7-U1-Server->>arch<<-dvd.iso"
-      }
-    },
-    {
-      "version": "7.2",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u2/>>arch<</OracleLinux-R7-U2-Server->>arch<<-dvd.iso"
-      }
-    },
-    {
-      "version": "7.3",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u3/>>arch<</OracleLinux-R7-U3-Server->>arch<<-dvd.iso"
-      }
-    },
-    {
-      "version": "7.4",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u4/>>arch<</OracleLinux-R7-U4-Server->>arch<<-dvd.iso"
+        "iso_url": "file:///iso/OracleLinux/OracleLinux-R7-U>>minor<<-Server->>arch<<-dvd.iso"
       }
     },
     {

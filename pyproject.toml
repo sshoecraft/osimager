@@ -32,6 +32,7 @@ classifiers = [
     "Topic :: System :: Systems Administration",
 ]
 dependencies = [
+    "ansible>=6.0",
     "dnspython>=2.0",
     "hvac>=1.0",
     "requests>=2.25",

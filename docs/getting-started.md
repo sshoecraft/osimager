@@ -2,7 +2,7 @@
 
 A quickstart walkthrough for building your first OS image with OSImager and VirtualBox.
 
-**Prerequisites:** OSImager installed (`pip install osimager`), Packer, Ansible, VirtualBox, and mkisofs. See [Installation](installation.md) for details.
+**Prerequisites:** OSImager installed (`pip install osimager`), Packer, and mkisofs. See [Installation](installation.md) for details.
 
 ---
 
@@ -75,12 +75,13 @@ For HashiCorp Vault integration instead of local secrets, see [Credential Setup]
 
 ---
 
-## Step 3: Install the VirtualBox Packer Plugin
+## Step 3: Install Packer Plugins
 
 ```bash
-packer plugins install github.com/hashicorp/virtualbox
-packer plugins install github.com/hashicorp/ansible
+mkosimage --init-plugins
 ```
+
+This installs the Ansible provisioner plugin and all platform builder plugins (VirtualBox, VMware, vSphere, etc.). Plugins are read from each platform's configuration file.
 
 ---
 

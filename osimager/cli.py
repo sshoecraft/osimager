@@ -6,6 +6,8 @@ Console script functions for pip-installed entry points.
 
 import os
 import sys
+import shutil
+import subprocess
 from typing import List, Optional
 
 from .core import OSImager
@@ -20,6 +22,69 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
     try:
         osimager = OSImager(argv=argv, which="full")
 
+        if osimager.show_config:
+            print(f"Config file: {os.path.join(osimager.settings['user_dir'], 'osimager.conf')}")
+            print("")
+            for key, val in sorted(osimager.settings.items()):
+                if key in ('base_dir', 'user_dir'):
+                    continue
+                print(f"  {key:<20} = {val}")
+            return EXIT_SUCCESS
+
+        if osimager.check_urls:
+            osimager.check_all_urls()
+            return EXIT_SUCCESS
+
+        if osimager.avail:
+            index = osimager.get_index()
+            if not index:
+                print("No specs found.")
+                return EXIT_SUCCESS
+
+            download = []
+            local = []
+            missing = []
+
+            for spec_key in sorted(index.keys()):
+                entry = index[spec_key]
+                iso_url = entry.get('iso_url', '')
+                iso_local = entry.get('iso_local', False)
+
+                if not iso_url:
+                    missing.append((spec_key, '(no iso_url defined)'))
+                elif iso_url.startswith('file://'):
+                    path = iso_url[7:]
+                    if iso_local:
+                        local.append((spec_key, path))
+                    else:
+                        missing.append((spec_key, path))
+                else:
+                    if iso_local:
+                        local.append((spec_key, iso_url))
+                    else:
+                        download.append((spec_key, iso_url))
+
+            if download:
+                print(f"Download ({len(download)}):")
+                for spec_key, url in download:
+                    print(f"  {spec_key:<30} {url}")
+                print()
+
+            if local:
+                print(f"Local ({len(local)}):")
+                for spec_key, path in local:
+                    print(f"  {spec_key:<30} {path}")
+                print()
+
+            if missing:
+                print(f"Not available ({len(missing)}):")
+                for spec_key, path in missing:
+                    print(f"  {spec_key:<30} {path}")
+                print()
+
+            print(f"Total: {len(index)} specs — {len(download)} download, {len(local)} local, {len(missing)} not available")
+            return EXIT_SUCCESS
+
         if osimager.list_platforms:
             platforms = osimager.get_platforms()
             print("Available platforms:")
@@ -32,6 +97,48 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 arches = plat.get('arches', [])
                 arches_str = ', '.join(arches) if arches else 'any'
                 print(f"  {name:<14} {builder_type:<20} ({arches_str})")
+            return EXIT_SUCCESS
+
+        if osimager.init_plugins:
+            packer_cmd = osimager.settings.get('packer_cmd', 'packer')
+            if not shutil.which(packer_cmd):
+                print(f"error: '{packer_cmd}' not found in PATH")
+                print("")
+                print("  Packer is required. Install instructions:")
+                print("    https://developer.hashicorp.com/packer/install")
+                return EXIT_GENERAL_ERROR
+
+            # Ansible provisioner plugin — always needed
+            plugins = ['github.com/hashicorp/ansible']
+
+            # Collect plugins from platform files
+            platforms = osimager.get_platforms()
+            seen = set()
+            for plat in platforms:
+                plugin = plat.get('plugin')
+                if plugin and plugin not in seen:
+                    plugins.append(plugin)
+                    seen.add(plugin)
+
+            print(f"Installing {len(plugins)} Packer plugins...")
+            failed = []
+            for plugin in plugins:
+                print(f"  {plugin}")
+                result = subprocess.run(
+                    [packer_cmd, 'plugins', 'install', plugin],
+                    capture_output=True, text=True
+                )
+                if result.returncode != 0:
+                    print(f"    FAILED: {result.stderr.strip()}")
+                    failed.append(plugin)
+
+            if failed:
+                print(f"\n{len(failed)} plugin(s) failed to install:")
+                for p in failed:
+                    print(f"  {p}")
+                return EXIT_GENERAL_ERROR
+
+            print("Done.")
             return EXIT_SUCCESS
 
         if osimager.list_defs:
@@ -140,20 +247,24 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 vault_token = osimager.settings.get('vault_token', '')
                 if not vault_addr or not vault_token:
                     print("No credentials configured.")
-                    print("  Option 1 - HashiCorp Vault:")
+                    print("  Option 1 - Local secrets file (simplest):")
+                    print("    mkosimage --set credential_source=config")
+                    print(f"    cp {os.path.join(examples_dir, 'example-secrets')} \\")
+                    print(f"       {os.path.join(user_dir, 'secrets')}")
+                    print("    Then edit ~/.config/osimager/secrets with your passwords.")
+                    print("")
+                    print("  Option 2 - HashiCorp Vault:")
                     print("    mkosimage --set vault_addr=http://your-vault:8200")
                     print("    mkosimage --set vault_token=your-token")
-                    print("")
-                    print("  Option 2 - Local secrets file:")
-                    print("    mkosimage --set credential_source=config")
-                    print(f"    Then create {os.path.join(user_dir, 'secrets')}")
                     print("")
                     need_docs = True
             elif cred_source == "config":
                 secrets_path = os.path.join(user_dir, 'secrets')
                 if not os.path.exists(secrets_path):
                     print("No secrets file found.")
-                    print(f"  Create {secrets_path}")
+                    print(f"  cp {os.path.join(examples_dir, 'example-secrets')} \\")
+                    print(f"     {secrets_path}")
+                    print("  Then edit the file with your passwords.")
                     print("")
                     need_docs = True
 

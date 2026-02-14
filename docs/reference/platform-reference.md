@@ -99,11 +99,6 @@ This evaluates to the local ISO path when `local_only` is true, or the remote do
 | **Platform type** | Local ISO |
 | **Architectures** | i386, x86_64 |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/virtualbox
-```
-
 #### Defs
 
 | Def | Value | Description |
@@ -168,11 +163,6 @@ VirtualBox uses post-create `vboxmanage` commands to configure VM settings that 
 | **Platform type** | Local ISO |
 | **Architectures** | i386, x86_64 |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/vmware
-```
-
 #### Defs
 
 | Def | Value | Description |
@@ -232,11 +222,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | **Platform type** | Local ISO |
 | **Architectures** | x86_64 only |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/qemu
-```
-
 #### Defs
 
 Inherits from `all.json` only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
@@ -287,11 +272,6 @@ Inherits from `all.json` only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_
 | **Packer plugin** | `github.com/hashicorp/qemu` |
 | **Platform type** | Local ISO |
 | **Architectures** | x86_64 only |
-
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/qemu
-```
 
 Libvirt uses the same `qemu` Packer builder as the QEMU platform, but is configured as a separate platform for organizational purposes. Output goes to a `libvirt/` subdirectory instead of `qemu/`.
 
@@ -344,11 +324,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | **Platform type** | Local ISO |
 | **Architectures** | x86_64 only |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/hyperv
-```
-
 #### Defs
 
 | Def | Value | Description |
@@ -400,11 +375,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | **Packer plugin** | `github.com/ddelnano/xenserver` |
 | **Platform type** | Local ISO |
 | **Architectures** | x86_64 only |
-
-**Plugin install:**
-```bash
-packer plugins install github.com/ddelnano/xenserver
-```
 
 #### Defs
 
@@ -462,11 +432,6 @@ Enterprise platforms boot VMs from ISOs on remote hypervisors. They require plat
 | **Packer plugin** | `github.com/hashicorp/vsphere` |
 | **Platform type** | Enterprise ISO |
 | **Architectures** | i386, x86_64 |
-
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/vsphere
-```
 
 #### Defs
 
@@ -582,6 +547,32 @@ Secret path: `vsphere/<location>`
 | `username` | vSphere login (e.g., `administrator@vsphere.local`) |
 | `password` | vSphere password |
 
+#### ISO Caching
+
+vSphere builds require the ISO to be accessible on an ESXi datastore. By default, if Packer cannot find the ISO in its cache, it downloads it locally and then uploads it to the ESXi host — doubling the time and bandwidth.
+
+To avoid this, NFS mount the same storage as both your local `iso_path` directory and an ESXi datastore (configured via `remote_cache_datastore` in your location's `platform_specific` config). This way the ISO only needs to be downloaded once — the local path and the datastore point to the same physical storage.
+
+Example location config with `remote_cache_datastore`:
+
+```json
+"platform_specific": [
+  {
+    "platform": "vsphere",
+    "defs": {
+      "datacenter": "ha-datacenter",
+      "esxi_host": "192.168.1.251",
+      "datastore": "vms"
+    },
+    "config": {
+      "remote_cache_datastore": "iso"
+    }
+  }
+]
+```
+
+In this example, the `iso` datastore on ESXi is an NFS mount of the same directory as `iso_path` in the location defs. When Packer downloads an ISO to `iso_path`, it is immediately available on the `iso` datastore without an upload step.
+
 ---
 
 ### Proxmox
@@ -593,11 +584,6 @@ Secret path: `vsphere/<location>`
 | **Packer plugin** | `github.com/hashicorp/proxmox` |
 | **Platform type** | Enterprise ISO |
 | **Architectures** | i386, x86_64 |
-
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/proxmox
-```
 
 #### Defs
 
@@ -742,11 +728,6 @@ Cloud platforms do not use ISOs or boot commands. They launch a base image from 
 | **Platform type** | Cloud |
 | **Architectures** | x86_64 only |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/azure
-```
-
 #### Defs
 
 | Def | Value | Description |
@@ -861,11 +842,6 @@ Secret path: `azure/<location>`
 | **Platform type** | Cloud |
 | **Architectures** | x86_64 only |
 
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/googlecompute
-```
-
 #### Defs
 
 | Def | Value | Description |
@@ -955,11 +931,6 @@ Secret path: `gcp/<location>`
 | **Packer plugin** | `github.com/hashicorp/amazon` |
 | **Platform type** | Cloud |
 | **Architectures** | x86_64 only |
-
-**Plugin install:**
-```bash
-packer plugins install github.com/hashicorp/amazon
-```
 
 #### Defs
 

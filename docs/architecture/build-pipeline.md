@@ -6,7 +6,7 @@ Technical reference for the complete build pipeline executed when a user runs a 
 mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 ```
 
-All line numbers reference the source as of v1.3.0.
+All line numbers reference the source as of v1.4.4.
 
 ---
 
@@ -25,7 +25,8 @@ The build pipeline proceeds through these phases in order:
 9. Template substitution (`do_sub()` pass)
 10. Installer file generation (`gen_files()`)
 11. Required file check
-12. Packer JSON assembly
+12. ISO URL accessibility check
+13. Packer JSON assembly
 13. Packer execution
 
 ---
@@ -47,7 +48,7 @@ osimager = OSImager(argv=argv, which="full")
 `init_vars()` (line 29) zeroes all instance state: `vault`, `secrets`, `platform`, `location`, `spec`, `defs`, `evars`, `variables`, `pre_provisioners`, `provisioners`, `post_provisioners`, `config`, `files`, `fqdn`.
 
 `init_settings()` (line 45) performs:
-- Default settings initialization (line 48-61): `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `save_index`, `credential_source`, `vault_addr`, `vault_token`
+- Default settings initialization (line 48-61): `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`
 - argparse setup with base args and full args (lines 64-106)
 - Positional argument extraction: `target`, `name`, `ip` (lines 120-127)
 - Config file loading via `load_settings()` from `~/.config/osimager/osimager.conf` (line 156)
@@ -86,7 +87,7 @@ Extracts and stores:
 - `location_name` = `"lab"` -> `self.defs['location']`
 - `spec_name` = `"rhel-9.5-x86_64"`
 
-**Index lookup** (lines 980-991): Calls `self.get_index(spec_name)` which either reads the cached index from `~/.config/osimager/specs/index.json` or builds it via `make_index()` (line 814-872). The index maps spec keys like `rhel-9.5-x86_64` to their spec file path and provides metadata.
+**Index lookup** (lines 980-991): Calls `self.get_index(spec_name)` which builds the index via `make_index()`. The index maps spec keys like `rhel-9.5-x86_64` to their spec file path and provides metadata.
 
 From the index entry, extracts and stores in `self.defs`:
 - `dist` = `"rhel"`

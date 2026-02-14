@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/vmware",
   "include": "all",
   "arches": [
     "i386",

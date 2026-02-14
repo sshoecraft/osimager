@@ -74,6 +74,24 @@
   ],
   "version_specific": [
     {
+      "version": "8\\.([0-9]|10)",
+      "defs": {
+        "iso_url": "file:///iso/Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+      }
+    },
+    {
+      "version": "9\\.([0-9]|1[0-2])",
+      "defs": {
+        "iso_url": "file:///iso/Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+      }
+    },
+    {
+      "version": "10\\.([0-9]|1[0-2])",
+      "defs": {
+        "iso_url": "file:///iso/Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+      }
+    },
+    {
       "version": "8.*",
       "arches": ["i386", "x86_64"],
       "method": "replace",
@@ -262,6 +280,52 @@
           }
         }
       ]
+    },
+    {
+      "version": "12\\.3",
+      "defs": {
+        "iso_url": "file:///iso/Debian/debian-12.3.0->>deb_arch<<-DVD-1.iso"
+      }
+    },
+    {
+      "version": "13.*",
+      "arches": ["x86_64", "aarch64"],
+      "defs": {
+        "azure_image_publisher": "Debian",
+        "azure_image_offer": "debian-13",
+        "azure_image_sku": "13-gen2",
+        "gcp_source_image_family": "debian-13",
+        "gcp_source_image_project_id": "debian-cloud",
+        "gcp_image_family": "debian-13",
+        "aws_ami_filter_name": "debian-13-amd64-*",
+        "aws_ami_owners": ["136693071363"]
+      },
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Debian12_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "debian12-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "debian12_64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "13\\.3",
+      "defs": {
+        "iso_url": "https://cdimage.debian.org/debian-cd/>>version<<.0/>>deb_arch<</iso-dvd/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+      }
     }
   ]
 }

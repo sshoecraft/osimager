@@ -35,6 +35,12 @@
       "arches": ["x86_64"]
     },
     {
+      "version": "8.10",
+      "defs": {
+        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
+      }
+    },
+    {
       "version": "9.*",
       "defs": {
         "azure_image_publisher": "AlmaLinux",
@@ -48,9 +54,14 @@
       }
     },
     {
+      "version": "9.7",
+      "defs": {
+        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
+      }
+    },
+    {
       "version": "10.*",
       "defs": {
-        "iso_url": "https://vault.almalinux.org/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso",
         "azure_image_publisher": "AlmaLinux",
         "azure_image_offer": "almalinux",
         "azure_image_sku": "10-gen2",
@@ -59,6 +70,12 @@
         "gcp_image_family": "alma-10",
         "aws_ami_filter_name": "AlmaLinux OS 10*x86_64*",
         "aws_ami_owners": ["764336703387"]
+      }
+    },
+    {
+      "version": "10.1",
+      "defs": {
+        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
       }
     }
   ]

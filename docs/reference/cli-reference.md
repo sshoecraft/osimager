@@ -30,9 +30,11 @@ mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 |------|-----------|-------------|
 | `-V` | `--version` | Print the OSImager version and exit. |
 | `-l` | `--list` | List all available specs. Specs with a local ISO in your `iso_path` are marked with `*`. |
-| `-a` | `--avail` | List only specs that have a matching local ISO present. |
+| `-a` | `--avail` | Show ISO availability for all specs, grouped by source: downloadable URLs, local ISOs present, and ISOs not available. |
+| | `--check-urls` | Check all remote ISO download URLs for accessibility. Performs HTTP HEAD requests in parallel and reports OK/FAILED/local-only counts. |
 | | `--list-platforms` | List all available platforms with their Packer builder type and supported architectures. |
 | | `--list-defs` | List all available defs (template variables) with their default values and sources. Shows base defaults, platform defs, and computed defs. |
+| | `--init-plugins` | Install all required Packer plugins for all platforms. Reads the `plugin` key from each platform JSON file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin. |
 | `-d` | `--debug` | Enable debug output. Prints internal variable resolution, file loading paths, and Packer debug flag. |
 | `-v` | `--verbose` | Enable verbose output. Prints loaded settings, file paths, and environment variables as they are set. |
 | `-c` | `--config` | Path to the osimager.conf configuration file. Default: `osimager.conf` (resolved in `~/.config/osimager/`). |
@@ -82,7 +84,6 @@ The following keys are accepted by `--set`:
 | `packer_cache_dir` | `/tmp` | Directory for Packer's ISO download cache. |
 | `local_only` | `False` | When `True`, only use local ISOs; never attempt downloads. |
 | `data_dir` | `data` | Path to the OSImager data directory (relative to package or absolute). |
-| `save_index` | `False` | When `True`, cache the spec index to `~/.config/osimager/specs/index.json`. |
 | `ansible_playbook` | `config.yml` | Name of the Ansible playbook used during provisioning. |
 
 ---
@@ -147,7 +148,7 @@ Certain specs include a `venv` key that references a named virtual environment. 
 |------|-----------|-------------|
 | `-V` | `--version` | Print the OSImager version and exit. |
 | `-l` | `--list` | List available specs. |
-| `-a` | `--avail` | List only specs with local ISOs. |
+| `-a` | `--avail` | Show ISO availability for all specs. |
 | `-d` | `--debug` | Enable debug output. |
 | `-v` | `--verbose` | Enable verbose output. |
 | `-c` | `--config` | Path to osimager.conf. |
@@ -163,14 +164,20 @@ Certain specs include a `venv` key that references a named virtual environment. 
 # List all available specs (* marks those with local ISOs)
 mkosimage --list
 
-# List only specs with local ISOs
+# Show ISO availability (download / local / not available)
 mkosimage --avail
+
+# Check all remote ISO download URLs
+mkosimage --check-urls
 
 # List all available platforms with builder type and architectures
 mkosimage --list-platforms
 
 # List all available defs with defaults and sources
 mkosimage --list-defs
+
+# Install all required Packer plugins
+mkosimage --init-plugins
 ```
 
 ### Building Images
@@ -281,7 +288,6 @@ packer_cmd = packer
 packer_cache_dir = /tmp
 local_only = False
 data_dir = data
-save_index = False
 ansible_playbook = config.yml
 ```
 

@@ -20,7 +20,7 @@
       "version": "5.*",
       "arches": ["i386", "x86_64"],
       "defs": {
-        "iso_url": "https://vault.centos.org/>>version<</isos/>>arch<</CentOS->>version<<->>arch<<-bin-DVD1.iso"
+        "iso_url": "https://vault.centos.org/>>version<</isos/>>arch<</CentOS->>version<<->>arch<<-bin-1ofE>{'x86_64':{0:7,1:7,2:7,3:7,4:7,5:8,6:8,7:8,8:8,9:9,10:9},'i386':{0:6,1:6,2:6,3:6,4:6,5:7,6:7,7:8,8:7,9:8,10:8}}['>>arch<<'][int('>>minor<<')]<E.iso"
       },
       "platform_specific": [
         {
@@ -36,7 +36,18 @@
       "arches": ["i386", "x86_64"],
       "defs": {
         "iso_url": "https://vault.centos.org/>>version<</isos/>>arch<</CentOS->>version<<->>arch<<-bin-DVD1.iso"
-      },
+      }
+    },
+    {
+      "version": "6\\.0",
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "https://vault.centos.org/>>version<</isos/>>arch<</CentOS->>version<<->>arch<<-bin-DVD.iso"
+          }
+        }
+      ],
       "platform_specific": [
         {
           "platform": "vsphere",

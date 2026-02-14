@@ -10,36 +10,19 @@ pip install osimager
 
 - **Python 3.8+**
 - **HashiCorp Packer** -- [install instructions](https://developer.hashicorp.com/packer/install)
-- **Ansible** -- `pip install ansible`
-- **A hypervisor** -- VirtualBox is free and easiest to start with
-- **mkisofs** -- `brew install cdrtools` (macOS) or `apt install genisoimage` (Linux)
+- **mkisofs** -- used by Packer to create CD/ISO images containing answer files
+
+Ansible is installed automatically as a dependency of the osimager pip package.
 
 ## Packer Plugins
 
-OSImager supports 13 platforms. Each requires its corresponding Packer plugin:
-
-| Platform | Builder Type | Plugin Install |
-|----------|-------------|----------------|
-| VirtualBox | virtualbox-iso | `packer plugins install github.com/hashicorp/virtualbox` |
-| VMware | vmware-iso | `packer plugins install github.com/hashicorp/vmware` |
-| vSphere | vsphere-iso | `packer plugins install github.com/hashicorp/vsphere` |
-| Proxmox | proxmox-iso | `packer plugins install github.com/hashicorp/proxmox` |
-| QEMU/KVM | qemu | `packer plugins install github.com/hashicorp/qemu` |
-| libvirt | qemu (libvirt) | `packer plugins install github.com/thomasklein94/libvirt` |
-| Hyper-V | hyperv-iso | Built-in (no plugin needed) |
-| XenServer | xenserver-iso | `packer plugins install github.com/ddelnano/xenserver` |
-| Azure | azure-arm | `packer plugins install github.com/hashicorp/azure` |
-| GCP | googlecompute | `packer plugins install github.com/hashicorp/googlecompute` |
-| AWS | amazon-ebs | `packer plugins install github.com/hashicorp/amazon` |
-| none | null | Built-in |
-
-The Ansible provisioner plugin is required for all platforms:
+OSImager requires Packer plugins for both the Ansible provisioner and each platform's builder. Install all of them at once:
 
 ```bash
-packer plugins install github.com/hashicorp/ansible
+mkosimage --init-plugins
 ```
 
-You only need to install plugins for the platforms you intend to use.
+This reads the `plugin` key from each platform configuration file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin. Plugins that are already installed will be skipped.
 
 ## Verification
 

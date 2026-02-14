@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/ddelnano/xenserver",
   "include": "all",
   "arches": [
     "x86_64"

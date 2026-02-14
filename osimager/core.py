@@ -6,6 +6,7 @@ import hvac
 import configparser
 import tempfile
 import shutil
+import subprocess
 import argparse
 try:
     import tomllib
@@ -54,7 +55,6 @@ class OSImager:
             "ansible_playbook": "config.yml",
             "packer_cache_dir": "/tmp",
             "local_only": False,
-            "save_index": False,
             "credential_source": "vault",
             "vault_addr": "",
             "vault_token": ""
@@ -66,9 +66,12 @@ class OSImager:
         arg_base_defs = {
             "--config": {"flags": ["-c", "--config"], "kwargs": {"default": "osimager.conf", "help": "Path to osimager.conf file", "dest": "config"}},
             "--list": {"flags": ["-l", "--list"], "kwargs": {"default": False, "action": "store_true", "help": "List available specs", "dest": "list"}},
-            "--avail": {"flags": ["-a", "--avail"], "kwargs": {"default": False, "action": "store_true", "help": "Only list specs where an iso is present", "dest": "list"}},
+            "--avail": {"flags": ["-a", "--avail"], "kwargs": {"default": False, "action": "store_true", "help": "Show ISO availability for all specs", "dest": "avail"}},
             "--list-platforms": {"flags": ["--list-platforms"], "kwargs": {"default": False, "action": "store_true", "help": "List available platforms", "dest": "list_platforms"}},
             "--list-defs": {"flags": ["--list-defs"], "kwargs": {"default": False, "action": "store_true", "help": "List available defs and their defaults", "dest": "list_defs"}},
+            "--init-plugins": {"flags": ["--init-plugins"], "kwargs": {"default": False, "action": "store_true", "help": "Install required Packer plugins for all platforms", "dest": "init_plugins"}},
+            "--check-urls": {"flags": ["--check-urls"], "kwargs": {"default": False, "action": "store_true", "help": "Check all ISO download URLs for accessibility", "dest": "check_urls"}},
+            "--show-config": {"flags": ["--show-config"], "kwargs": {"default": False, "action": "store_true", "help": "Show current configuration settings", "dest": "show_config"}},
             "--debug": {"flags": ["-d", "--debug"], "kwargs": {"default": False, "action": "store_true", "help": "Enable debug mode", "dest": "debug"}},
             "--verbose": {"flags": ["-v", "--verbose"], "kwargs": {"default": False, "action": "store_true", "help": "Enable verbose output", "dest": "verbose"}},
             "--version": {"flags": ["-V", "--version"], "kwargs": {"default": False, "action": "store_true", "help": "Show version and exit", "dest": "version"}},
@@ -115,8 +118,12 @@ class OSImager:
         # Set the attributes on the object based on the parsed arguments
         self.config_file = os.path.expanduser(args.config) if args.config else "osimager.conf"
         self.list = args.list
+        self.avail = args.avail
         self.list_platforms = args.list_platforms
         self.list_defs = args.list_defs
+        self.init_plugins = args.init_plugins
+        self.check_urls = args.check_urls
+        self.show_config = args.show_config
         self.verbose = args.verbose
         self.debug = args.debug
         
@@ -248,7 +255,7 @@ class OSImager:
         # Save only osimager-specific settings (exclude base_dir and venv_dir - they are host-specific)
         osimager_keys = [
             'packer_cmd', 'packer_cache_dir', 'local_only',
-            'data_dir', 'save_index', 'ansible_playbook',
+            'data_dir', 'ansible_playbook',
             'credential_source', 'vault_addr', 'vault_token'
         ]
 
@@ -787,6 +794,12 @@ class OSImager:
         }
         # check defs for iso_url
         iso_url = data.get("defs", {}).get("iso_url", "")
+        # check top-level arch_specific overrides
+        for a_s in data.get("arch_specific", []):
+            if a_s.get("arch", "") == arch:
+                a_url = a_s.get("defs", {}).get("iso_url", "")
+                if a_url:
+                    iso_url = a_url
         # check version_specific overrides
         for vs in data.get("version_specific", []):
             vs_ver = vs.get("version", "")
@@ -794,11 +807,46 @@ class OSImager:
                 vs_url = vs.get("defs", {}).get("iso_url", "")
                 if vs_url:
                     iso_url = vs_url
+                # check arch_specific within version_specific
+                for a_s in vs.get("arch_specific", []):
+                    if a_s.get("arch", "") == arch:
+                        a_url = a_s.get("defs", {}).get("iso_url", "")
+                        if a_url:
+                            iso_url = a_url
         if not iso_url:
             return None
         # basic substitution
         for k, v in subs.items():
             iso_url = iso_url.replace(k, v)
+        # resolve remaining >>var<< markers from spec defs
+        defs = data.get("defs", {})
+        remaining = re.findall(r'>>(.*?)<<', iso_url)
+        for var in remaining:
+            val = defs.get(var, "")
+            if val:
+                # substitute basic vars into the def value too
+                val = str(val)
+                for k, v in subs.items():
+                    val = val.replace(k, v)
+                # evaluate E>...<E expressions in the def value
+                while 'E>' in val and '<E' in val:
+                    s = val.index('E>')
+                    e = val.index('<E') + 2
+                    try:
+                        val = val[:s] + str(eval(val[s+2:e-2])) + val[e:]
+                    except Exception:
+                        break
+                iso_url = iso_url.replace(f">>{var}<<", val)
+        # evaluate E>...<E expressions in the URL itself
+        while 'E>' in iso_url and '<E' in iso_url:
+            start = iso_url.index('E>')
+            end = iso_url.index('<E') + 2
+            expr = iso_url[start+2:end-2]
+            try:
+                result = str(eval(expr))
+                iso_url = iso_url[:start] + result + iso_url[end:]
+            except Exception:
+                break
         return iso_url
 
     def check_iso_local(self, iso_url):
@@ -862,35 +910,15 @@ class OSImager:
                     index[key] = {
                         "provides": entry,
                         "path": str(file_name),
+                        "iso_url": iso_url,
                         "iso_local": iso_local
                     }
 
         sorted_index = {k: index[k] for k in sorted(index, key=natural_key)}
-        if self.settings.get('save_index',False):
-            index_dir = os.path.join(self.settings['user_dir'], "specs")
-            os.makedirs(index_dir, exist_ok=True)
-            file_name = os.path.join(index_dir, "index.json")
-            with open(file_name, 'w') as f:
-                json.dump(sorted_index,f,indent=4)
-                f.close()
         return sorted_index
 
     def get_index(self,name = None):
-        debug = False
-        if debug: print("get_index: name: "+name)
-        file_name = os.path.join(self.settings['user_dir'], "specs", "index.json")
-        if debug: print("get_index: file_name: "+str(file_name))
-        if os.path.isfile(file_name):
-            try:
-                with open(file_name, 'r') as f:
-                    index = json.load(f)
-                    f.close()
-            except (FileNotFoundError, json.JSONDecodeError, IOError) as e:
-                print(f"Error loading JSON file '{file_name}': {e}")
-                show_caller()
-                sys.exit(1)
-        else:
-            index = self.make_index()
+        index = self.make_index()
         return index.get(name,None) if name else index
 
     def get_iso_file(self,urls):
@@ -1301,6 +1329,149 @@ class OSImager:
 
         return True
 
+    def check_all_urls(self):
+        """Check all ISO download URLs across all specs."""
+        import urllib.request
+        import urllib.error
+        from concurrent.futures import ThreadPoolExecutor, as_completed
+
+        index = self.get_index()
+        if not index:
+            print("No specs found.")
+            return
+
+        # Resolve iso_url for each spec using a dummy location
+        user_dir = self.settings['user_dir']
+        loc_dir = os.path.join(user_dir, 'locations')
+        dummy_loc = os.path.join(loc_dir, '_urlcheck.json')
+        os.makedirs(loc_dir, exist_ok=True)
+
+        # Create a minimal dummy location
+        import json as _json
+        with open(dummy_loc, 'w') as f:
+            _json.dump({
+                "platforms": ["virtualbox"],
+                "defs": {
+                    "domain": "check.local", "cidr": "10.0.0.0/24",
+                    "gateway": "10.0.0.1", "vms_path": "/tmp/vms",
+                    "iso_path": "/tmp/iso",
+                    "dns": {"servers": ["10.0.0.1"]},
+                    "ntp": {"servers": ["pool.ntp.org"]}
+                }
+            }, f)
+
+        try:
+            # Resolve URLs
+            urls = {}  # url -> [spec_names]
+            skipped = []
+            for spec_key in sorted(index.keys()):
+                target = f"virtualbox/_urlcheck/{spec_key}"
+                try:
+                    old_stdout = sys.stdout
+                    sys.stdout = open(os.devnull, 'w')
+                    o = OSImager(argv=['-x', target], which='full')
+                    o.make_build(target, name='urlcheck', ip='10.0.0.99')
+                    sys.stdout.close()
+                    sys.stdout = old_stdout
+
+                    url = o.defs.get('iso_url', '')
+                    if not url or url.startswith('file://'):
+                        skipped.append(spec_key)
+                        continue
+                    if url not in urls:
+                        urls[url] = []
+                    urls[url].append(spec_key)
+                except SystemExit:
+                    if sys.stdout != old_stdout:
+                        sys.stdout.close()
+                        sys.stdout = old_stdout
+                    # -x flag exits normally
+                    url = o.defs.get('iso_url', '')
+                    if not url or url.startswith('file://'):
+                        skipped.append(spec_key)
+                        continue
+                    if url not in urls:
+                        urls[url] = []
+                    urls[url].append(spec_key)
+                except Exception:
+                    if sys.stdout != old_stdout:
+                        sys.stdout.close()
+                        sys.stdout = old_stdout
+                    skipped.append(spec_key)
+
+            total_specs = len(index)
+            print(f"Checking {len(urls)} unique URLs across {total_specs - len(skipped)} specs ({len(skipped)} local-only)...")
+            print()
+
+            def _check_url(url):
+                try:
+                    req = urllib.request.Request(url, method='HEAD')
+                    req.add_header('User-Agent', 'OSImager/' + OSIMAGER_VERSION)
+                    resp = urllib.request.urlopen(req, timeout=15)
+                    return (url, resp.status)
+                except urllib.error.HTTPError as e:
+                    return (url, e.code)
+                except Exception as e:
+                    return (url, str(e)[:60])
+
+            ok = 0
+            failed = []
+            with ThreadPoolExecutor(max_workers=10) as pool:
+                futures = {pool.submit(_check_url, url): (url, specs) for url, specs in urls.items()}
+                for f in as_completed(futures):
+                    url, specs = futures[f]
+                    checked_url, status = f.result()
+                    if isinstance(status, int) and status in (200, 301, 302):
+                        ok += 1
+                    else:
+                        failed.append((specs, url, status))
+
+            if failed:
+                for specs, url, status in sorted(failed, key=lambda x: x[0][0]):
+                    print(f"  FAIL ({status}): {specs[0]}")
+                    if len(specs) > 1:
+                        print(f"    also: {', '.join(specs[1:])}")
+                    print(f"    {url}")
+                print()
+
+            print(f"Results: {ok} OK, {len(failed)} FAILED, {len(skipped)} local-only")
+
+        finally:
+            if os.path.exists(dummy_loc):
+                os.remove(dummy_loc)
+
+    def check_iso_url(self):
+        """Check that the ISO URL is accessible before starting the build."""
+        iso_url = self.defs.get("iso_url", "")
+        if not iso_url:
+            return
+
+        if iso_url.startswith("file://"):
+            path = iso_url[7:]  # strip file://
+            if not os.path.exists(path):
+                print(f"\nerror: ISO file not found: {path}")
+                print(f"  Spec: {self.defs.get('spec_name', 'unknown')}")
+                print(f"  The ISO for this version is not available for download.")
+                print(f"  You must obtain the ISO and place it at: {path}")
+                print()
+                sys.exit(1)
+        elif iso_url.startswith("http://") or iso_url.startswith("https://"):
+            import urllib.request
+            import urllib.error
+            try:
+                req = urllib.request.Request(iso_url, method='HEAD')
+                req.add_header('User-Agent', 'OSImager/' + self.VERSION)
+                urllib.request.urlopen(req, timeout=15)
+            except urllib.error.HTTPError as e:
+                if e.code == 404:
+                    print(f"\nerror: ISO URL returned 404 (not found): {iso_url}")
+                    print(f"  Spec: {self.defs.get('spec_name', 'unknown')}")
+                    print(f"  The ISO may have been moved or removed from this location.")
+                    print()
+                    sys.exit(1)
+            except Exception:
+                pass  # network errors shouldn't block the build — packer will retry
+
     def gen_files(self):
         files = do_sub(self.files,self)
         if self.debug: print("files: "+json.dumps(files,indent=4))
@@ -1339,6 +1510,24 @@ class OSImager:
 
     def run_packer(self):
 
+        # Check prerequisites
+        packer_cmd = self.settings['packer_cmd']
+        if not shutil.which(packer_cmd):
+            print(f"error: '{packer_cmd}' not found in PATH")
+            print("")
+            print("  Packer is required. Install instructions:")
+            print("    https://developer.hashicorp.com/packer/install")
+            print("")
+            print("  After installing Packer, install the required plugins:")
+            print("    mkosimage --init-plugins")
+            sys.exit(1)
+
+        if not shutil.which('mkisofs'):
+            print("error: 'mkisofs' not found in PATH")
+            print("")
+            print("  mkisofs is required by Packer to create CD/ISO images.")
+            sys.exit(1)
+
         # Change to data directory before gen_files so relative paths work correctly
         # This is needed for both mkosimage and rfosimage when running from /opt/osimager/bin
         data_path = self.get_path("data_dir")
@@ -1349,6 +1538,9 @@ class OSImager:
 
         # Check for required files before proceeding
         self.check_required_files()
+
+        # Check ISO URL accessibility
+        self.check_iso_url()
 
         # generate files
         self.gen_files()
@@ -1384,7 +1576,16 @@ class OSImager:
                 activator = self.get_path("venv_dir",venv,"bin/activate")
                 if self.verbose: print("activator: "+activator)
                 if not os.path.isfile(activator):
-                        print("error: venv doesnt exist: "+venv)
+                        venv_base = self.get_path("venv_dir")
+                        print(f"error: virtual environment '{venv}' not found")
+                        print(f"  Expected at: {os.path.dirname(os.path.dirname(activator))}")
+                        print("")
+                        print(f"  This spec requires Ansible {venv}. Create the venv with:")
+                        print(f"    mkvenv")
+                        print("")
+                        print(f"  Or manually:")
+                        print(f"    python3 -m venv {venv_base}/{venv}")
+                        print(f"    {venv_base}/{venv}/bin/pip install ansible-core=={venv}.*")
                         sys.exit(1)
                 if self.verbose: print("Activating venv: "+venv)
                 cmd.append(".")

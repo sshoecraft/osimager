@@ -838,6 +838,18 @@
       }
     },
     {
+      "version": "9\\.5",
+      "defs": {
+        "iso_url": "file:///iso/RedHat/rhel-9.5->>arch<<-dvd.iso"
+      }
+    },
+    {
+      "version": "9\\.7",
+      "defs": {
+        "iso_url": "file:///iso/RedHat/rhel-9.7->>arch<<-dvd.iso"
+      }
+    },
+    {
       "version": "10.*",
       "arches": ["x86_64", "aarch64"],
       "defs": {
@@ -845,7 +857,7 @@
         "memory": 4096,
         "spec_config": "specs/rhel/config_9.yml",
         "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
-        "iso_url": "https://archive.org/download/rhel->>version<</rhel->>version<<->>arch<<-dvd.iso",
+        "iso_url": "file:///iso/RedHat/rhel->>version<<->>arch<<-dvd.iso",
         "azure_image_publisher": "RedHat",
         "azure_image_offer": "RHEL",
         "azure_image_sku": "10-lvm-gen2",

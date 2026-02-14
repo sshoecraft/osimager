@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/virtualbox",
   "include": "all",
   "arches": [
     "i386",

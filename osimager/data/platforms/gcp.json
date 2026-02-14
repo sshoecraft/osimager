@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/googlecompute",
   "include": "all",
   "arches": [
     "x86_64"

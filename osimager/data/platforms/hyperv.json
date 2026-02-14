@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/hyperv",
   "include": "all",
   "arches": [
     "x86_64"

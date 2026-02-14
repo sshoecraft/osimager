@@ -1,4 +1,5 @@
 {
+  "plugin": "github.com/hashicorp/azure",
   "include": "all",
   "arches": [
     "x86_64"

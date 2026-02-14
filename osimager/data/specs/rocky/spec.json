@@ -3,8 +3,7 @@
     "dist": "rocky",
     "versions": [
         "8.[3-9]",
-        "9.[0-7]",
-        "10.[0-1]"
+        "9.[0-7]"
     ],
     "arches": [
       "x86_64",
@@ -45,16 +44,9 @@
       }
     },
     {
-      "version": "10.*",
+      "version": "9.7",
       "defs": {
-        "azure_image_publisher": "resf",
-        "azure_image_offer": "rockylinux-x86_64",
-        "azure_image_sku": "10-lvm",
-        "gcp_source_image_family": "rocky-linux-10",
-        "gcp_source_image_project_id": "rocky-linux-cloud",
-        "gcp_image_family": "rocky-10",
-        "aws_ami_filter_name": "Rocky-10-EC2-Base-10*x86_64*",
-        "aws_ami_owners": ["792107900819"]
+        "iso_url": "https://download.rockylinux.org/pub/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd.iso"
       }
     }
   ]

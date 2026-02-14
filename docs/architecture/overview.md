@@ -1,6 +1,6 @@
 # System Architecture
 
-OSImager v1.3.0 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 13 platforms and 12 OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
+OSImager v1.4.4 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 13 platforms and 12 OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
 
 ## Package Structure
 
@@ -30,7 +30,7 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
 
 | Variable | Type | Purpose |
 |---|---|---|
-| `settings` | dict | Runtime configuration: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `save_index`, `credential_source`, `vault_addr`, `vault_token` |
+| `settings` | dict | Runtime configuration: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token` |
 | `defs` | dict | All template substitution variables accumulated from settings, platform, location, spec, and runtime values. Used by `>>var<<` and all other marker patterns. |
 | `config` | dict | Packer builder configuration. Populated by platform/location/spec `config` sections via `load_data()`. Becomes `builders[0]` in final output. |
 | `variables` | dict | Packer user variables for `{{user ...}}` references. Contains `platform-name`, `location-name`, `spec-name`, `spec-config`, `name`, `fqdn`. |
@@ -48,7 +48,7 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
 
 **CLI flags** -- set from parsed arguments:
 
-`target`, `name`, `ip`, `verbose`, `debug`, `list`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `dump_defs`, `dump_build`, `user_temp_dir`, `local_only`, `dry_run`, `user_defines`, `config_file`
+`target`, `name`, `ip`, `verbose`, `debug`, `list`, `avail`, `list_platforms`, `list_defs`, `init_plugins`, `check_urls`, `show_config`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `dump_defs`, `dump_build`, `user_temp_dir`, `local_only`, `dry_run`, `user_defines`, `config_file`
 
 ### Initialization Sequence
 
@@ -116,7 +116,6 @@ All user-specific configuration lives outside the package at `~/.config/osimager
 | `osimager.conf` | INI (configparser) | Persistent settings. Written only on `--set`. Section `[osimager]` with keys matching `settings` dict. |
 | `locations/*.json` or `locations/*.toml` | JSON or TOML | User-created location files. JSON takes priority over TOML if both exist for same name. |
 | `secrets` | Custom text | Credentials file for config mode. Format: `path key1=value1 key2=value2`. Lines starting with `#` are comments. |
-| `specs/index.json` | JSON | Cached spec index. Created when `save_index=True`. Maps `dist-version-arch` keys to spec file paths and provides entries. |
 
 ## CLI Entry Points
 
@@ -196,8 +195,8 @@ Actions are applied in order. For each action, `extract_all()` finds all tokens 
 - Version strings support `[0-7]` (range) and `[3,4,5]` (list) syntax via `explode_string_with_dynamic_range()`
 - Filters by architectures supported by configured platforms and locations
 - Keys are `dist-version-arch` strings (e.g., `alma-9.4-x86_64`)
-- Values contain `provides` dict, spec `path`, and `iso_local` flag
-- Optionally cached to `~/.config/osimager/specs/index.json`
+- Values contain `provides` dict, spec `path`, resolved `iso_url`, and `iso_local` flag
+- Built fresh on every invocation (no file caching)
 
 ## Credential System
 
@@ -249,15 +248,17 @@ Actions 5, 8, 9, 10 all call `imager.get_secret()` which dispatches to the activ
 
 ### Index and Discovery
 - `make_index()` -- scan all specs, expand version ranges, build dist-version-arch lookup table
-- `get_index(name)` -- return cached or freshly built index, optionally filtered by name
+- `get_index(name)` -- build index and return it, optionally filtered by name
 - `spec_get_provides(file_name, data)` -- extract provides entries from a spec, expanding version ranges and per-version arch overrides
 - `get_platforms(names)` -- list platform configs, optionally filtered by regex
 - `get_locations(platform_names)` -- list location configs from user dir, optionally filtered by platform support
 - `get_specs(search_string)` -- list spec configs, filtered by regex
 
 ### ISO and URL Handling
-- `resolve_iso_url(data, version, arch)` -- best-effort resolve iso_url from spec defs with version/arch substitution
+- `resolve_iso_url(data, version, arch)` -- best-effort resolve iso_url from spec defs with version/arch substitution, including arch_specific overrides and E>...<E expression evaluation
 - `check_iso_local(iso_url)` -- check if ISO exists locally (file:// path or packer cache)
+- `check_iso_url()` -- pre-build validation: verifies file:// ISOs exist on disk, checks http(s):// URLs with HEAD request (404 = abort, network errors = allow packer to retry)
+- `check_all_urls()` -- maintenance tool: resolves all spec URLs via the index, checks each unique URL in parallel (ThreadPoolExecutor), reports OK/FAILED/local-only counts
 - `check_iso_urls(urls)` -- validate remote ISO URLs, download checksums, set defs
 - `get_iso_file(urls)` -- resolve local ISO file path, set defs for local-only mode
 
