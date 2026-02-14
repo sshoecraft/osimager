@@ -35,6 +35,21 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             osimager.check_all_urls()
             return EXIT_SUCCESS
 
+        if osimager.local_only and not osimager.target:
+            index = osimager.get_index()
+            if not index:
+                print("No specs found.")
+                return EXIT_SUCCESS
+
+            local = [(k, e.get('iso_url', '')) for k, e in sorted(index.items()) if e.get('iso_local', False)]
+            if local:
+                for spec_key, iso_url in local:
+                    path = iso_url[7:] if iso_url.startswith('file://') else iso_url
+                    print(f"  {spec_key:<30} {path}")
+                print()
+            print(f"{len(local)} local ISOs available ({len(index)} total specs)")
+            return EXIT_SUCCESS
+
         if osimager.avail:
             index = osimager.get_index()
             if not index:
