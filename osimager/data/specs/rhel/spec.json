@@ -476,25 +476,17 @@
     },
     {
       "version": "5.10",
-      "arch_specific": [
-        {
-          "arch": "x86_64",
-          "defs": {
-            "iso_url": "file:///iso/RedHat/rhel-server-5.10-x86_64-dvd.iso"
-          }
-        }
-      ]
+      "arches": ["x86_64"],
+      "defs": {
+        "iso_url": "file:///iso/RedHat/rhel-server-5.10-x86_64-dvd.iso"
+      }
     },
     {
       "version": "5.11",
-      "arch_specific": [
-        {
-          "arch": "x86_64",
-          "defs": {
-            "iso_url": "file:///iso/RedHat/rhel-server-5.11-x86_64-dvd.iso"
-          }
-        }
-      ]
+      "arches": ["x86_64"],
+      "defs": {
+        "iso_url": "file:///iso/RedHat/rhel-server-5.11-x86_64-dvd.iso"
+      }
     },
     {
       "version": "6.*",
@@ -552,25 +544,17 @@
     },
     {
       "version": "6.9",
-      "arch_specific": [
-        {
-          "arch": "x86_64",
-          "defs": {
-            "iso_url": "https://archive.org/download/rhel-server-6.9-x86_64-dvd/rhel-server-6.9-x86_64-dvd.iso"
-          }
-        }
-      ]
+      "arches": ["x86_64"],
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-6.9-x86_64-dvd/rhel-server-6.9-x86_64-dvd.iso"
+      }
     },
     {
       "version": "6.10",
-      "arch_specific": [
-        {
-          "arch": "x86_64",
-          "defs": {
-            "iso_url": "https://archive.org/download/rhel-server-6.10-x86_64-dvd/rhel-server-6.10-x86_64-dvd.iso"
-          }
-        }
-      ]
+      "arches": ["x86_64"],
+      "defs": {
+        "iso_url": "https://archive.org/download/rhel-server-6.10-x86_64-dvd/rhel-server-6.10-x86_64-dvd.iso"
+      }
     },
     {
       "version": "7.*",

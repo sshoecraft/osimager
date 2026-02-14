@@ -64,25 +64,20 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     else:
                         download.append((spec_key, iso_url))
 
-            if download:
-                print(f"Download ({len(download)}):")
-                for spec_key, url in download:
-                    print(f"  {spec_key:<30} {url}")
-                print()
-
             if local:
                 print(f"Local ({len(local)}):")
                 for spec_key, path in local:
                     print(f"  {spec_key:<30} {path}")
                 print()
 
-            if missing:
-                print(f"Not available ({len(missing)}):")
-                for spec_key, path in missing:
-                    print(f"  {spec_key:<30} {path}")
+            if download:
+                print(f"Download ({len(download)}):")
+                for spec_key, url in download:
+                    print(f"  {spec_key:<30} {url}")
                 print()
 
-            print(f"Total: {len(index)} specs — {len(download)} download, {len(local)} local, {len(missing)} not available")
+            avail = len(download) + len(local)
+            print(f"{avail} available, {len(missing)} not available ({len(index)} total)")
             return EXIT_SUCCESS
 
         if osimager.list_platforms:
