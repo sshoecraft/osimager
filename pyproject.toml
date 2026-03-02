@@ -59,6 +59,7 @@ include = ["osimager*"]
 [tool.setuptools.package-data]
 osimager = [
     "data/**/*.json",
+    "data/**/*.toml",
     "data/**/*.cfg",
     "data/**/*.sh",
     "data/**/*.yml",

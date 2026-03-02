@@ -213,4 +213,4 @@ mkosimage --set vault_addr=http://vault:8200
 mkosimage --set vault_token=s.xxxxxxxx
 ```
 
-Settings are persisted in `~/.config/osimager/osimager.conf`.
+Settings are persisted in `~/.config/osimager/config.json`.

@@ -3,7 +3,8 @@
   "include": "all",
   "arches": [
     "i386",
-    "x86_64"
+    "x86_64",
+    "aarch64"
   ],
   "notes": [
     "cores changed to 0 so CPU topology assigned at power on"

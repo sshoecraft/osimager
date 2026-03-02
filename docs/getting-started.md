@@ -28,7 +28,6 @@ domain = "home.local"
 gateway = "192.168.1.1"
 cidr = "192.168.1.0/24"
 vms_path = "/vms"
-iso_path = "/iso"
 
 [defs.dns]
 servers = ["192.168.1.1"]
@@ -46,7 +45,6 @@ Field reference:
 | `gateway` | Default network gateway for built VMs. |
 | `cidr` | Network CIDR. OSImager derives the subnet, prefix length, and netmask from this automatically. |
 | `vms_path` | Directory where built VM images are stored. |
-| `iso_path` | Directory containing OS installation ISO files. Point this at wherever you download ISOs. |
 | `dns.servers` | List of DNS servers injected into kickstart/preseed/autoinst configs. |
 | `ntp.servers` | List of NTP servers for time synchronization during and after install. |
 

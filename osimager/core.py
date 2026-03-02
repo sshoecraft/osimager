@@ -2,8 +2,8 @@
 import os
 import sys
 import json
+import glob
 import hvac
-import configparser
 import tempfile
 import shutil
 import subprocess
@@ -54,6 +54,7 @@ class OSImager:
             "venv_dir": os.path.expanduser("~")+"/.venv",
             "ansible_playbook": "config.yml",
             "packer_cache_dir": "/tmp",
+            "iso_path": "/iso",
             "local_only": False,
             "credential_source": "vault",
             "vault_addr": "",
@@ -64,7 +65,7 @@ class OSImager:
         parser = argparse.ArgumentParser(description="OSImager configuration and control tool")
 
         arg_base_defs = {
-            "--config": {"flags": ["-c", "--config"], "kwargs": {"default": "osimager.conf", "help": "Path to osimager.conf file", "dest": "config"}},
+            "--config": {"flags": ["-c", "--config"], "kwargs": {"default": "config.json", "help": "Path to config.json file", "dest": "config"}},
             "--list": {"flags": ["-l", "--list"], "kwargs": {"default": False, "action": "store_true", "help": "List available specs", "dest": "list"}},
             "--avail": {"flags": ["-a", "--avail"], "kwargs": {"default": False, "action": "store_true", "help": "Show ISO availability for all specs", "dest": "avail"}},
             "--list-platforms": {"flags": ["--list-platforms"], "kwargs": {"default": False, "action": "store_true", "help": "List available platforms", "dest": "list_platforms"}},
@@ -75,6 +76,7 @@ class OSImager:
             "--debug": {"flags": ["-d", "--debug"], "kwargs": {"default": False, "action": "store_true", "help": "Enable debug mode", "dest": "debug"}},
             "--verbose": {"flags": ["-v", "--verbose"], "kwargs": {"default": False, "action": "store_true", "help": "Enable verbose output", "dest": "verbose"}},
             "--version": {"flags": ["-V", "--version"], "kwargs": {"default": False, "action": "store_true", "help": "Show version and exit", "dest": "version"}},
+            "--arch": {"flags": ["--arch"], "kwargs": {"default": None, "help": "Filter output by architecture (e.g. x86_64, i386, aarch64)", "dest": "arch"}},
             "--set": {"flags": ["--set"], "kwargs": {"action": "append", "help": "Set a setting value (key=value)", "dest": "settings_override"}},
         }
 
@@ -93,6 +95,7 @@ class OSImager:
                 "--dump-config": {"flags": ["-u", "--dump"], "kwargs": {"default": False, "action": "store_true", "help": "Dump build and exit", "dest": "dump_build"}},
                 "--temp": {"flags": ["-m", "--temp"], "kwargs": {"help": "Specify temp directory", "dest": "temp_dir"}},
                 "--local-only": {"flags": ["--local-only"], "kwargs": {"default": False, "action": "store_true", "help": "Use local ISO files instead of downloading", "dest": "local_only"}},
+                "--dispatcher": {"flags": ["--dispatcher"], "kwargs": {"default": False, "action": "store_true", "help": "Enable dispatcher progress output (PROGRESS=, ERROR=, RESULT=)", "dest": "dispatcher"}},
                 "n": {"flags": ["-n","--dry"], "kwargs": {"default": False, "action": "store_true", "help": "Dry run", "dest": "dry_run"}},
             }
             arg_defs.update(arg_full_defs)
@@ -116,7 +119,7 @@ class OSImager:
             sys.exit(0)
 
         # Set the attributes on the object based on the parsed arguments
-        self.config_file = os.path.expanduser(args.config) if args.config else "osimager.conf"
+        self.config_file = os.path.expanduser(args.config) if args.config else "config.json"
         self.list = args.list
         self.avail = args.avail
         self.list_platforms = args.list_platforms
@@ -124,6 +127,7 @@ class OSImager:
         self.init_plugins = args.init_plugins
         self.check_urls = args.check_urls
         self.show_config = args.show_config
+        self.arch = args.arch
         self.verbose = args.verbose
         self.debug = args.debug
         
@@ -148,6 +152,7 @@ class OSImager:
             self.dump_build = args.dump_build
             self.user_temp_dir = args.temp_dir
             self.local_only = args.local_only
+            self.dispatcher = args.dispatcher
             self.dry_run = args.dry_run
             self.user_defines = args.defines
             self.fqdn = args.fqdn
@@ -205,13 +210,18 @@ class OSImager:
         os.makedirs(os.path.join(self.settings['user_dir'], 'locations'), exist_ok=True)
         # define all the settings in defs
         self.defs.update(self.settings)
+        # resolve relative path defs to home directory
+        for path_key in ("iso_path", "vms_path"):
+            val = self.defs.get(path_key, "")
+            if isinstance(val, str) and val and not os.path.isabs(val):
+                self.defs[path_key] = os.path.join(os.path.expanduser("~"), val)
         # Also make base_dir available as base_path for compatibility
         self.defs['base_path'] = self.settings['base_dir']
 
         return args
 
     def load_settings(self, config_path):
-        config_file = os.path.expanduser("~/.config/osimager/osimager.conf")
+        config_file = os.path.join(self.settings['user_dir'], "config.json")
 
         if not os.path.exists(config_file):
             if self.verbose:
@@ -221,51 +231,44 @@ class OSImager:
         if self.verbose:
             print(f"Loading settings from: {config_file}")
 
-        config = configparser.ConfigParser()
-        config.read(config_file)
+        try:
+            with open(config_file, 'r') as f:
+                data = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            print(f"Error reading config file: {e}")
+            return
 
-        # Load osimager section settings
-        if 'osimager' in config:
-            for key, value in config['osimager'].items():
-                if key in self.settings:
-                    # Convert string values to appropriate types
-                    if key == 'local_only':
-                        self.settings[key] = config.getboolean('osimager', key, fallback=False)
-                    elif key == 'base_dir':
-                        self.settings[key] = os.path.abspath(value)
-                    else:
-                        self.settings[key] = value
-                    if self.verbose:
-                        print(f"   Loaded: {key} = {self.settings[key]}")
+        for key, value in data.items():
+            if key in self.settings:
+                if key == 'local_only':
+                    self.settings[key] = to_bool(value)
+                elif key == 'base_dir':
+                    self.settings[key] = os.path.abspath(value)
+                else:
+                    self.settings[key] = value
+                if self.verbose:
+                    print(f"   Loaded: {key} = {self.settings[key]}")
 
     def save_settings(self, config_path=""):
-        config_dir = os.path.expanduser("~/.config/osimager")
+        config_dir = self.settings['user_dir']
         os.makedirs(config_dir, exist_ok=True)
-        config_file = os.path.join(config_dir, "osimager.conf")
+        config_file = os.path.join(config_dir, "config.json")
 
-        # Read existing config
-        config = configparser.ConfigParser()
-        if os.path.exists(config_file):
-            config.read(config_file)
-
-        # Ensure osimager section exists
-        if 'osimager' not in config:
-            config.add_section('osimager')
-
-        # Save only osimager-specific settings (exclude base_dir and venv_dir - they are host-specific)
-        osimager_keys = [
-            'packer_cmd', 'packer_cache_dir', 'local_only',
+        save_keys = [
+            'packer_cmd', 'packer_cache_dir', 'iso_path', 'local_only',
             'data_dir', 'ansible_playbook',
             'credential_source', 'vault_addr', 'vault_token'
         ]
 
-        for key in osimager_keys:
+        data = {}
+        for key in save_keys:
             if key in self.settings:
-                config.set('osimager', key, str(self.settings[key]))
+                data[key] = self.settings[key]
 
         try:
             with open(config_file, 'w') as f:
-                config.write(f)
+                json.dump(data, f, indent=4)
+                f.write('\n')
             if self.verbose:
                 print(f"Settings saved to: {config_file}")
         except IOError as e:
@@ -755,31 +758,16 @@ class OSImager:
                 version_list.extend(explode_string_with_dynamic_range(vstr,debug))
         else:
             version_list = explode_string_with_dynamic_range(versions,debug)
-        default_arches = provides.get("arches",None)
-        version_specific = data.get("version_specific",[])
         provide_list = []
         for version in version_list:
             if debug: print("version: "+version)
-            # check version_specific for arch overrides
-            ver_arches = None
-            for vs in version_specific:
-                vs_ver = vs.get("version","")
-                if re.fullmatch(vs_ver, version, re.IGNORECASE):
-                    vs_arches = vs.get("arches",None)
-                    if vs_arches:
-                        ver_arches = vs_arches
-            arches = ver_arches if ver_arches else default_arches
-            for arch in arches:
-                if debug: print("arch: "+arch)
-                provide_entry = {
-                    "dist": dist,
-                    "version": version,
-                    "arch": arch
-                }
-                provide_list.append(provide_entry)
+            provide_entry = {
+                "dist": dist,
+                "version": version
+            }
+            provide_list.append(provide_entry)
 
         return provide_list
-#        return deduplicate_and_sort_versions(provide_list)
 
     def resolve_iso_url(self, data, version, arch):
         """Best-effort resolve iso_url from spec data for a given version/arch."""
@@ -797,34 +785,33 @@ class OSImager:
         # check top-level arch_specific overrides
         for a_s in data.get("arch_specific", []):
             if a_s.get("arch", "") == arch:
-                a_url = a_s.get("defs", {}).get("iso_url", "")
-                if a_url:
-                    iso_url = a_url
+                a_s_defs = a_s.get("defs", {})
+                if "iso_url" in a_s_defs:
+                    iso_url = a_s_defs["iso_url"]
         # check version_specific overrides
         for vs in data.get("version_specific", []):
             vs_ver = vs.get("version", "")
             if re.fullmatch(vs_ver, version, re.IGNORECASE):
-                vs_url = vs.get("defs", {}).get("iso_url", "")
-                if vs_url:
-                    iso_url = vs_url
+                vs_defs = vs.get("defs", {})
+                if "iso_url" in vs_defs:
+                    iso_url = vs_defs["iso_url"]
                 # check arch_specific within version_specific
                 for a_s in vs.get("arch_specific", []):
                     if a_s.get("arch", "") == arch:
-                        a_url = a_s.get("defs", {}).get("iso_url", "")
-                        if a_url:
-                            iso_url = a_url
+                        a_s_defs = a_s.get("defs", {})
+                        if "iso_url" in a_s_defs:
+                            iso_url = a_s_defs["iso_url"]
         if not iso_url:
             return None
-        # basic substitution
+        # basic substitution (per-iteration values not in self.defs)
         for k, v in subs.items():
             iso_url = iso_url.replace(k, v)
-        # resolve remaining >>var<< markers from spec defs
-        defs = data.get("defs", {})
+        # resolve remaining >>var<< markers from spec defs, then self.defs as fallback
+        spec_defs = data.get("defs", {})
         remaining = re.findall(r'>>(.*?)<<', iso_url)
         for var in remaining:
-            val = defs.get(var, "")
+            val = spec_defs.get(var, self.defs.get(var, ""))
             if val:
-                # substitute basic vars into the def value too
                 val = str(val)
                 for k, v in subs.items():
                     val = val.replace(k, v)
@@ -850,17 +837,24 @@ class OSImager:
         return iso_url
 
     def check_iso_local(self, iso_url):
-        """Check if an ISO file exists locally (file:// or packer cache)."""
+        """Check if an ISO file exists locally (file:// path, iso_path setting, or packer cache)."""
         if not iso_url:
             return False
         if iso_url.startswith("file://"):
             path = iso_url[7:]
             return os.path.isfile(path)
-        # for remote URLs, check packer cache
+        # for remote URLs, extract filename and search known locations
         iso_name = get_filename_from_url(iso_url)
-        if iso_name:
-            cache_dir = self.settings.get('packer_cache_dir', '/tmp')
-            return os.path.isfile(os.path.join(cache_dir, iso_name))
+        if not iso_name:
+            return False
+        # check iso_path from settings (already resolved to absolute in __init__)
+        iso_path = self.defs.get('iso_path', '/iso')
+        if iso_path and os.path.isfile(os.path.join(iso_path, iso_name)):
+            return True
+        # check packer cache
+        cache_dir = self.settings.get('packer_cache_dir', '/tmp')
+        if os.path.isfile(os.path.join(cache_dir, iso_name)):
+            return True
         return False
 
     def make_index(self):
@@ -902,13 +896,20 @@ class OSImager:
             spec_provides = self.spec_get_provides(str(file_name), data)
             if debug: print("spec_provides: "+json.dumps(spec_provides,indent=4))
             for entry in spec_provides:
-                arch = entry.get('arch',"")
-                if entry.get("arch","") in arches:
-                    key = entry['dist'] + "-" + entry['version'] + "-" + entry['arch']
-                    iso_url = self.resolve_iso_url(data, entry['version'], entry['arch'])
-                    iso_local = self.check_iso_local(iso_url) if iso_url else False
+                dist = entry.get('dist',"")
+                version = entry.get('version',"")
+                for arch in arches:
+                    iso_url = self.resolve_iso_url(data, version, arch)
+                    if not iso_url:
+                        continue
+                    key = dist + "-" + version + "-" + arch
+                    iso_local = self.check_iso_local(iso_url)
                     index[key] = {
-                        "provides": entry,
+                        "provides": {
+                            "dist": dist,
+                            "version": version,
+                            "arch": arch
+                        },
                         "path": str(file_name),
                         "iso_url": iso_url,
                         "iso_local": iso_local
@@ -919,6 +920,8 @@ class OSImager:
 
     def get_index(self,name = None):
         index = self.make_index()
+        if self.arch and not name:
+            index = {k: v for k, v in index.items() if v.get('provides', {}).get('arch') == self.arch}
         return index.get(name,None) if name else index
 
     def get_iso_file(self,urls):
@@ -1003,6 +1006,14 @@ class OSImager:
             raise ValueError("Target must be in format platform/location/spec")
     
         platform_name = tuple[0]
+        platform_file = os.path.join(self.get_path("data_dir"), "platforms", platform_name + ".json")
+        if not os.path.isfile(platform_file):
+            valid = [os.path.basename(f).removesuffix(".json")
+                     for f in sorted(glob.glob(os.path.join(self.get_path("data_dir"), "platforms", "*.json")))
+                     if os.path.basename(f).removesuffix(".json") not in ("all", "none")]
+            print(f"error: unknown platform '{platform_name}'")
+            print(f"valid platforms: {', '.join(valid)}")
+            sys.exit(1)
         self.defs['platform'] = platform_name
         location_name = tuple[1]
         self.defs['location'] = location_name
@@ -1091,13 +1102,6 @@ class OSImager:
     
         self.config['name'] = spec_name
 
-        # Break out the spec into components
-        parts = spec_name.split("-")
-        dist = parts[0] or self.spec.get("dist","")
-        version = parts[1] or "0.0"
-        arch = parts[2] or "unk"
-        if self.debug: print(f"dist: {dist}, ver: {version}, arch: {arch}")
-
         # Break out version and major.minor
         vparts = version.split(".")
         major = vparts[0]
@@ -1130,17 +1134,19 @@ class OSImager:
             "temp_dir": self.temp_dir,
             "tmpdir": self.temp_dir,
             "spec_dir": spec_dir,
-            "dist": parts[0],
-            "version": parts[1],
+            "dist": dist,
+            "version": version,
             "major": major,
             "minor": minor,
-            "arch": parts[2]
+            "arch": arch
         })
 
-        # Normalize path defs - strip trailing slashes so templates can add their own
+        # Normalize path defs - resolve relative paths to home directory (location may override settings)
         for path_key in ("iso_path", "vms_path"):
             val = self.defs.get(path_key, "")
-            if isinstance(val, str) and val.endswith("/") and len(val) > 1:
+            if isinstance(val, str) and val:
+                if not os.path.isabs(val):
+                    val = os.path.join(os.path.expanduser("~"), val)
                 self.defs[path_key] = val.rstrip("/")
 
         self.variables.update({
@@ -1538,12 +1544,14 @@ class OSImager:
 
         # Check for required files before proceeding
         self.check_required_files()
+        if self.dispatcher: print("PROGRESS=5", flush=True)
 
         # Check ISO URL accessibility
         self.check_iso_url()
 
         # generate files
         self.gen_files()
+        if self.dispatcher: print("PROGRESS=10", flush=True)
 
         # Create output file
         output_file = os.path.join(self.defs.get("tmpdir","/tmp"), self.defs.get("name","build") + ".json")
@@ -1608,13 +1616,25 @@ class OSImager:
 
         cmd_str = ' '.join(cmd)
         print(cmd_str)
+        if self.dispatcher: print("PROGRESS=15", flush=True)
 
         # Stay in data directory when running packer since config.yml is located there
         if not self.dry_run:
             # Ensure we're in the data directory where config.yml exists
             if os.getcwd() != data_path:
                 os.chdir(data_path)
-            os.system(cmd_str)
+            rc = os.system(cmd_str)
+            # os.system returns the wait status; extract the actual exit code
+            self.exit_code = os.waitstatus_to_exitcode(rc) if hasattr(os, 'waitstatus_to_exitcode') else (rc >> 8)
+
+            if self.dispatcher:
+                spec_name = self.defs.get('spec_name', '')
+                name = self.defs.get('name', '')
+                if self.exit_code == 0:
+                    print("PROGRESS=100", flush=True)
+                    print(f'RESULT={{"spec": "{spec_name}", "name": "{name}", "status": "success"}}', flush=True)
+                else:
+                    print(f'ERROR={{"message": "packer build failed with exit code {self.exit_code}", "spec": "{spec_name}", "name": "{name}"}}', flush=True)
 
         if not self.user_temp_dir and not self.keep:
             shutil.rmtree(self.temp_dir)

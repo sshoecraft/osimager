@@ -6,7 +6,7 @@ Technical reference for the complete build pipeline executed when a user runs a 
 mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 ```
 
-All line numbers reference the source as of v1.4.4.
+All line numbers reference the source as of v1.5.0.
 
 ---
 
@@ -48,10 +48,10 @@ osimager = OSImager(argv=argv, which="full")
 `init_vars()` (line 29) zeroes all instance state: `vault`, `secrets`, `platform`, `location`, `spec`, `defs`, `evars`, `variables`, `pre_provisioners`, `provisioners`, `post_provisioners`, `config`, `files`, `fqdn`.
 
 `init_settings()` (line 45) performs:
-- Default settings initialization (line 48-61): `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`
+- Default settings initialization (line 48-61): `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path`
 - argparse setup with base args and full args (lines 64-106)
 - Positional argument extraction: `target`, `name`, `ip` (lines 120-127)
-- Config file loading via `load_settings()` from `~/.config/osimager/osimager.conf` (line 156)
+- Config file loading via `load_settings()` from `~/.config/osimager/config.json` (line 156)
 - `--set` overrides applied and persisted if changed (lines 160-189)
 - `base_path` set from `base_dir` setting (line 192)
 - User config directory `~/.config/osimager/locations/` created (line 194)
@@ -149,7 +149,7 @@ Locations are loaded from `~/.config/osimager/locations/`. The method checks for
 
 A typical location file provides:
 - `platforms`: list of supported platform names
-- `defs`: network configuration (`cidr`, `gateway`, `domain`, `dns`, `ntp`, `iso_path`, `vms_path`, etc.)
+- `defs`: network configuration (`cidr`, `gateway`, `domain`, `dns`, `ntp`, `vms_path`, etc.)
 - `platform_specific`: per-platform overrides (e.g., vSphere datacenter/cluster, Proxmox node settings)
 
 After loading, `load_specific()` processes `platform_specific` entries, matching `vmware` against the current `platform` def. This is where platform-location intersection config (e.g., VMware datastore paths specific to a lab) gets merged.

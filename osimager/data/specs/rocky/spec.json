@@ -4,22 +4,26 @@
     "versions": [
         "8.[3-9]",
         "9.[0-7]"
-    ],
-    "arches": [
-      "x86_64",
-      "aarch64"
     ]
   },
   "include": "rhel",
   "method": "merge",
+  "arch_specific": [
+    { "arch": "x86_64", "defs": { "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd.iso" } },
+    { "arch": "aarch64", "defs": { "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/aarch64/Rocky->>version<<-aarch64-dvd.iso" } }
+  ],
   "defs": {
-    "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd.iso"
+    "iso_url": ""
   },
   "version_specific": [
     {
       "version": "8.*",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd1.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/aarch64/Rocky->>version<<-aarch64-dvd1.iso" } }
+      ],
       "defs": {
-        "iso_url": "https://download.rockylinux.org/vault/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd1.iso",
+        "iso_url": "",
         "azure_image_publisher": "resf",
         "azure_image_offer": "rockylinux-x86_64",
         "azure_image_sku": "8-lvm",
@@ -45,9 +49,10 @@
     },
     {
       "version": "9.7",
-      "defs": {
-        "iso_url": "https://download.rockylinux.org/pub/rocky/>>version<</isos/>>arch<</Rocky->>version<<->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://download.rockylinux.org/pub/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://download.rockylinux.org/pub/rocky/>>version<</isos/aarch64/Rocky->>version<<-aarch64-dvd.iso" } }
+      ]
     }
   ]
 }

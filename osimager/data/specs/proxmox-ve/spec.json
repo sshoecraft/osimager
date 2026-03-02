@@ -1,0 +1,93 @@
+{
+  "provides": {
+    "dist": "proxmox-ve",
+    "versions": [
+      "3.4",
+      "4.4",
+      "5.4",
+      "6.4",
+      "7.4",
+      "8.4",
+      "9.0",
+      "9.1"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "qemu",
+    "libvirt",
+    "none"
+  ],
+  "files": [
+    {
+      "sources": [
+        "proxmox-ve/answer.toml"
+      ],
+      "dest": "answer.toml"
+    }
+  ],
+  "arch_specific": [
+    {
+      "arch": "x86_64",
+      "defs": {
+        "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_>>version<<-1.iso"
+      }
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "3.4",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_3.4-102d4547-6.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "4.4",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_4.4-eb2d6f1e-2.iso"
+          }
+        }
+      ]
+    }
+  ],
+  "defs": {
+    "boot_disk_size": 65536,
+    "memory": 4096,
+    "cd_files": ">>temp_dir<</answer.toml",
+    "cd_label": "proxmox-ais"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "boot_command": [
+      "<esc><wait>",
+      "auto ",
+      "proxmox-start-auto-install<enter>"
+    ],
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Debian_64"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "debian12-64"
+      }
+    }
+  ]
+}

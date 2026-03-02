@@ -76,7 +76,7 @@ All local ISO platforms share these characteristics:
 - **Defs**: `local: true`
 - **Boot method**: ISO boot with `boot_command` from spec
 - **Credentials**: No platform credentials required (only `images/<os>` for SSH/WinRM)
-- **Location defs needed**: `vms_path`, `iso_path`
+- **Location defs needed**: `vms_path`
 - **ISO handling**: Conditional expression selects local path or download URL based on `local_only`
 
 The common ISO URL pattern used across local platforms:
@@ -149,7 +149,6 @@ VirtualBox uses post-create `vboxmanage` commands to configure VM settings that 
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/vbox/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -208,7 +207,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/vmware/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -259,7 +257,6 @@ Inherits from `all.json` only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/qemu/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -310,7 +307,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/libvirt/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -362,7 +358,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/hyperv/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -413,7 +408,6 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/xen/`) |
-| `iso_path` | Directory containing OS ISOs |
 
 ---
 
@@ -533,7 +527,6 @@ This dynamically selects the Windows or Linux VMware Tools ISO based on the spec
 | `cluster` | Yes | vSphere cluster name |
 | `datastore` | Yes | Datastore for VM storage |
 | `folder` | Yes | vCenter folder path |
-| `iso_path` | Yes | Datastore path for ISO files |
 | `vm_network` | No | Port group name (default: `VM Network`) |
 | `thin_disk` | No | Thin provisioning (default: `false`) |
 
@@ -690,7 +683,6 @@ When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwis
 | `proxmox_node` | Yes | Proxmox VE node name |
 | `iso_storage_pool` | Yes | Storage pool for ISO files (e.g., `local`) |
 | `vm_storage_pool` | Yes | Storage pool for VM disks (e.g., `local-lvm`) |
-| `iso_path` | Yes | ISO path prefix |
 
 #### Credential Requirements
 

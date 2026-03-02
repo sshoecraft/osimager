@@ -3,9 +3,6 @@
     "dist": "sysvr4",
     "versions": [
       "2.1"
-    ],
-    "arches": [
-      "i386"
     ]
   },
   "flavor": "unix",
@@ -14,8 +11,15 @@
     "vmware",
     "proxmox"
   ],
+  "arch_specific": [
+    {
+      "arch": "i386",
+      "defs": {
+        "iso_url": "file://>>iso_path<</SystemV/sysvr4-2.1-i386.iso"
+      }
+    }
+  ],
   "defs": {
-    "iso_url": "file:///iso/SystemV/sysvr4-2.1-i386.iso",
     "ansible_playbook": ">>spec_dir<</config.yml"
   },
   "pre_provisioners": [

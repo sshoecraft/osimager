@@ -1,0 +1,49 @@
+{
+  "provides": {
+    "dist": "mxlinux",
+    "versions": [
+      "23.5"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "proxmox",
+    "qemu",
+    "libvirt",
+    "none"
+  ],
+  "arch_specific": [
+    {
+      "arch": "x86_64",
+      "defs": {
+        "iso_url": "file://>>iso_path<</MX->>version<<_x64.iso"
+      }
+    }
+  ],
+  "defs": {
+    "boot_disk_size": 16384
+  },
+  "config": {
+    "boot_wait": "10s",
+    "boot_command": [
+      "<enter>"
+    ],
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Debian_64"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "debian12-64"
+      }
+    }
+  ]
+}

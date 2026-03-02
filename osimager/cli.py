@@ -12,6 +12,7 @@ from typing import List, Optional
 
 from .core import OSImager
 from .constants import EXIT_SUCCESS, EXIT_GENERAL_ERROR
+from .utils import get_filename_from_url
 
 
 def main_mkosimage(argv: Optional[List[str]] = None) -> int:
@@ -23,7 +24,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
         osimager = OSImager(argv=argv, which="full")
 
         if osimager.show_config:
-            print(f"Config file: {os.path.join(osimager.settings['user_dir'], 'osimager.conf')}")
+            print(f"Config file: {os.path.join(osimager.settings['user_dir'], 'config.json')}")
             print("")
             for key, val in sorted(osimager.settings.items()):
                 if key in ('base_dir', 'user_dir'):
@@ -36,19 +37,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             return EXIT_SUCCESS
 
         if osimager.local_only and not osimager.target:
-            index = osimager.get_index()
-            if not index:
-                print("No specs found.")
-                return EXIT_SUCCESS
-
-            local = [(k, e.get('iso_url', '')) for k, e in sorted(index.items()) if e.get('iso_local', False)]
-            if local:
-                for spec_key, iso_url in local:
-                    path = iso_url[7:] if iso_url.startswith('file://') else iso_url
-                    print(f"  {spec_key:<30} {path}")
-                print()
-            print(f"{len(local)} local ISOs available ({len(index)} total specs)")
-            return EXIT_SUCCESS
+            osimager.avail = True
 
         if osimager.avail:
             index = osimager.get_index()
@@ -75,9 +64,13 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                         missing.append((spec_key, path))
                 else:
                     if iso_local:
-                        local.append((spec_key, iso_url))
+                        iso_name = get_filename_from_url(iso_url)
+                        iso_path = osimager.settings.get('iso_path', '/iso')
+                        local.append((spec_key, os.path.join(iso_path, iso_name)))
                     else:
                         download.append((spec_key, iso_url))
+
+            local_only = osimager.settings.get('local_only', False)
 
             if local:
                 print(f"Local ({len(local)}):")
@@ -85,14 +78,17 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     print(f"  {spec_key:<30} {path}")
                 print()
 
-            if download:
+            if not local_only and download:
                 print(f"Download ({len(download)}):")
                 for spec_key, url in download:
                     print(f"  {spec_key:<30} {url}")
                 print()
 
-            avail = len(download) + len(local)
-            print(f"{avail} available, {len(missing)} not available ({len(index)} total)")
+            if local_only:
+                print(f"{len(local)} local ISOs ({len(index)} total specs)")
+            else:
+                avail = len(download) + len(local)
+                print(f"{avail} available, {len(missing)} not available ({len(index)} total)")
             return EXIT_SUCCESS
 
         if osimager.list_platforms:
@@ -185,7 +181,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 'dns_search': 'from location dns.search',
                 'ntp1': 'from location ntp.servers',
                 'iso_url': 'from spec',
-                'iso_path': 'from location',
+                'iso_path': 'from settings (default: /iso)',
                 'vms_path': 'from location',
             }
 
@@ -217,12 +213,8 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 print("Available specs:")
                 for spec_key in sorted(index.keys()):
                     entry = index[spec_key]
-                    provides = entry.get('provides', {})
-                    dist = provides.get('dist', 'unknown')
-                    version = provides.get('version', 'unknown')
-                    arch = provides.get('arch', 'unknown')
-                    iso_flag = " *" if entry.get('iso_local', False) else ""
-                    print(f"  {spec_key} ({dist} {version} {arch}){iso_flag}")
+                    iso_flag = " (*)" if entry.get('iso_local', False) else ""
+                    print(f"  {spec_key}{iso_flag}")
             else:
                 print("No specs found.")
             return EXIT_SUCCESS
@@ -306,7 +298,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             return EXIT_SUCCESS
 
         osimager.run_packer()
-        return EXIT_SUCCESS
+        return osimager.exit_code if hasattr(osimager, 'exit_code') and osimager.exit_code else EXIT_SUCCESS
 
     except SystemExit as e:
         return e.code if e.code is not None else EXIT_GENERAL_ERROR
@@ -368,7 +360,7 @@ def main_rfosimage(argv: Optional[List[str]] = None) -> int:
         build['builders'] = builders
 
         img.run_packer()
-        return EXIT_SUCCESS
+        return img.exit_code if hasattr(img, 'exit_code') and img.exit_code else EXIT_SUCCESS
 
     except SystemExit as e:
         return e.code if e.code is not None else EXIT_GENERAL_ERROR

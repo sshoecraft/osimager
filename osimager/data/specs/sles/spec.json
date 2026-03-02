@@ -5,10 +5,6 @@
         "12.[1-5]",
         "15.[0-7]",
         "16.[0-0]"
-    ],
-    "arches": [
-      "x86_64",
-      "aarch64"
     ]
   },
   "include": "linux",
@@ -45,9 +41,16 @@
   "version_specific": [
     {
       "version": "12.*",
-      "arches": ["x86_64"],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</SUSE/SLE-12-SP>>minor<<-Server-DVD-x86_64-GM-DVD1.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "file:///iso/SUSE/SLE-12-SP>>minor<<-Server-DVD->>arch<<-GM-DVD1.iso",
+        "iso_url": "",
         "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python"
       },
       "files": [
@@ -81,8 +84,12 @@
     },
     {
       "version": "15.*",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-15-SP>>minor<<-Full-x86_64-GM-Media1.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-15-SP>>minor<<-Full-aarch64-GM-Media1.iso" } }
+      ],
       "defs": {
-        "iso_url": "file:///iso/SUSE/SLE-15-SP>>minor<<-Full->>arch<<-GM-Media1.iso",
+        "iso_url": "",
         "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
         "azure_image_publisher": "SUSE",
         "azure_image_offer": "sles-15-sp>>minor<<",
@@ -124,14 +131,19 @@
     },
     {
       "version": "15.0",
-      "defs": {
-        "iso_url": "file:///iso/SUSE/SLE-15-Full->>arch<<-GM-Media1.iso"
-      }
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-15-Full-x86_64-GM-Media1.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-15-Full-aarch64-GM-Media1.iso" } }
+      ]
     },
     {
       "version": "16.*",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-16-SP>>minor<<-Full-x86_64-GM-Media1.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</SUSE/SLE-16-SP>>minor<<-Full-aarch64-GM-Media1.iso" } }
+      ],
       "defs": {
-        "iso_url": "file:///iso/SUSE/SLE-16-SP>>minor<<-Full->>arch<<-GM-Media1.iso",
+        "iso_url": "",
         "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
       },
       "files": [

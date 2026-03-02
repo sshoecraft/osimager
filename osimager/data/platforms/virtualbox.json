@@ -3,7 +3,8 @@
   "include": "all",
   "arches": [
     "i386",
-    "x86_64"
+    "x86_64",
+    "aarch64"
   ],
   "defs": {
     "local": true
@@ -37,13 +38,6 @@
       [
         "modifyvm",
         "{{.Name}}",
-        "--nic-type1=virtio",
-        "--nic1=bridged",
-        "--bridge-adapter1=vbnet"
-      ],
-      [
-        "modifyvm",
-        "{{.Name}}",
         "--ioapic", "on",
         "--rtcuseutc","on",
         "--hwvirtex","on",
@@ -55,7 +49,6 @@
     "hard_drive_discard": true,
     "hard_drive_nonrotational": true,
     "hard_drive_interface": "virtio",
-    "disk_size": "#>boot_disk_size<#",
-    "skip_nat_mapping": true
+    "disk_size": "#>boot_disk_size<#"
   }
 }

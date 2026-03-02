@@ -6,9 +6,6 @@
       "2019",
       "2022",
       "2025"
-    ],
-    "arches": [
-      "x86_64"
     ]
   },
   "include": "windows",
@@ -72,10 +69,17 @@
   "version_specific": [
     {
       "version": "2016",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO"
+          }
+        }
+      ],
       "defs": {
         "memory": 4096,
         "product_key": "WC2BQ-8NRM3-FDDYY-2BFGV-KHKQY",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO",
         "azure_image_publisher": "MicrosoftWindowsServer",
         "azure_image_offer": "WindowsServer",
         "azure_image_sku": "2016-datacenter-g2",
@@ -108,9 +112,16 @@
     },
     {
       "version": "2019",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO"
+          }
+        }
+      ],
       "defs": {
         "product_key": "N69G4-B89J2-4G8F4-WWYCC-J464C",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO",
         "azure_image_publisher": "MicrosoftWindowsServer",
         "azure_image_offer": "WindowsServer",
         "azure_image_sku": "2019-datacenter-g2",
@@ -131,9 +142,16 @@
     },
     {
       "version": "2022",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO"
+          }
+        }
+      ],
       "defs": {
         "product_key": "VDYBN-27WPP-V4HQT-9VMD4-VMK7H",
-        "iso_url": "file:///iso/Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO",
         "azure_image_publisher": "MicrosoftWindowsServer",
         "azure_image_offer": "WindowsServer",
         "azure_image_sku": "2022-datacenter-g2",
@@ -154,9 +172,16 @@
     },
     {
       "version": "2025",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</Windows/windows_server_2025_x64_dvd.iso"
+          }
+        }
+      ],
       "defs": {
         "product_key": "TVRH6-WHNXV-R9WG3-9XRFY-MY832",
-        "iso_url": "file:///iso/Windows/windows_server_2025_x64_dvd.iso",
         "azure_image_publisher": "MicrosoftWindowsServer",
         "azure_image_offer": "WindowsServer",
         "azure_image_sku": "2025-datacenter-g2",

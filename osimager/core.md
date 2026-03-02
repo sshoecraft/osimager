@@ -12,7 +12,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 
 ### Key Instance Variables
 
-- `settings` — Runtime config: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`
+- `settings` — Runtime config: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path`
 - `defs` — All template substitution variables, accumulated from settings/platform/location/spec/runtime
 - `config` — Packer builder configuration, becomes `builders[0]` in output
 - `variables` — Packer user variables for `{{user ...}}` references
@@ -31,8 +31,8 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 ### Initialization
 - `init_vars()` — Zero all accumulator state
 - `init_settings(argv, which, extra_args)` — Parse CLI args, load/save settings, create user dirs, seed defs
-- `load_settings(config_path)` — Read `~/.config/osimager/osimager.conf` via configparser
-- `save_settings(config_path)` — Write current settings to osimager.conf
+- `load_settings(config_path)` — Read `~/.config/osimager/config.json` via JSON
+- `save_settings(config_path)` — Write current settings to config.json
 
 ### Data Loading
 - `read_data(file_path)` — Load JSON or TOML file
@@ -43,15 +43,15 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `load_specific(data)` — Process platform/location/dist/version/arch/firmware_specific sections via regex matching
 
 ### Index and Discovery
-- `make_index()` — Scan all specs, expand version ranges, build dist-version-arch lookup table. Always built fresh (no file caching).
+- `make_index()` — Scan all specs, expand version ranges, iterate candidate arches per version, probe `resolve_iso_url()` to determine arch availability. Entries with no URL are skipped. Always built fresh (no file caching).
 - `get_index(name)` — Calls `make_index()`, optionally filters by name
-- `spec_get_provides(file_name, data)` — Extract provides entries, expand version ranges and per-version arch overrides
+- `spec_get_provides(file_name, data)` — Extract provides entries (dist+version pairs), expand version ranges. Arches are no longer part of provides — they are derived at index time by probing `resolve_iso_url()`.
 - `get_platforms(names)` — List platform configs
 - `get_locations(platform_names)` — List location configs from user dir
 - `get_specs(search_string)` — List spec configs
 
 ### ISO and URL Handling
-- `resolve_iso_url(data, version, arch)` — Best-effort resolve iso_url from spec defs. Handles basic `>>var<<` substitution, `arch_specific` overrides (both top-level and within `version_specific`), remaining `>>var<<` markers from spec defs (e.g., `deb_arch`), and `E>...<E` expression evaluation.
+- `resolve_iso_url(data, version, arch)` — Best-effort resolve iso_url from spec defs. Uses key-presence checks (not truthiness) so `"iso_url": ""` can explicitly clear. Handles basic `>>var<<` substitution, `arch_specific` overrides (both top-level and within `version_specific`), remaining `>>var<<` markers from spec defs (e.g., `deb_arch`), and `E>...<E` expression evaluation. Returns None when iso_url resolves to empty — this is how arch restriction works (empty URL blocks an arch).
 - `check_iso_local(iso_url)` — Check if ISO exists locally (file:// path or packer cache)
 - `check_iso_url()` — Pre-build validation called from `run_packer()`. For file:// URLs, verifies file exists with helpful error message. For http(s):// URLs, does HEAD request and aborts on 404.
 - `check_all_urls()` — Maintenance tool invoked by `--check-urls`. Creates a dummy location, resolves all spec URLs via `make_index()`, checks each unique URL in parallel (ThreadPoolExecutor, 10 workers). Reports OK/FAILED/local-only counts. Cleans up dummy location on exit.
@@ -81,3 +81,4 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - v1.4.2: --init-plugins, --show-config, example-secrets copy command
 - v1.4.3: ISO URL fixes across all distros, file:// for unavailable ISOs
 - v1.4.4: --check-urls, --avail (ISO availability), pre-build check_iso_url(), removed save_index/index file caching, resolve_iso_url handles arch_specific + expression eval
+- v1.5.0: Config format changed from INI (configparser) to JSON (config.json), iso_path moved from location defs to global settings. Removed `provides.arches` and `version_specific[].arches` — arches now derived from ISO URL resolution at index time. Specs use `arch_specific` entries with explicit per-arch iso_url and `"iso_url": ""` to block unsupported arches.

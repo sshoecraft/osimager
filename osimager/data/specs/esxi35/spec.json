@@ -1,0 +1,68 @@
+{
+  "flavor": "linux",
+  "provides": {
+    "dist": "esxi35",
+    "versions": [
+      "3.5U5"
+    ]
+  },
+  "platforms": [
+    "vmware",
+    "vsphere"
+  ],
+  "files": [
+    {
+      "sources": [
+        "esxi/kickstart.cfg",
+        "esxi/kickstart_fb.cfg"
+      ],
+      "dest": "ks.cfg"
+    }
+  ],
+  "arch_specific": [
+    {
+      "arch": "i386",
+      "defs": {
+        "iso_url": ">>iso_path<</VMware-VMvisor-InstallerCD-3.5.0_Update_5-207095.i386.iso"
+      }
+    }
+  ],
+  "defs": {
+    "memory": 2048,
+    "cd_files": [
+      "ks.cfg"
+    ],
+    "cd_label": "OEMDRV",
+    "ansible_playbook": "config.yml"
+  },
+  "config": {
+    "boot_wait": "8s",
+    "boot_command": [
+      "<enter><wait>O ks=cdrom:/KS.CFG<enter>"
+    ],
+    "shutdown_command": "poweroff"
+  },
+  "platform_specific": [
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "vmkernel",
+        "disk_adapter_type": "lsisas1068",
+        "network_adapter_type": "e1000"
+      }
+    },
+    {
+      "platform": "vsphere",
+      "config": {
+        "guest_os_type": "vmkernelGuest",
+        "disk_controller_type": "lsilogic-sas",
+        "network_adapters": [
+          {
+            "network": ">>vm_network<<",
+            "network_card": "e1000"
+          }
+        ]
+      }
+    }
+  ]
+}

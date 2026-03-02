@@ -1,0 +1,96 @@
+{
+  "provides": {
+    "dist": "fedora",
+    "versions": [
+      "7"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "proxmox",
+    "qemu"
+  ],
+  "files": [
+    {
+      "sources": [
+        "fedora/kickstart.cfg",
+        "rhel/ks-part.sh",
+        "rhel/kickstart_end.cfg",
+        "rhel/kickstart_post.cfg",
+        "rhel/install_vmwtools.sh",
+        "rhel/kickstart_end.cfg"
+      ],
+      "dest": "ks.cfg"
+    }
+  ],
+  "arch_specific": [
+    {
+      "arch": "i386",
+      "defs": {
+        "iso_url": "file://>>iso_path<</F->>version<<-i386-DVD.iso"
+      }
+    }
+  ],
+  "defs": {
+    "cd_files": ">>temp_dir<</ks.cfg",
+    "cd_label": "OEMDRV"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "boot_command": [
+      "<tab>linux ks=cdrom:/ks.cfg<enter>"
+    ],
+    "shutdown_command": "/sbin/shutdown -h now",
+    "ssh_key_exchange_algorithms": [
+      "diffie-hellman-group14-sha1"
+    ]
+  },
+  "version_specific": [
+    {
+      "version": "7",
+      "venv": "2.10",
+      "defs": {
+        "spec_config": "specs/rhel/config_legacy.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2"
+      },
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      }
+    }
+  ],
+  "platform_specific": [
+    {
+      "platform": "proxmox",
+      "config": {
+        "qemu_agent": false
+      }
+    },
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Fedora",
+        "hard_drive_interface": "scsi",
+        "vboxmanage": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--nic-type1=82540EM",
+            "--nic1=bridged",
+            "--bridge-adapter1=vbnet"
+          ]
+        ]
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "fedora",
+        "disk_adapter_type": "sata",
+        "cdrom_adapter_type": "ide",
+        "network_adapter_type": "e1000"
+      }
+    }
+  ]
+}

@@ -48,6 +48,7 @@ nav:
   - Configuration:
     - Location Setup: configuration/location-setup.md
     - Credential Setup: configuration/credential-setup.md
+    - Lab Network Setup: configuration/lab-setup.md
   - Architecture:
     - Overview: architecture/overview.md
     - Build Pipeline: architecture/build-pipeline.md

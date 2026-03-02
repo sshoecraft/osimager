@@ -5,16 +5,16 @@
         "8.[3-10]",
         "9.[0-7]",
         "10.[0-1]"
-    ],
-    "arches": [
-      "x86_64",
-      "aarch64"
     ]
   },
   "include": "rhel",
   "method": "merge",
+  "arch_specific": [
+    { "arch": "x86_64", "defs": { "iso_url": "https://vault.almalinux.org/>>version<</isos/x86_64/AlmaLinux->>version<<-x86_64-dvd.iso" } },
+    { "arch": "aarch64", "defs": { "iso_url": "https://vault.almalinux.org/>>version<</isos/aarch64/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+  ],
   "defs": {
-    "iso_url": "https://vault.almalinux.org/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
+    "iso_url": ""
   },
   "version_specific": [
     {
@@ -32,13 +32,24 @@
     },
     {
       "version": "8.3",
-      "arches": ["x86_64"]
+      "defs": {
+        "iso_url": ""
+      },
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://vault.almalinux.org/8.3/isos/x86_64/AlmaLinux-8.3-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.10",
-      "defs": {
-        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/x86_64/AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/aarch64/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+      ]
     },
     {
       "version": "9.*",
@@ -55,9 +66,10 @@
     },
     {
       "version": "9.7",
-      "defs": {
-        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/x86_64/AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/aarch64/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+      ]
     },
     {
       "version": "10.*",
@@ -74,9 +86,10 @@
     },
     {
       "version": "10.1",
-      "defs": {
-        "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/>>arch<</AlmaLinux->>version<<->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/x86_64/AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/>>version<</isos/aarch64/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+      ]
     }
   ]
 }

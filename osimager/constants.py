@@ -8,7 +8,7 @@ configuration constants to maintain consistency across the codebase.
 """
 
 # Version information
-OSIMAGER_VERSION = "1.4.4"
+OSIMAGER_VERSION = "1.5.0"
 OSIMAGER_NAME = "OSImager"
 
 # Default paths and directories
@@ -17,7 +17,7 @@ DEFAULT_CONFIG_DIR = "~/.config/osimager"
 DEFAULT_CACHE_DIR = "/tmp"
 
 # Configuration file names
-SETTINGS_FILENAME = "settings.json"
+SETTINGS_FILENAME = "config.json"
 SPEC_FILENAME = "spec.json"
 VAULT_CONFIG_FILENAME = "vaultconfig"
 ANSIBLE_PLAYBOOK_FILENAME = "config.yml"

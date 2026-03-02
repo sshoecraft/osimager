@@ -6,10 +6,6 @@
       "20.04",
       "22.04",
       "24.04"
-    ],
-    "arches": [
-      "x86_64",
-      "aarch64"
     ]
   },
   "include": "linux",
@@ -83,9 +79,16 @@
   "version_specific": [
     {
       "version": "18.04",
-      "arches": ["x86_64"],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://releases.ubuntu.com/18.04/ubuntu-18.04.6-live-server-amd64.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/18.04/ubuntu-18.04.6-live-server->>deb_arch<<.iso",
+        "iso_url": "",
         "cd_files": ">>temp_dir<</ubuntu.seed",
         "cd_label": "media"
       },
@@ -121,8 +124,12 @@
     },
     {
       "version": "20.04",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.5-live-server-arm64.iso" } }
+      ],
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server->>deb_arch<<.iso",
+        "iso_url": "",
         "azure_image_publisher": "Canonical",
         "azure_image_offer": "0001-com-ubuntu-server-focal",
         "azure_image_sku": "20_04-lts-gen2",
@@ -148,8 +155,12 @@
     },
     {
       "version": "22.04",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.5-live-server-arm64.iso" } }
+      ],
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server->>deb_arch<<.iso",
+        "iso_url": "",
         "azure_image_publisher": "Canonical",
         "azure_image_offer": "0001-com-ubuntu-server-jammy",
         "azure_image_sku": "22_04-lts-gen2",
@@ -162,8 +173,12 @@
     },
     {
       "version": "24.04",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.4-live-server-arm64.iso" } }
+      ],
       "defs": {
-        "iso_url": "https://releases.ubuntu.com/24.04/ubuntu-24.04.3-live-server->>deb_arch<<.iso",
+        "iso_url": "",
         "azure_image_publisher": "Canonical",
         "azure_image_offer": "ubuntu-24_04-lts",
         "azure_image_sku": "server",

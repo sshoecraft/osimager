@@ -1,6 +1,6 @@
 # System Architecture
 
-OSImager v1.4.4 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 13 platforms and 12 OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
+OSImager v1.5.0 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 13 platforms and 12 OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
 
 ## Package Structure
 
@@ -30,7 +30,7 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
 
 | Variable | Type | Purpose |
 |---|---|---|
-| `settings` | dict | Runtime configuration: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token` |
+| `settings` | dict | Runtime configuration: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path` |
 | `defs` | dict | All template substitution variables accumulated from settings, platform, location, spec, and runtime values. Used by `>>var<<` and all other marker patterns. |
 | `config` | dict | Packer builder configuration. Populated by platform/location/spec `config` sections via `load_data()`. Becomes `builders[0]` in final output. |
 | `variables` | dict | Packer user variables for `{{user ...}}` references. Contains `platform-name`, `location-name`, `spec-name`, `spec-config`, `name`, `fqdn`. |
@@ -58,7 +58,7 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
    - Builds argparse parser from `arg_base_defs` (always) and `arg_full_defs` (when `which="full"`)
    - Merges `extra_args` if provided (used by rfosimage)
    - Parses `argv`, stores results as instance attributes
-   - Calls `load_settings()` to read `~/.config/osimager/osimager.conf` (INI format via `configparser`)
+   - Calls `load_settings()` to read `~/.config/osimager/config.json` (JSON format)
    - Applies `--set key=value` overrides; saves back to conf if any changed
    - Creates `~/.config/osimager/locations/` directory
    - Seeds `defs` with all settings values plus `base_path` alias
@@ -113,7 +113,7 @@ All user-specific configuration lives outside the package at `~/.config/osimager
 
 | Path | Format | Purpose |
 |---|---|---|
-| `osimager.conf` | INI (configparser) | Persistent settings. Written only on `--set`. Section `[osimager]` with keys matching `settings` dict. |
+| `config.json` | JSON | Persistent settings. Written only on `--set`. Keys matching `settings` dict. |
 | `locations/*.json` or `locations/*.toml` | JSON or TOML | User-created location files. JSON takes priority over TOML if both exist for same name. |
 | `secrets` | Custom text | Credentials file for config mode. Format: `path key1=value1 key2=value2`. Lines starting with `#` are comments. |
 
@@ -235,8 +235,8 @@ Actions 5, 8, 9, 10 all call `imager.get_secret()` which dispatches to the activ
 ### Initialization
 - `init_vars()` -- zero all accumulator state (vault, secrets, platform, location, spec, defs, evars, variables, provisioners, config, files, fqdn)
 - `init_settings(argv, which, extra_args)` -- parse CLI args, load/save settings, create user dirs, seed defs
-- `load_settings(config_path)` -- read `~/.config/osimager/osimager.conf` via configparser
-- `save_settings(config_path)` -- write current settings to osimager.conf
+- `load_settings(config_path)` -- read `~/.config/osimager/config.json` via JSON
+- `save_settings(config_path)` -- write current settings to config.json
 
 ### Data Loading
 - `read_data(file_path)` -- load a JSON or TOML file based on extension

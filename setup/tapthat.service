@@ -1,0 +1,12 @@
+[Unit]
+Description=vbnet tap switch
+After=networking.service
+Requires=networking.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/tapthat vbnet
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

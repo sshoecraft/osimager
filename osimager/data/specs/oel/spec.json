@@ -2,17 +2,12 @@
   "provides": {
     "dist": "oel",
     "versions": [
-        "5.[0-10]",
-        "6.[0-10]",
-        "7.[0-9]",
-        "8.[0-10]",
-        "9.[0-7]",
-        "10.[0-1]"
-    ],
-    "arches": [
-      "i386",
-      "x86_64",
-      "aarch64"
+      "5.[0-10]",
+      "6.[0-10]",
+      "7.[0-9]",
+      "8.[0-10]",
+      "9.[0-7]",
+      "10.[0-1]"
     ]
   },
   "include": "rhel",
@@ -20,9 +15,22 @@
   "version_specific": [
     {
       "version": "5.*",
-      "arches": ["i386", "x86_64"],
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R5-U>>minor<<-Server-i386-dvd.iso"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R5-U>>minor<<-Server-x86_64-dvd.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "file:///iso/OracleLinux/OracleLinux-R5-U>>minor<<-Server->>arch<<-dvd.iso"
+        "iso_url": ""
       },
       "platform_specific": [
         {
@@ -41,9 +49,22 @@
     },
     {
       "version": "6.*",
-      "arches": ["i386", "x86_64"],
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL6/u>>minor<</i386/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL6/u>>minor<</x86_64/OracleLinux-R6-U>>minor<<-Server-x86_64-dvd.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL6/u>>minor<</>>arch<</OracleLinux-R6-U>>minor<<-Server->>arch<<-dvd.iso"
+        "iso_url": ""
       },
       "files": [
         {
@@ -80,9 +101,20 @@
     },
     {
       "version": "6\\.[0-7]",
-      "defs": {
-        "iso_url": "file:///iso/OracleLinux/OracleLinux-R6-U>>minor<<-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+          }
+        },
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "6\\.(8|9|10)",
@@ -90,16 +122,23 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file:///iso/OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
           }
         }
       ]
     },
     {
       "version": "7.*",
-      "arches": ["x86_64"],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u>>minor<</x86_64/OracleLinux-R7-U>>minor<<-Server-x86_64-dvd.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u>>minor<</>>arch<</OracleLinux-R7-U>>minor<<-Server->>arch<<-dvd.iso",
+        "iso_url": "",
         "azure_image_publisher": "Oracle",
         "azure_image_offer": "Oracle-Linux",
         "azure_image_sku": "ol79-lvm-gen2",
@@ -107,7 +146,9 @@
         "gcp_source_image_project_id": "oracle-linux-cloud",
         "gcp_image_family": "oracle-7",
         "aws_ami_filter_name": "OL7.*-x86_64-HVM-*",
-        "aws_ami_owners": ["131827586825"]
+        "aws_ami_owners": [
+          "131827586825"
+        ]
       },
       "platform_specific": [
         {
@@ -126,45 +167,88 @@
     },
     {
       "version": "7\\.[0-4]",
-      "defs": {
-        "iso_url": "file:///iso/OracleLinux/OracleLinux-R7-U>>minor<<-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R7-U>>minor<<-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.5",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u5/>>arch<</OracleLinux-R7-U5-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u5/x86_64/OracleLinux-R7-U5-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.6",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u6/>>arch<</OracleLinux-R7-U6-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u6/x86_64/OracleLinux-R7-U6-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.7",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u7/>>arch<</OracleLinux-R7-U7-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u7/x86_64/OracleLinux-R7-U7-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.8",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u8/>>arch<</OracleLinux-R7-U8-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u8/x86_64/OracleLinux-R7-U8-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "7.9",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u9/>>arch<</OracleLinux-R7-U9-Server->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL7/u9/x86_64/OracleLinux-R7-U9-Server-x86_64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.*",
-      "arches": ["x86_64", "aarch64"],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u>>minor<</x86_64/OracleLinux-R8-U>>minor<<-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u>>minor<</aarch64/OracleLinux-R8-U>>minor<<-aarch64-dvd.iso"
+          }
+        }
+      ],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u>>minor<</>>arch<</OracleLinux-R8-U>>minor<<->>arch<<-dvd.iso",
+        "iso_url": "",
         "azure_image_publisher": "Oracle",
         "azure_image_offer": "Oracle-Linux",
         "azure_image_sku": "ol89-lvm-gen2",
@@ -172,7 +256,9 @@
         "gcp_source_image_project_id": "oracle-linux-cloud",
         "gcp_image_family": "oracle-8",
         "aws_ami_filter_name": "OL8.*-x86_64-HVM-*",
-        "aws_ami_owners": ["131827586825"]
+        "aws_ami_owners": [
+          "131827586825"
+        ]
       },
       "platform_specific": [
         {
@@ -191,75 +277,191 @@
     },
     {
       "version": "8.0",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u0/>>arch<</OracleLinux-R8-U0->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u0/x86_64/OracleLinux-R8-U0-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": { "iso_url": "" }
+        }
+      ]
     },
     {
       "version": "8.1",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u1/>>arch<</OracleLinux-R8-U1->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u1/x86_64/OracleLinux-R8-U1-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": { "iso_url": "" }
+        }
+      ]
     },
     {
       "version": "8.2",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u2/>>arch<</OracleLinux-R8-U2->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u2/x86_64/OracleLinux-R8-U2-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u2/aarch64/OracleLinux-R8-U2-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.3",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u3/>>arch<</OracleLinux-R8-U3->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u3/x86_64/OracleLinux-R8-U3-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u3/aarch64/OracleLinux-R8-U3-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.4",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u4/>>arch<</OracleLinux-R8-U4->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u4/x86_64/OracleLinux-R8-U4-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u4/aarch64/OracleLinux-R8-U4-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.5",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u5/>>arch<</OracleLinux-R8-U5->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u5/x86_64/OracleLinux-R8-U5-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u5/aarch64/OracleLinux-R8-U5-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.6",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u6/>>arch<</OracleLinux-R8-U6->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u6/x86_64/OracleLinux-R8-U6-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u6/aarch64/OracleLinux-R8-U6-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.7",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u7/>>arch<</OracleLinux-R8-U7->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u7/x86_64/OracleLinux-R8-U7-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u7/aarch64/OracleLinux-R8-U7-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.8",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/>>arch<</OracleLinux-R8-U8->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/x86_64/OracleLinux-R8-U8-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u8/aarch64/OracleLinux-R8-U8-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.9",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u9/>>arch<</OracleLinux-R8-U9->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u9/x86_64/OracleLinux-R8-U9-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u9/aarch64/OracleLinux-R8-U9-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "8.10",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u10/>>arch<</OracleLinux-R8-U10->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u10/x86_64/OracleLinux-R8-U10-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL8/u10/aarch64/OracleLinux-R8-U10-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.*",
-      "arches": ["x86_64", "aarch64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u>>minor<</>>arch<</OracleLinux-R9-U>>minor<<->>arch<<-dvd.iso",
+        "iso_url": "",
         "azure_image_publisher": "Oracle",
         "azure_image_offer": "Oracle-Linux",
         "azure_image_sku": "ol9-lvm-gen2",
@@ -267,7 +469,9 @@
         "gcp_source_image_project_id": "oracle-linux-cloud",
         "gcp_image_family": "oracle-9",
         "aws_ami_filter_name": "OL9.*-x86_64-HVM-*",
-        "aws_ami_owners": ["131827586825"]
+        "aws_ami_owners": [
+          "131827586825"
+        ]
       },
       "platform_specific": [
         {
@@ -282,61 +486,162 @@
             "guest_os_type": "oraclelinux9-64"
           }
         }
+      ],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u>>minor<</x86_64/OracleLinux-R9-U>>minor<<-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u>>minor<</aarch64/OracleLinux-R9-U>>minor<<-aarch64-dvd.iso"
+          }
+        }
       ]
     },
     {
       "version": "9.0",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u0/>>arch<</OracleLinux-R9-U0->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u0/x86_64/OracleLinux-R9-U0-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u0/aarch64/OracleLinux-R9-U0-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.1",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u1/>>arch<</OracleLinux-R9-U1->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u1/x86_64/OracleLinux-R9-U1-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u1/aarch64/OracleLinux-R9-U1-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.2",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u2/>>arch<</OracleLinux-R9-U2->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u2/x86_64/OracleLinux-R9-U2-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u2/aarch64/OracleLinux-R9-U2-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.3",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u3/>>arch<</OracleLinux-R9-U3->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u3/x86_64/OracleLinux-R9-U3-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u3/aarch64/OracleLinux-R9-U3-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.4",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u4/>>arch<</OracleLinux-R9-U4->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u4/x86_64/OracleLinux-R9-U4-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u4/aarch64/OracleLinux-R9-U4-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.5",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u5/>>arch<</OracleLinux-R9-U5->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u5/x86_64/OracleLinux-R9-U5-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u5/aarch64/OracleLinux-R9-U5-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.6",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u6/>>arch<</OracleLinux-R9-U6->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u6/x86_64/OracleLinux-R9-U6-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u6/aarch64/OracleLinux-R9-U6-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "9.7",
-      "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u7/>>arch<</OracleLinux-R9-U7->>arch<<-dvd.iso"
-      }
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u7/x86_64/OracleLinux-R9-U7-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL9/u7/aarch64/OracleLinux-R9-U7-aarch64-dvd.iso"
+          }
+        }
+      ]
     },
     {
       "version": "10.*",
-      "arches": ["x86_64", "aarch64"],
       "defs": {
-        "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL10/u>>minor<</>>arch<</OracleLinux-R10-U>>minor<<->>arch<<-dvd.iso",
+        "iso_url": "",
         "azure_image_publisher": "Oracle",
         "azure_image_offer": "Oracle-Linux",
         "azure_image_sku": "ol10-lvm-gen2",
@@ -344,7 +649,9 @@
         "gcp_source_image_project_id": "oracle-linux-cloud",
         "gcp_image_family": "oracle-10",
         "aws_ami_filter_name": "OL10.*-x86_64-HVM-*",
-        "aws_ami_owners": ["131827586825"]
+        "aws_ami_owners": [
+          "131827586825"
+        ]
       },
       "platform_specific": [
         {
@@ -357,6 +664,20 @@
           "platform": "vmware",
           "config": {
             "guest_os_type": "oraclelinux9-64"
+          }
+        }
+      ],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL10/u>>minor<</x86_64/OracleLinux-R10-U>>minor<<-x86_64-dvd.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://yum.oracle.com/ISOS/OracleLinux/OL10/u>>minor<</aarch64/OracleLinux-R10-U>>minor<<-aarch64-dvd.iso"
           }
         }
       ]

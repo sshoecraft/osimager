@@ -1,4 +1,9 @@
 {
+  "arches": [
+    "i386",
+    "x86_64",
+    "aarch64"
+  ],
   "defs": {
     "boot": false,
     "shutcmd": false

@@ -166,7 +166,7 @@ All user configuration lives in `~/.config/osimager/`:
 |------|---------|
 | `locations/*.toml` or `*.json` | Build environments (you create these) |
 | `secrets` | Credentials when using `credential_source=config` |
-| `osimager.conf` | Persistent settings (managed via `--set`) |
+| `config.json` | Persistent settings (managed via `--set`) |
 
 Settings are configured with `--set`:
 

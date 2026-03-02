@@ -38,3 +38,4 @@ When invoked without a target, mkosimage prints contextual setup guidance:
 - v1.4.2: Show cp command for example-secrets, packer prerequisite check, --init-plugins with plugin key in platform JSON files
 - v1.4.3: ISO URL fixes across all distros, file:// for unavailable ISOs
 - v1.4.4: Added --check-urls (maintenance URL checker), --avail (ISO availability report), pre-build ISO validation (check_iso_url), removed save_index/index file caching, resolve_iso_url now handles arch_specific and E>...<E expressions
+- v1.5.0: Config format changed from INI to JSON (config.json), iso_path moved to global settings

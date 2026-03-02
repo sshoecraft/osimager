@@ -37,7 +37,7 @@ mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 | | `--init-plugins` | Install all required Packer plugins for all platforms. Reads the `plugin` key from each platform JSON file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin. |
 | `-d` | `--debug` | Enable debug output. Prints internal variable resolution, file loading paths, and Packer debug flag. |
 | `-v` | `--verbose` | Enable verbose output. Prints loaded settings, file paths, and environment variables as they are set. |
-| `-c` | `--config` | Path to the osimager.conf configuration file. Default: `osimager.conf` (resolved in `~/.config/osimager/`). |
+| `-c` | `--config` | Path to the config.json configuration file. Default: `config.json` (resolved in `~/.config/osimager/`). |
 
 #### Build Control
 
@@ -48,7 +48,7 @@ mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 | `-k` | | Keep temp files and VMs on error. Sets Packer's `-on-error=abort` so the VM is not destroyed if the build fails, allowing inspection. |
 | `-e` | `--on_error` | Set Packer's on-error behavior explicitly. Valid values: `cleanup` (default Packer behavior), `abort`, `ask`. Overrides `-k`. |
 | `-t` | | Enable Packer's timestamp UI (`-timestamp-ui`), which prefixes each output line with a timestamp. |
-|      | `--local-only` | Restrict builds to local ISOs only. Specs without a matching local ISO will fail instead of attempting a download. This setting is persisted to `osimager.conf`. |
+|      | `--local-only` | Restrict builds to local ISOs only. Specs without a matching local ISO will fail instead of attempting a download. This setting is persisted to `config.json`. |
 | `-m` | `--temp` | Specify a custom temp directory for build artifacts. By default, OSImager creates a temporary directory in `/tmp` and cleans it up after the build (unless `-k` is set). |
 
 #### Output and Debugging
@@ -71,7 +71,7 @@ mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 
 | Flag | Description |
 |------|-------------|
-| `--set KEY=VALUE` | Set a persistent configuration value in `~/.config/osimager/osimager.conf`. Can be specified multiple times. Only saves if the value actually changes. |
+| `--set KEY=VALUE` | Set a persistent configuration value in `~/.config/osimager/config.json`. Can be specified multiple times. Only saves if the value actually changes. |
 
 The following keys are accepted by `--set`:
 
@@ -85,6 +85,7 @@ The following keys are accepted by `--set`:
 | `local_only` | `False` | When `True`, only use local ISOs; never attempt downloads. |
 | `data_dir` | `data` | Path to the OSImager data directory (relative to package or absolute). |
 | `ansible_playbook` | `config.yml` | Name of the Ansible playbook used during provisioning. |
+| `iso_path` | `/iso` | Directory containing OS installation ISO files. |
 
 ---
 
@@ -151,7 +152,7 @@ Certain specs include a `venv` key that references a named virtual environment. 
 | `-a` | `--avail` | Show ISO availability for all specs. |
 | `-d` | `--debug` | Enable debug output. |
 | `-v` | `--verbose` | Enable verbose output. |
-| `-c` | `--config` | Path to osimager.conf. |
+| `-c` | `--config` | Path to config.json. |
 |      | `--set KEY=VALUE` | Set a persistent configuration value. |
 
 ---
@@ -279,21 +280,23 @@ mkosimage --set local_only=True
 
 ## Configuration File
 
-All three commands read settings from `~/.config/osimager/osimager.conf`, an INI-format file with an `[osimager]` section:
+All three commands read settings from `~/.config/osimager/config.json`, a JSON file:
 
-```ini
-[osimager]
-credential_source = config
-packer_cmd = packer
-packer_cache_dir = /tmp
-local_only = False
-data_dir = data
-ansible_playbook = config.yml
+```json
+{
+    "credential_source": "config",
+    "packer_cmd": "packer",
+    "packer_cache_dir": "/tmp",
+    "local_only": false,
+    "data_dir": "data",
+    "ansible_playbook": "config.yml",
+    "iso_path": "/iso"
+}
 ```
 
 Settings are loaded in this order (later overrides earlier):
 
 1. Built-in defaults in the OSImager source.
-2. Values from `~/.config/osimager/osimager.conf`.
-3. Command-line `--set` overrides (which also persist back to the conf file).
+2. Values from `~/.config/osimager/config.json`.
+3. Command-line `--set` overrides (which also persist back to the config file).
 4. Command-line flags (e.g. `--local-only`, `-d`, `-v`).
