@@ -18,8 +18,8 @@ Three console script entry points installed via pip. Each creates an `OSImager` 
    - **Download** — specs with http/https URLs (buildable with network access)
    - **Local** — specs with file:// ISOs that exist on disk (ready to build)
    - **Not available** — file:// ISOs not found locally (must obtain ISO)
-4. `--list-platforms` — Iterates `get_platforms()`, skips `all`, prints name/builder_type/arches.
-5. `--list-defs` — Collects defs from all platform JSON files, categorizes into base (all.json), platform-specific, and computed. Shows overridable keys.
+4. `--list-platforms` — Iterates `get_platforms()`, prints name/builder_type/arches.
+5. `--list-defs` — Shows configuration defaults (cpu, memory, disk from config.json), platform-specific defs, and computed defs.
 6. `--list` (`-l`) — Builds spec index via `get_index()`, prints all specs with local ISO markers.
 7. `--init-plugins` — Installs all required Packer plugins. Always installs `github.com/hashicorp/ansible`, then walks platform JSON files and installs each platform's `plugin` value (deduplicating).
 

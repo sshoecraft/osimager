@@ -12,7 +12,8 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 
 ### Key Instance Variables
 
-- `settings` — Runtime config: `base_dir`, `user_dir`, `data_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path`
+- `settings` — Runtime config: `base_dir`, `user_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path`
+- `system_data_dir` — Path to osimager-data package (baseline data), or None if not installed
 - `defs` — All template substitution variables, accumulated from settings/platform/location/spec/runtime
 - `config` — Packer builder configuration, becomes `builders[0]` in output
 - `variables` — Packer user variables for `{{user ...}}` references
@@ -34,10 +35,14 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `load_settings(config_path)` — Read `~/.config/osimager/config.json` via JSON
 - `save_settings(config_path)` — Write current settings to config.json
 
+### Data Resolution (Two-Layer)
+- `resolve_data_path(*parts)` — Find a data file: checks user dir (`~/.config/osimager/`) first, then osimager-data package. Returns first existing path, or None.
+- `resolve_data_files(subdir, pattern)` — Scan both layers, merge results (user wins on name collisions). Used for listings.
+
 ### Data Loading
 - `read_data(file_path)` — Load JSON or TOML file
 - `load_file(where, file_path)` — Read data file, recursively process `include` chains, call `load_data()`
-- `load_data_file(where, what)` — Resolve logical name to file path, call `load_file()`
+- `load_data_file(where, what)` — Resolve logical name via `resolve_data_path()`, call `load_file()`
 - `load_data(data)` — Merge config dict sections into instance accumulators, process `*_specific` overrides
 - `load_inc(where, what, data)` — Handle include directive
 - `load_specific(data)` — Process platform/location/dist/version/arch/firmware_specific sections via regex matching
@@ -82,3 +87,4 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - v1.4.3: ISO URL fixes across all distros, file:// for unavailable ISOs
 - v1.4.4: --check-urls, --avail (ISO availability), pre-build check_iso_url(), removed save_index/index file caching, resolve_iso_url handles arch_specific + expression eval
 - v1.5.0: Config format changed from INI (configparser) to JSON (config.json), iso_path moved from location defs to global settings. Removed `provides.arches` and `version_specific[].arches` — arches now derived from ISO URL resolution at index time. Specs use `arch_specific` entries with explicit per-arch iso_url and `"iso_url": ""` to block unsupported arches.
+- v1.7.0: Two-layer data resolution. Engine separated from data. User overrides in `~/.config/osimager/` (specs, platforms, files, scripts) take precedence over `osimager-data` package baseline. XDG paths for all directories. Removed constants.py (version/exit codes now in core.py). Fixed venv hoisting from version_specific entries.

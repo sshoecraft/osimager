@@ -6,7 +6,7 @@ Technical reference for the complete build pipeline executed when a user runs a 
 mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 ```
 
-All line numbers reference the source as of v1.5.0.
+All line numbers reference the source as of v1.7.0. Data (specs, platforms, files, tasks) lives in the separate `osimager_data` package, not in the engine; paths below such as `files/` and `specs/` are relative to that data package (or to a user override in `~/.config/osimager/`).
 
 ---
 
@@ -118,16 +118,7 @@ Creates the default Ansible provisioner (lines 1010-1020) with template markers 
 
 Resolves to `<data_dir>/platforms/vmware.json`.
 
-The VMware platform file includes `"all"`, triggering the recursive include mechanism:
-
-### Include Chain for VMware Platform
-
-`vmware.json` -> `include: "all"` -> `all.json`
-
-**`all.json`** provides base hardware defaults:
-```json
-{ "defs": { "cpu_sockets": 1, "cpu_cores": 2, "memory": 2048, "boot_disk_size": 16385 } }
-```
+Configuration defaults (hardware defaults from `~/.config/osimager/config.json` with built-in fallbacks) provide base values for `cpu_sockets`, `cpu_cores`, `memory`, and `boot_disk_size`.
 
 **`vmware.json`** adds VMware-specific builder config:
 - `type`: `"vmware-iso"`
@@ -616,8 +607,8 @@ make_build(target, name, ip)
   |-- split target       -> platform_name, location_name, spec_name
   |-- get_index()        -> dist, version, arch
   |
+  |-- config defaults   -> base defs (cpu, memory, disk)
   |-- load_data_file("platforms", ...)
-  |     |-- all.json     -> base defs (cpu, memory, disk)
   |     |-- vmware.json  -> builder config (vmware-iso type)
   |
   |-- load_data_file("locations", ...)
@@ -679,4 +670,4 @@ run_packer()
 | `osimager/utils.py` | 543-582 | `hash_password()` -- crypt-compatible password hashing |
 | `osimager/utils.py` | 683-711 | `ACTION_HANDLERS`, `ACTIONS` -- substitution marker definitions |
 | `osimager/utils.py` | 796-846 | `do_substr()` -- per-string template processing |
-| `osimager/constants.py` | 10 | `OSIMAGER_VERSION` -- single source of truth for version |
+| `osimager/core.py` | 18 | `OSIMAGER_VERSION` -- single source of truth for version |

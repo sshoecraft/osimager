@@ -13,9 +13,6 @@ Add new:
 - aws (amazon-ebs, boot: false, AMI-based)
 - hyperv (hyperv-iso, boot: true, ISO-based)
 
-Fill in:
-- libvirt (currently empty file)
-
 Cloud platforms require per-distro `platform_specific` entries in spec files
 for image references (azure: publisher/offer/sku, gcp: source_image_family,
 aws: source_ami_filter). Archive files have the azure and gcp data already.
@@ -66,7 +63,7 @@ required.
 - TOML and JSON formats side by side
 - Every field explained with real values
 - platform_specific sections with examples
-- How defs flow: all.json → platform → location → spec → version_specific → platform_specific
+- How defs flow: configuration defaults → platform → location → spec → version_specific → platform_specific
 
 **Credential Setup (credential-setup.md)**
 - credential_source: "vault" vs "config"

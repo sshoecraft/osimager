@@ -41,7 +41,7 @@ A location defines your build environment -- network settings, DNS, and where IS
 Copy the quickstart template and edit it:
 
 ```bash
-cp $(python3 -c "import osimager; import os; print(os.path.join(os.path.dirname(osimager.__file__), 'data', 'examples', 'quickstart-location.toml'))") \
+cp "$(python3 -c "import osimager_data, os; print(os.path.join(osimager_data.DATA_DIR, 'examples', 'quickstart-location.toml'))")" \
    ~/.config/osimager/locations/local.toml
 ```
 
@@ -120,7 +120,7 @@ OSImager merges these three configs together, performs template substitution, ge
 ## Features
 
 - **700+ OS specs** covering 12 distributions across decades of releases
-- **13 platforms**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, libvirt, Hyper-V, XenServer, Azure, GCP, AWS
+- **12 platforms**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, Hyper-V, XenServer, Azure, GCP, AWS
 - **Automated installation**: Kickstart (RHEL/CentOS/Alma/Rocky/OEL), preseed (Debian), cloud-init (Ubuntu 20.04+), AutoYaST (SLES), Autounattend (Windows)
 - **Ansible provisioning**: Post-install configuration via Ansible playbooks
 - **Hierarchical configuration**: Platform/location/spec system with deep inheritance and per-version/per-platform overrides
@@ -151,7 +151,6 @@ OSImager merges these three configs together, performs template substitution, ge
 | vSphere | Enterprise | `github.com/hashicorp/vsphere` |
 | Proxmox | Enterprise | `github.com/hashicorp/proxmox` |
 | QEMU/KVM | Local | `github.com/hashicorp/qemu` |
-| libvirt | Local | `github.com/thomasklein94/libvirt` |
 | Hyper-V | Local | Built-in |
 | XenServer | Local | `github.com/ddelnano/xenserver` |
 | Azure | Cloud | `github.com/hashicorp/azure` |

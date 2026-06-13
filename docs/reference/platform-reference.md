@@ -1,6 +1,6 @@
 # Platform Reference
 
-OSImager supports 13 platforms through Packer builder plugins. Each platform is defined by a JSON configuration file in `osimager/data/platforms/` that specifies the Packer builder type, hardware defaults, credential requirements, and template variables.
+OSImager supports 11 platforms through Packer builder plugins. Each platform is defined by a JSON configuration file in the data package's `platforms/` directory (`osimager_data/platforms/`, or a `~/.config/osimager/platforms/` override) that specifies the Packer builder type, hardware defaults, credential requirements, and template variables.
 
 ## Overview
 
@@ -8,7 +8,7 @@ Platforms fall into four categories based on how they build images:
 
 | Category | Platforms | Boot Method | Where It Builds |
 |----------|-----------|-------------|-----------------|
-| **Local ISO** | virtualbox, vmware, qemu, libvirt, hyperv, xenserver | Boots from ISO | Local workstation |
+| **Local ISO** | virtualbox, vmware, qemu, hyperv, xenserver | Boots from ISO | Local workstation |
 | **Enterprise ISO** | vsphere, proxmox | Boots from ISO | Remote hypervisor |
 | **Cloud** | azure, gcp, aws | Marketplace image (no ISO) | Cloud provider |
 | **Special** | none | N/A | Provisioning only |
@@ -23,20 +23,9 @@ Platforms fall into four categories based on how they build images:
 
 ---
 
-## Base Defaults (all.json)
+## Base Defaults (Configuration Defaults)
 
-Every platform (except `none`) includes `all.json` via the `"include": "all"` directive. This establishes the baseline hardware defaults that all platforms inherit:
-
-```json
-{
-  "defs": {
-    "cpu_sockets": 1,
-    "cpu_cores": 2,
-    "memory": 2048,
-    "boot_disk_size": 16385
-  }
-}
-```
+Every platform (except `none`) inherits baseline hardware defaults from the user's configuration file (`~/.config/osimager/config.json`), with built-in fallbacks in `core.py`:
 
 | Default | Value | Description |
 |---------|-------|-------------|
@@ -72,7 +61,7 @@ Local ISO platforms run a hypervisor on the build machine, boot a VM from an ISO
 
 All local ISO platforms share these characteristics:
 
-- **Include**: `all.json` (inherits base hardware defaults)
+- **Inherits**: Configuration defaults (base hardware defaults)
 - **Defs**: `local: true`
 - **Boot method**: ISO boot with `boot_command` from spec
 - **Credentials**: No platform credentials required (only `images/<os>` for SSH/WinRM)
@@ -105,7 +94,7 @@ This evaluates to the local ISO path when `local_only` is true, or the remote do
 |-----|-------|-------------|
 | `local` | `true` | Marks this as a local platform |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Config Keys
 
@@ -168,7 +157,7 @@ VirtualBox uses post-create `vboxmanage` commands to configure VM settings that 
 |-----|-------|-------------|
 | `local` | `true` | Marks this as a local platform |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Config Keys
 
@@ -222,7 +211,7 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 
 #### Defs
 
-Inherits from `all.json` only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Inherits from configuration defaults only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 !!! note
     QEMU does not define `local: true` in its defs. It also does not include `cd_files` or `cd_label` in its config, unlike most other ISO-based platforms.
@@ -260,56 +249,6 @@ Inherits from `all.json` only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_
 
 ---
 
-### Libvirt
-
-| | |
-|---|---|
-| **Platform file** | `platforms/libvirt.json` |
-| **Packer builder type** | `qemu` |
-| **Packer plugin** | `github.com/hashicorp/qemu` |
-| **Platform type** | Local ISO |
-| **Architectures** | x86_64 only |
-
-Libvirt uses the same `qemu` Packer builder as the QEMU platform, but is configured as a separate platform for organizational purposes. Output goes to a `libvirt/` subdirectory instead of `qemu/`.
-
-#### Defs
-
-| Def | Value | Description |
-|-----|-------|-------------|
-| `local` | `true` | Marks this as a local platform |
-
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
-
-#### Config Keys
-
-| Key | Value | Description |
-|-----|-------|-------------|
-| `type` | `qemu` | Packer builder type (same as QEMU) |
-| `vm_name` | `>>name<<` | VM name |
-| `output_directory` | `>>vms_path<</libvirt/>>name<<` | Output path |
-| `sockets` | `#>cpu_sockets<#` | CPU sockets |
-| `cores` | `#>cpu_cores<#` | Cores per socket |
-| `memory` | `#>memory<#` | Memory in MB |
-| `firmware` | `>>firmware<<` | BIOS or EFI firmware path |
-| `disk_size` | `>>boot_disk_size<<M` | Disk size with M suffix |
-| `format` | `qcow2` | Disk image format |
-| `accelerator` | `kvm` | Hardware acceleration |
-| `iso_url` | (conditional expression) | ISO source path or URL |
-| `iso_checksum` | (conditional expression) | ISO checksum or `none` |
-| `iso_target_path` | (conditional expression) | Local download target |
-| `cd_files` | `%>cd_files<%` | Files to include on CD |
-| `cd_label` | `>>cd_label<<` | CD volume label |
-| `net_device` | `virtio-net` | Network device type |
-| `disk_interface` | `virtio` | Disk bus type |
-
-#### Location Defs Needed
-
-| Def | Description |
-|-----|-------------|
-| `vms_path` | Base path for VM output (VMs stored under `vms_path/libvirt/`) |
-
----
-
 ### Hyper-V
 
 | | |
@@ -328,7 +267,7 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 | `switch_name` | `Default Switch` | Hyper-V virtual switch name |
 | `hyperv_generation` | `2` | Hyper-V VM generation |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Config Keys
 
@@ -377,7 +316,7 @@ Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk
 |-----|-------|-------------|
 | `local` | `true` | Marks this as a local platform |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Config Keys
 
@@ -434,7 +373,7 @@ Enterprise platforms boot VMs from ISOs on remote hypervisors. They require plat
 | `vm_network` | `VM Network` | vSphere port group name for VM networking |
 | `thin_disk` | `false` | Whether to thin-provision the boot disk |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Variables (Credential References)
 
@@ -584,7 +523,7 @@ In this example, the `iso` datastore on ESXi is an NFS mount of the same directo
 |-----|-------|-------------|
 | `shutcmd` | `false` | Disables the default shutdown command (Proxmox handles shutdown via QEMU agent) |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Variables (Credential References)
 
@@ -676,6 +615,9 @@ When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwis
 !!! note
     Proxmox sets `shutcmd: false`, which disables the spec-provided shutdown command. Proxmox VE handles VM shutdown through the QEMU guest agent instead.
 
+!!! important "Patched Packer Plugin Required"
+    The Proxmox platform requires a patched version of `packer-plugin-proxmox` that skips template conversion after build. The official plugin always converts VMs to templates, which renames disk files from `vm-*` to `base-*` and sets immutable attributes that cannot be reversed through the Proxmox API. See [Installation](../installation.md#proxmox-plugin) for build and install instructions.
+
 #### Location Defs Needed
 
 | Def | Required | Description |
@@ -729,7 +671,7 @@ Cloud platforms do not use ISOs or boot commands. They launch a base image from 
 | `vm_size` | `Standard_D2s_v3` | Azure VM size for the build instance |
 | `image_version` | `latest` | Marketplace image version |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Variables (Credential References)
 
@@ -844,7 +786,7 @@ Secret path: `azure/<location>`
 | `disk_type` | `pd-ssd` | Persistent disk type |
 | `state_timeout` | `15m` | Timeout waiting for instance state changes |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Variables (Credential References)
 
@@ -932,7 +874,7 @@ Secret path: `gcp/<location>`
 | `shutcmd` | `false` | No shutdown command |
 | `instance_type` | `t3.medium` | EC2 instance type for the build |
 
-Plus inherited from `all.json`: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
 
 #### Variables (Credential References)
 
@@ -1022,7 +964,7 @@ The `none` platform uses Packer's built-in null builder. It does not create a VM
 | `shutcmd` | `false` | No shutdown command |
 
 !!! warning
-    The `none` platform does **not** include `all.json`. It has no hardware defaults (`cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size` are not set) since no VM is created.
+    The `none` platform does **not** inherit configuration defaults. It has no hardware defaults (`cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size` are not set) since no VM is created.
 
 #### Config
 
@@ -1053,7 +995,6 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 | virtualbox | `virtualbox-iso` | Yes | None | No | VDI in `vms_path/vbox/` |
 | vmware | `vmware-iso` | Yes | None | No | VMDK in `vms_path/vmware/` |
 | qemu | `qemu` | Yes | None | No | qcow2 in `vms_path/qemu/` |
-| libvirt | `qemu` | Yes | None | No | qcow2 in `vms_path/libvirt/` |
 | hyperv | `hyperv-iso` | Yes | None | No | VHDX in `vms_path/hyperv/` |
 | xenserver | `xenserver-iso` | Yes | None | No | VHD in `vms_path/xen/` |
 | vsphere | `vsphere-iso` | Yes | `vsphere/<loc>` | No | VM on vSphere datastore |
@@ -1072,7 +1013,6 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 | vsphere | Yes | Yes |
 | proxmox | Yes | Yes |
 | qemu | No | Yes |
-| libvirt | No | Yes |
 | hyperv | No | Yes |
 | xenserver | No | Yes |
 | azure | No | Yes |
@@ -1087,7 +1027,6 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 | virtualbox | virtio | Numeric (MB) | VDI |
 | vmware | SCSI | Numeric (MB) | VMDK (type 0) |
 | qemu | virtio | String with M suffix | qcow2 |
-| libvirt | virtio | String with M suffix | qcow2 |
 | hyperv | default | Numeric (MB) | VHDX |
 | xenserver | virtio | Numeric (MB) | VHD |
 | vsphere | pvscsi | Numeric (MB) | VMDK (thin optional) |
@@ -1103,7 +1042,6 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 | virtualbox | virtio | Bridged on `vbnet` |
 | vmware | vmxnet3 | Default |
 | qemu | virtio-net | Default |
-| libvirt | virtio-net | Default |
 | hyperv | default | Virtual switch (`>>switch_name<<`) |
 | xenserver | default | Default |
 | vsphere | vmxnet3 | Port group (`>>vm_network<<`) |

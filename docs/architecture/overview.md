@@ -1,23 +1,26 @@
 # System Architecture
 
-OSImager v1.5.0 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 13 platforms and 12 OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
+OSImager v1.7.0 -- a Python-based OS image builder that orchestrates HashiCorp Packer to create VM images across 11 platforms and a dozen-plus OS distribution families. The entire build pipeline is driven by a single `OSImager` class that loads JSON/TOML configuration, performs template substitution, and executes Packer.
 
 ## Package Structure
 
+The engine ships **no data**. All specs, platforms, installer files, Ansible tasks, and examples live in a separate `osimager_data` package; the engine resolves them at runtime via two-layer resolution (see [Data Resolution](#data-resolution) below).
+
 ```
-osimager/
+osimager/                -- the engine package
     __init__.py          -- re-exports OSImager class
-    core.py              -- OSImager class, all build logic (1415 lines)
-    cli.py               -- 3 CLI entry points: main_mkosimage, main_rfosimage, main_mkvenv (204 lines)
+    core.py              -- OSImager class, all build logic + OSIMAGER_VERSION (1786 lines)
+    cli.py               -- 3 CLI entry points: main_mkosimage, main_rfosimage, main_mkvenv (625 lines)
     utils.py             -- template substitution engine, version expansion, password hashing, network utils (847 lines)
-    constants.py         -- OSIMAGER_VERSION, SUPPORTED_PLATFORMS, SUPPORTED_DISTRIBUTIONS, SUPPORTED_ARCHITECTURES, DEFAULT_SETTINGS, ERROR_MESSAGES, EXIT_CODES (227 lines)
-    data/
-        platforms/       -- 13 platform configs + all.json (base defaults)
-        specs/           -- 15 spec directories (one per distro family + base communicator/OS specs)
-        files/           -- installer templates organized by distro (8 directories)
-        tasks/           -- 21 Ansible task files for post-install provisioning
-        ansible/         -- config.yml (main Ansible playbook)
-        examples/        -- quickstart-location.toml, example-secrets, example-vault, example-location.json, example-location.toml
+
+osimager_data/           -- the data package (separate repo, baseline data)
+    platforms/           -- 11 platform configs
+    specs/               -- 24 spec directories (distro families + base communicator/OS specs)
+    files/               -- installer templates organized by distro (12 directories)
+    tasks/               -- 22 Ansible task files for post-install provisioning
+    ansible.json         -- ansible-version -> python-range / pip-prereqs definitions
+    config.yml           -- main Ansible playbook referenced by the default provisioner
+    examples/            -- quickstart-location.toml, example-secrets, example-vault, example-location.json, example-location.toml
 ```
 
 ## The OSImager Class
@@ -63,47 +66,55 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
    - Creates `~/.config/osimager/locations/` directory
    - Seeds `defs` with all settings values plus `base_path` alias
 
+## Data Resolution
+
+The engine never reads data from its own package. Every spec, platform, file, task, and example is resolved through two layers, user directory first:
+
+1. **User directory** -- `~/.config/osimager/<subdir>/` (overrides). A user can drop a `specs/`, `platforms/`, `files/`, `tasks/`, or `ansible.json` here to override or extend the baseline.
+2. **`osimager_data` package** -- the shipped baseline, located via `osimager_data.DATA_DIR`.
+
+`resolve_data_path()` returns the first existing path; `resolve_data_files()` merges both layers by relative path with the user copy winning. The paths below are relative to either layer's root.
+
 ## Data Directory Layout
 
-### Platforms (`data/platforms/`)
+### Platforms (`platforms/`)
 
-13 platform JSON files + `all.json`:
+11 platform JSON files:
 
-- `all.json` -- base defaults loaded for every build (common config keys, communicator settings)
-- `vmware.json`, `vmware-vmx.json`, `virtualbox.json`, `qemu.json`, `libvirt.json`, `proxmox.json`, `vsphere.json`, `hyperv.json`, `xenserver.json` -- on-premise hypervisors
+- `virtualbox.json`, `vmware.json`, `qemu.json`, `proxmox.json`, `vsphere.json`, `hyperv.json`, `xenserver.json` -- on-premise hypervisors
 - `aws.json`, `azure.json`, `gcp.json` -- cloud platforms
 - `none.json` -- null builder (no hypervisor)
 
 Each platform file contains `config`, `defs`, `evars`, `variables`, `provisioners`, and optional `platform_specific` / `dist_specific` / `arch_specific` sections.
 
-### Specs (`data/specs/`)
+### Specs (`specs/`)
 
-15 spec directories, each containing `spec.json`:
+24 spec directories, each containing `spec.json`:
 
-- **Distro families**: `alma/`, `centos/`, `debian/`, `esxi/`, `oel/`, `rhel/`, `rocky/`, `sles/`, `sysvr4/`, `ubuntu/`, `windows/`, `windows-server/`
+- **Distro families**: `alma/`, `centos/`, `debian/`, `esx/`, `esxi/`, `esxi35/`, `fedora/`, `freebsd/`, `mxlinux/`, `oel/`, `proxmox-ve/`, `rhel/`, `rocky/`, `sco/`, `sles/`, `sysvr4/`, `ubuntu/`, `unixware/`, `windows/`, `windows-server/`, `xcpng/`
 - **Base specs**: `linux/` (common Linux config), `ssh/` (SSH communicator), `winrm/` (WinRM communicator)
 
 Spec files declare `provides` (dist, versions with range syntax, architectures), `include` (inheritance chain), `version_specific` entries (regex-matched overrides), `required_files`, `files`, and all accumulator sections.
 
-### Files (`data/files/`)
+### Files (`files/`)
 
-8 directories of installer templates: `debian/`, `esxi/`, `linux/`, `oel/`, `rhel/`, `sles/`, `ubuntu/`, `windows/`
+12 directories of installer templates: `debian/`, `esxi/`, `fedora/`, `freebsd/`, `linux/`, `oel/`, `proxmox-ve/`, `rhel/`, `sles/`, `ubuntu/`, `windows/`, `xcpng/`
 
 Templates contain `>>var<<` markers and other substitution patterns. Assembled by `gen_files()` from `sources` lists in spec `files` entries.
 
-### Tasks (`data/tasks/`)
+### Tasks (`tasks/`)
 
-21 Ansible task files for post-install provisioning:
+22 Ansible task files for post-install provisioning:
 
-- OS-family pairs: `RedHat_pre.yml`/`RedHat_post.yml`, `Debian_pre.yml`/`Debian_post.yml`, `Suse_pre.yml`/`Suse_post.yml`, `Windows_pre.yml`/`Windows_post.yml`, `Linux_pre.yml`/`Linux_post.yml`
+- OS-family: `RedHat_pre.yml`/`RedHat_post.yml`, `Debian_pre.yml`/`Debian_post.yml`, `Suse_pre.yml`/`Suse_post.yml`, `Windows_pre.yml`/`Windows_post.yml`, `Linux_pre.yml`/`Linux_post.yml`, `AlmaLinux_post.yml`
 - Platform-specific: `vsphere_post.yml`, `proxmox_pre.yml`, `gcp_post.yml`, `gcp_linux_post.yml`
 - Utility: `spec.yml`, `local_repo.yml`, `rhel_6_config.yml`, `windows_updates.yml`, `copy_files_if.yml`, `include_role_if.yml`, `include_tasks_if.yml`
 
-### Ansible Config (`data/ansible/`)
+### Ansible Config (root)
 
-`config.yml` -- the main Ansible playbook referenced by the default provisioner. Invoked by Packer with extra-vars containing platform, location, spec, and install directory.
+`config.yml` -- the main Ansible playbook referenced by the default provisioner. Invoked by Packer with extra-vars containing platform, location, spec, and install directory. `ansible.cfg` ships alongside it, and `ansible.json` defines, per ansible version, the compatible python range and any pip prerequisites (consumed by `mkvenv`).
 
-### Examples (`data/examples/`)
+### Examples (`examples/`)
 
 `quickstart-location.toml`, `example-location.json`, `example-location.toml`, `example-secrets`, `example-vault` -- reference files for user setup.
 
@@ -150,7 +161,7 @@ Virtual environment setup. Creates `OSImager(argv, which="venv")` which only run
 
 The `make_build()` method loads configs in this order. Each layer can define `config`, `defs`, `evars`, `variables`, `files`, `pre_provisioners`, `provisioners`, `post_provisioners`. Layers merge additively (dicts update, lists extend) unless `method: "replace"` is specified.
 
-1. **all.json** -- loaded implicitly as the base platform (via `include` in platform files, or as `all.json` in platforms dir)
+1. **Configuration defaults** -- hardware defaults (cpu_sockets, cpu_cores, memory, boot_disk_size) from user config (`~/.config/osimager/config.json`) with built-in fallbacks in `core.py`
 2. **Platform** (`load_data_file("platforms", name)`) -- hypervisor-specific builder type, connection settings
 3. **Location** (`load_data_file("locations", name)`) -- site-specific networking, storage paths, credentials references
 4. **Spec** (`load_file("specs", path)`) -- OS-specific installer config, boot commands, ISO URLs

@@ -51,27 +51,7 @@ rfosimage = "osimager.cli:main_rfosimage"
 mkvenv = "osimager.cli:main_mkvenv"
 
 [tool.setuptools.dynamic]
-version = {attr = "osimager.constants.OSIMAGER_VERSION"}
+version = {attr = "osimager.core.OSIMAGER_VERSION"}
 
 [tool.setuptools.packages.find]
-include = ["osimager*"]
-
-[tool.setuptools.package-data]
-osimager = [
-    "data/**/*.json",
-    "data/**/*.toml",
-    "data/**/*.cfg",
-    "data/**/*.sh",
-    "data/**/*.yml",
-    "data/**/*.xml",
-    "data/**/*.j2",
-    "data/**/*.seed",
-    "data/**/*.fix",
-    "data/**/configure_system",
-    "data/**/banner",
-    "data/**/findcd",
-    "data/**/meta-data",
-    "data/**/user-data",
-    "data/**/Autounattend*.xml",
-    "data/examples/*",
-]
+include = ["osimager"]

@@ -14,7 +14,7 @@ Copy the quickstart template into your user config directory:
 
 ```bash
 mkdir -p ~/.config/osimager/locations
-cp $(python3 -c "import osimager; import os; print(os.path.join(os.path.dirname(osimager.__file__), 'data', 'examples', 'quickstart-location.toml'))") \
+cp "$(python3 -c "import osimager_data, os; print(os.path.join(osimager_data.DATA_DIR, 'examples', 'quickstart-location.toml'))")" \
    ~/.config/osimager/locations/local.toml
 ```
 

@@ -19,7 +19,7 @@ OSImager merges three configuration layers into a complete Packer build:
 | Area | Details |
 |------|---------|
 | OS specs | **339+** covering 12 distributions, from RHEL 2.1 (2002) to current releases |
-| Platforms | **13**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, libvirt, Hyper-V, XenServer, Azure, GCP, AWS, none |
+| Platforms | **12**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, Hyper-V, XenServer, Azure, GCP, AWS, none |
 | Config merging | Hierarchical with deep inheritance and **6 types of specific overrides** |
 | Template engine | **12-action** substitution system with typed markers |
 | Credentials | Two backends: HashiCorp Vault or local secrets file |
@@ -34,10 +34,10 @@ RHEL, CentOS, AlmaLinux, Rocky Linux, Oracle Enterprise Linux, Debian, Ubuntu, S
 
 ## Configuration Merge Flow
 
-Every build starts from `all.json` (global defaults) and layers configs on top. After the base merge, each layer's `*_specific` sections are applied when their condition matches the current build context.
+Every build starts from configuration defaults (hardware defaults from `~/.config/osimager/config.json`) and layers configs on top. After the base merge, each layer's `*_specific` sections are applied when their condition matches the current build context.
 
 ```
-all.json                          Global defaults (CPU, memory, disk)
+Configuration defaults                Hardware defaults (CPU, memory, disk)
   |
   v
 platform/<name>.json              Builder type, platform settings

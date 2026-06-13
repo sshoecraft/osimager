@@ -8,7 +8,7 @@ Configuration is loaded in this fixed order. Later layers override earlier ones:
 
 | Order | Source | Description | Example |
 |-------|--------|-------------|---------|
-| 1 | `all.json` | Base defaults shared by all platforms | `cpu_sockets:1`, `cpu_cores:2`, `memory:2048`, `boot_disk_size:16385` |
+| 1 | Configuration defaults | Hardware defaults from user config (`~/.config/osimager/config.json`) with built-in fallbacks | `cpu_sockets:1`, `cpu_cores:2`, `memory:2048`, `boot_disk_size:16385` |
 | 2 | Platform JSON | Builder type, boot commands, VM hardware, platform-specific defaults | `vsphere.json` sets `type: "vsphere-iso"`, network adapters, disk layout |
 | 3 | Location JSON/TOML | Network settings, DNS, NTP, paths, per-platform overrides | `lab.toml` sets `domain`, `cidr`, `gateway`, `iso_path`, `vms_path` |
 | 4 | Spec JSON | OS installer config, kickstart files, include chain | `alma/spec.json` sets ISO URLs, `cd_files`, `boot_command` |
@@ -17,26 +17,22 @@ Configuration is loaded in this fixed order. Later layers override earlier ones:
 
 The chain is initiated by `make_build()` in `core.py` (line 964). It calls `load_data_file()` for each of the first four layers (platform at line 1026, location at line 1035, spec at line 1041), and layer 6 is applied at line 1169.
 
-### Layer 1: all.json
+### Layer 1: Configuration Defaults
 
-The file `platforms/all.json` is loaded via the platform JSON's `"include": "all"` directive. It establishes the absolute baseline defaults:
+Hardware defaults are loaded from the user's configuration file (`~/.config/osimager/config.json`), with built-in fallbacks in `core.py`. These establish the absolute baseline defaults:
 
-```json
-{
-  "defs": {
-    "cpu_sockets": 1,
-    "cpu_cores": 2,
-    "memory": 2048,
-    "boot_disk_size": 16385
-  }
-}
-```
+| Default | Value |
+|---------|-------|
+| `cpu_sockets` | `1` |
+| `cpu_cores` | `2` |
+| `memory` | `2048` |
+| `boot_disk_size` | `16385` |
 
-Every platform JSON includes `all.json` through the include mechanism, so these values are always present unless explicitly overridden.
+These values are always present unless explicitly overridden by a later layer.
 
 ### Layer 2: Platform JSON
 
-Platform files reside in `{data_dir}/platforms/{name}.json`. The platform file declares its `include` (typically `"all"`), then overlays platform-specific builder configuration. For example, `vsphere.json` defines the `config` section with `type: "vsphere-iso"`, network adapters, storage layout, and Packer builder fields.
+Platform files reside in `{data_dir}/platforms/{name}.json`. The platform file overlays platform-specific builder configuration on top of the configuration defaults. For example, `vsphere.json` defines the `config` section with `type: "vsphere-iso"`, network adapters, storage layout, and Packer builder fields.
 
 ### Layer 3: Location JSON/TOML
 

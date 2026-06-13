@@ -7,20 +7,20 @@ This page is auto-generated from the spec data files.
 | Metric | Count |
 |--------|-------|
 | Distributions | 11 |
-| Total versions | 258 |
-| Total specs (version x arch) | 701 |
+| Total versions | 281 |
+| Total specs (version x arch) | 505 |
 
 ## Overview
 
 | Distribution | Versions | Architectures | Installer | Cloud |
 |-------------|----------|---------------|-----------|-------|
-| Red Hat Enterprise Linux | 2.1 - 10.1 | i386, x86_64, aarch64 | kickstart | Azure, GCP, AWS |
+| Red Hat Enterprise Linux | 2.1 - 10.1 | x86_64, aarch64, i386 | kickstart | Azure, GCP, AWS |
 | AlmaLinux | 8.3 - 10.1 | x86_64, aarch64 | kickstart | Azure, GCP, AWS |
-| Rocky Linux | 8.3 - 10.1 | x86_64, aarch64 | kickstart | Azure, GCP, AWS |
-| CentOS | 5.0 - 8.5 | i386, x86_64, aarch64 | kickstart | Azure, GCP, AWS |
-| Oracle Enterprise Linux | 5.0 - 10.1 | i386, x86_64, aarch64 | kickstart | Azure, GCP, AWS |
-| Debian | 8.0 - 13.3 | i386, x86_64, aarch64 | preseed | Azure, GCP, AWS |
-| Ubuntu | 18.04 - 24.04 | x86_64, aarch64 | cloud-init | Azure, GCP, AWS |
+| Rocky Linux | 8.3 - 9.7 | x86_64, aarch64 | kickstart | Azure, GCP, AWS |
+| CentOS | 2.1 - 8.5 | x86_64, aarch64, i386 | kickstart | Azure, GCP, AWS |
+| Oracle Enterprise Linux | 5.0 - 10.1 | x86_64, aarch64, i386 | kickstart | Azure, GCP, AWS |
+| Debian | 8.0 - 13.3 | x86_64, aarch64, i386 | preseed | Azure, GCP, AWS |
+| Ubuntu | 18.04 - 24.04.3 | x86_64, aarch64 | cloud-init | Azure, GCP, AWS |
 | SUSE Linux Enterprise Server | 12.1 - 16.0 | x86_64, aarch64 | autoyast | Azure, GCP, AWS |
 | VMware ESXi | 5.5U3 - 8.0U2 | x86_64 | kickstart | - |
 | System V Release 4 | 2.1 | i386 | none | - |
@@ -36,13 +36,13 @@ This page is auto-generated from the spec data files.
 
 **Installer type:** kickstart
 
-**Version ranges:** `2.1, 3.0, 4.8, 5.[1,9,10,11], 6.[9-10], 7.[5-9], 8.[0,1,2,3,5,6,7,8,9,10], 9.[0-7], 10.[0-1]`
+**Version ranges:** `2.1, 3.0, 4.8, 5.[1,9,10,11], 6.[0,9,10], 7.[5-9], 8.[0,1,2,3,5,6,7,8,9,10], 9.[0-7], 10.[0-1]`
 
-**Versions (34):** 2.1, 3.0, 4.8, 5.1, 5.9, 5.10, 5.11, 6.9, 6.10, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 10.0, 10.1
+**Versions (35):** 2.1, 3.0, 4.8, 5.1, 5.9, 5.10, 5.11, 6.0, 6.9, 6.10, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 10.0, 10.1
 
-**Architectures:** i386, x86_64, aarch64
+**Architectures:** x86_64, aarch64, i386
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
@@ -50,7 +50,7 @@ This page is auto-generated from the spec data files.
 - **GCP**: version patterns 10.*, 7.*, 8.*, 9.*
 - **AWS**: version patterns 10.*, 7.*, 8.*, 9.*
 
-**Spec count:** 102
+**Spec count:** 55
 
 ---
 
@@ -68,7 +68,7 @@ This page is auto-generated from the spec data files.
 
 **Architectures:** x86_64, aarch64
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
@@ -88,21 +88,21 @@ This page is auto-generated from the spec data files.
 
 **Installer type:** kickstart
 
-**Version ranges:** `8.[3-9], 9.[0-7], 10.[0-1]`
+**Version ranges:** `8.[3-9], 9.[0-7]`
 
-**Versions (17):** 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 10.0, 10.1
+**Versions (15):** 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7
 
 **Architectures:** x86_64, aarch64
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
-- **AZURE**: version patterns 10.*, 8.*, 9.*
-- **GCP**: version patterns 10.*, 8.*, 9.*
-- **AWS**: version patterns 10.*, 8.*, 9.*
+- **AZURE**: version patterns 8.*, 9.*
+- **GCP**: version patterns 8.*, 9.*
+- **AWS**: version patterns 8.*, 9.*
 
-**Spec count:** 34
+**Spec count:** 30
 
 ---
 
@@ -114,13 +114,13 @@ This page is auto-generated from the spec data files.
 
 **Installer type:** kickstart
 
-**Version ranges:** `5.[0-10], 6.[0-10], 7.[0-9], 8.[0-5]`
+**Version ranges:** `2.1, 3.[0-9], 4.[0-8], 5.[0-10], 6.[0-10], 7.[0-9], 8.[0-5]`
 
-**Versions (38):** 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.10, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+**Versions (58):** 2.1, 3.0, 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.10, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 
-**Architectures:** i386, x86_64, aarch64
+**Architectures:** x86_64, aarch64, i386
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
@@ -128,7 +128,7 @@ This page is auto-generated from the spec data files.
 - **GCP**: version patterns 7.*, 8.*
 - **AWS**: version patterns 7.*, 8.*
 
-**Spec count:** 114
+**Spec count:** 105
 
 ---
 
@@ -144,9 +144,9 @@ This page is auto-generated from the spec data files.
 
 **Versions (53):** 5.0, 5.1, 5.2, 5.3, 5.4, 5.5, 5.6, 5.7, 5.8, 5.9, 5.10, 6.0, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 6.7, 6.8, 6.9, 6.10, 7.0, 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.7, 7.8, 7.9, 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 10.0, 10.1
 
-**Architectures:** i386, x86_64, aarch64
+**Architectures:** x86_64, aarch64, i386
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
@@ -154,7 +154,7 @@ This page is auto-generated from the spec data files.
 - **GCP**: version patterns 10.*, 7.*, 8.*, 9.*
 - **AWS**: version patterns 10.*, 7.*, 8.*, 9.*
 
-**Spec count:** 159
+**Spec count:** 94
 
 ---
 
@@ -170,17 +170,17 @@ This page is auto-generated from the spec data files.
 
 **Versions (70):** 8.0, 8.1, 8.2, 8.3, 8.4, 8.5, 8.6, 8.7, 8.8, 8.9, 8.10, 8.11, 9.0, 9.1, 9.2, 9.3, 9.4, 9.5, 9.6, 9.7, 9.8, 9.9, 9.10, 9.11, 9.12, 9.13, 10.0, 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7, 10.8, 10.9, 10.10, 10.11, 10.12, 10.13, 11.0, 11.1, 11.2, 11.3, 11.4, 11.5, 11.6, 11.7, 11.8, 11.9, 11.10, 11.11, 12.0, 12.1, 12.2, 12.3, 12.4, 12.5, 12.6, 12.7, 12.8, 12.9, 12.10, 12.11, 12.12, 12.13, 13.0, 13.1, 13.2, 13.3
 
-**Architectures:** i386, x86_64, aarch64
+**Architectures:** x86_64, aarch64, i386
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
-- **AZURE**: version patterns 11.*, 12.*
-- **GCP**: version patterns 11.*, 12.*
-- **AWS**: version patterns 11.*, 12.*
+- **AZURE**: version patterns 11.*, 12.*, 13.*
+- **GCP**: version patterns 11.*, 12.*, 13.*
+- **AWS**: version patterns 11.*, 12.*, 13.*
 
-**Spec count:** 210
+**Spec count:** 140
 
 ---
 
@@ -192,21 +192,21 @@ This page is auto-generated from the spec data files.
 
 **Installer type:** cloud-init
 
-**Version ranges:** `18.04, 20.04, 22.04, 24.04`
+**Version ranges:** `18.04, 20.04, 22.04, 24.04.[2-3]`
 
-**Versions (4):** 18.04, 20.04, 22.04, 24.04
+**Versions (5):** 18.04, 20.04, 22.04, 24.04.2, 24.04.3
 
 **Architectures:** x86_64, aarch64
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
-- **AZURE**: version patterns 20.04, 22.04, 24.04
-- **GCP**: version patterns 20.04, 22.04, 24.04
-- **AWS**: version patterns 20.04, 22.04, 24.04
+- **AZURE**: version patterns 20.04, 22.04, 24.04.*
+- **GCP**: version patterns 20.04, 22.04, 24.04.*
+- **AWS**: version patterns 20.04, 22.04, 24.04.*
 
-**Spec count:** 8
+**Spec count:** 9
 
 ---
 
@@ -224,7 +224,7 @@ This page is auto-generated from the spec data files.
 
 **Architectures:** x86_64, aarch64
 
-**Platforms:** Local: virtualbox, vmware, qemu, libvirt, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+**Platforms:** Local: virtualbox, vmware, qemu, xenserver, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
 
 **Cloud image support:**
 
@@ -232,7 +232,7 @@ This page is auto-generated from the spec data files.
 - **GCP**: version patterns 15.*
 - **AWS**: version patterns 15.*
 
-**Spec count:** 28
+**Spec count:** 23
 
 ---
 
@@ -242,15 +242,15 @@ This page is auto-generated from the spec data files.
 
 **Installer type:** kickstart
 
-**Version ranges:** `5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2`
+**Version ranges:** `5.5U3, 6.0U2, 6.5, 7.0, 7.0U1c, 7.0U3d, 7.0U3n, 8.0U2`
 
-**Versions (5):** 5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2
+**Versions (8):** 5.5U3, 6.0U2, 6.5, 7.0, 7.0U1c, 7.0U3d, 7.0U3n, 8.0U2
 
 **Architectures:** x86_64
 
 **Platforms:** Local: vmware | Enterprise: vsphere
 
-**Spec count:** 5
+**Spec count:** 8
 
 ---
 

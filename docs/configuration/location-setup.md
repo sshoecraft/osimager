@@ -203,7 +203,7 @@ Locations that support multiple platforms can provide per-platform defs using `p
 
 Each platform has different infrastructure requirements. See the [Platform Reference](../reference/platform-reference.md) for complete details.
 
-**Local ISO platforms** (virtualbox, vmware, qemu, libvirt, hyperv, xenserver):
+**Local ISO platforms** (virtualbox, vmware, qemu, hyperv, xenserver):
 
 - `vms_path` — where to store built VMs
 - `iso_path` — where ISO files are located
@@ -244,7 +244,7 @@ Each platform has different infrastructure requirements. See the [Platform Refer
 Location defs are one layer in the hierarchical merge chain:
 
 ```
-all.json defaults
+Configuration defaults (CPU, memory, disk)
     └── Platform JSON defs
         └── Location defs          <── you are here
             └── Location platform_specific defs

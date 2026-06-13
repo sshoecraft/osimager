@@ -2,13 +2,13 @@
 
 This page is auto-generated from the platform and spec data files. It documents all template variables (defs) used by each platform.
 
-## Base Defaults (all.json)
+## Configuration Defaults
 
-These defaults are inherited by all platforms:
+These defaults are set in `~/.config/osimager/config.json` (or built-in if not configured):
 
 | Variable | Default Value |
 |----------|--------------|
-| `boot_disk_size` | `16385` |
+| `boot_disk_size` | `16384` |
 | `cpu_cores` | `2` |
 | `cpu_sockets` | `1` |
 | `memory` | `2048` |
@@ -102,45 +102,8 @@ These defaults are inherited by all platforms:
 
 **Template variables referenced** (`>>var<<`):
 
-- `boot_disk_size` — all.json default
-- `firmware` — computed
-- `iso_checksum` — spec
-- `iso_name` — spec
-- `iso_path` — location
-- `iso_url` — spec
-- `local_only` — computed
-- `name` — computed
-- `vms_path` — location
-
-**Numeric expressions** (`#>expr<#`):
-
-- `cpu_cores`
-- `cpu_sockets`
-- `memory`
-
-**Eval expressions** (`E>expr<E`):
-
-- `'' if >>local_only<< else '>>iso_path<</>>iso_name<<'`
-- `'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'`
-- `'>>iso_path<</>>iso_name<<' if >>local_only<< else '>>iso_url<<'`
-
----
-
-### libvirt
-
-**Builder type:** `qemu`
-
-**Platform defs:**
-
-| Variable | Value |
-|----------|-------|
-| `local` | `True` |
-
-**Template variables referenced** (`>>var<<`):
-
-- `boot_disk_size` — all.json default
+- `boot_disk_size` — config default
 - `cd_label` — spec
-- `firmware` — computed
 - `iso_checksum` — spec
 - `iso_name` — spec
 - `iso_path` — location
@@ -164,6 +127,7 @@ These defaults are inherited by all platforms:
 - `'' if >>local_only<< else '>>iso_path<</>>iso_name<<'`
 - `'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'`
 - `'>>iso_path<</>>iso_name<<' if >>local_only<< else '>>iso_url<<'`
+- `'kvm' if os.access('/dev/kvm', os.W_OK) else 'none'`
 
 ---
 
@@ -320,8 +284,10 @@ These defaults are inherited by all platforms:
 
 **Template variables referenced** (`>>var<<`):
 
-- `boot_disk_size` — all.json default
+- `boot_disk_size` — config default
+- `build_id` — computed
 - `cd_label` — spec
+- `firmware` — computed
 - `iso_checksum` — spec
 - `iso_name` — spec
 - `iso_path` — location
@@ -329,7 +295,6 @@ These defaults are inherited by all platforms:
 - `iso_url` — spec
 - `local_only` — computed
 - `location_name` — computed
-- `name` — computed
 - `proxmox_node` — location
 - `vm_storage_pool` — location
 
@@ -347,8 +312,10 @@ These defaults are inherited by all platforms:
 
 - `'' if >>local_only<< else '>>iso_path<</>>iso_name<<'`
 - `'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'`
+- `'>>iso_storage_pool<<:iso/>>iso_name<<' if >>local_only<< else '>>iso_url<<'`
 - `'false' if >>local_only<< else 'true'`
-- `'local:iso/>>iso_name<<' if >>local_only<< else '>>iso_url<<'`
+- `'ovmf' if '>>firmware<<' == 'efi' else 'seabios'`
+- `{'efi_storage_pool': '>>vm_storage_pool<<', 'efi_type': '4m'} if '>>firmware<...`
 
 **Vault/credential variables:**
 

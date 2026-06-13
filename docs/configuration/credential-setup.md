@@ -186,7 +186,7 @@ Secret path: `aws/<location>`
 
 ### Local Platforms
 
-VirtualBox, VMware, QEMU, libvirt, Hyper-V, and XenServer run locally and do not require platform credentials. They only need the `images/<os>` credentials for SSH/WinRM access during the build.
+VirtualBox, VMware, QEMU, Hyper-V, and XenServer run locally and do not require platform credentials. They only need the `images/<os>` credentials for SSH/WinRM access during the build.
 
 ## The `get_secret()` Method
 

@@ -11,7 +11,7 @@ import subprocess
 from typing import List, Optional
 
 from .core import OSImager
-from .constants import EXIT_SUCCESS, EXIT_GENERAL_ERROR
+from .core import EXIT_SUCCESS, EXIT_ERROR as EXIT_GENERAL_ERROR
 from .utils import get_filename_from_url
 
 
@@ -42,7 +42,9 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
         if osimager.avail:
             index = osimager.get_index()
             if not index:
-                print("No specs found.")
+                print("No specs found. Have you installed osimager-data?")
+                print(f"  pip install osimager-data")
+                print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
                 return EXIT_SUCCESS
 
             download = []
@@ -96,8 +98,6 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             print("Available platforms:")
             for plat in platforms:
                 name = plat.get('name', '')
-                if name == 'all':
-                    continue
                 config = plat.get('config', {})
                 builder_type = config.get('type', 'unknown')
                 arches = plat.get('arches', [])
@@ -148,16 +148,22 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             return EXIT_SUCCESS
 
         if osimager.list_defs:
+            # Show configuration defaults (from config.json / built-in defaults)
+            config_defs = {
+                'cpu_sockets': osimager.settings.get('cpu_sockets', 1),
+                'cpu_cores': osimager.settings.get('cpu_cores', 2),
+                'memory': osimager.settings.get('memory', 2048),
+                'boot_disk_size': osimager.settings.get('boot_disk_size', 16384),
+            }
+
             platforms = osimager.get_platforms()
-            # Collect all defs from all.json and all platforms
+            # Collect all defs from platforms
             all_defs = {}
             for plat in platforms:
                 name = plat.get('name', '')
                 plat_defs = plat.get('defs', {})
                 for key, val in plat_defs.items():
                     if key not in all_defs:
-                        all_defs[key] = {'value': val, 'source': name}
-                    elif name == 'all':
                         all_defs[key] = {'value': val, 'source': name}
 
             # Add computed defs
@@ -185,18 +191,16 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 'vms_path': 'from location',
             }
 
-            print("Base defs (from all.json):")
-            for key, info in sorted(all_defs.items()):
-                if info['source'] == 'all':
-                    print(f"  {key:<20} = {info['value']}")
+            print("Configuration defaults (~/.config/osimager/config.json):")
+            for key, val in sorted(config_defs.items()):
+                print(f"  {key:<20} = {val}")
 
             print("\nPlatform defs:")
             for key, info in sorted(all_defs.items()):
-                if info['source'] != 'all':
-                    val_str = str(info['value'])
-                    if len(val_str) > 50:
-                        val_str = val_str[:47] + '...'
-                    print(f"  {key:<20} = {val_str:<50}  ({info['source']})")
+                val_str = str(info['value'])
+                if len(val_str) > 50:
+                    val_str = val_str[:47] + '...'
+                print(f"  {key:<20} = {val_str:<50}  ({info['source']})")
 
             print("\nComputed defs:")
             for key, desc in sorted(computed.items()):
@@ -216,7 +220,9 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     iso_flag = " (*)" if entry.get('iso_local', False) else ""
                     print(f"  {spec_key}{iso_flag}")
             else:
-                print("No specs found.")
+                print("No specs found. Have you installed osimager-data?")
+                print(f"  pip install osimager-data")
+                print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
             return EXIT_SUCCESS
 
         if not osimager.target:
@@ -228,7 +234,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             locations = osimager.get_locations()
             cred_source = osimager.settings.get('credential_source', 'vault')
 
-            examples_dir = os.path.join(osimager.settings['base_dir'], 'data', 'examples')
+            examples_dir = osimager.resolve_data_path('examples') or os.path.join(osimager.settings['user_dir'], 'examples')
 
             docs_url = "https://sshoecraft.github.io/osimager"
             need_docs = False
@@ -275,15 +281,20 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 print("")
 
             if locations:
-                print("Available platforms/locations:")
                 platforms = osimager.get_platforms()
-                for plat in platforms:
-                    plat_name = plat.get('name', '')
-                    plat_locations = [l.get('name', '') for l in locations if plat_name in l.get('platforms', [])]
-                    if plat_locations:
-                        print(f"  {plat_name}: {', '.join(plat_locations)}")
-                print("")
-                print("Use --list to see available specs.")
+                if platforms:
+                    print("Available platforms/locations:")
+                    for plat in platforms:
+                        plat_name = plat.get('name', '')
+                        plat_locations = [l.get('name', '') for l in locations if plat_name in l.get('platforms', [])]
+                        if plat_locations:
+                            print(f"  {plat_name}: {', '.join(plat_locations)}")
+                    print("")
+                    print("Use --list to see available specs.")
+                else:
+                    print("No platforms found. Have you installed osimager-data?")
+                    print(f"  pip install osimager-data")
+                    print(f"  Or create your own: {osimager.settings['user_dir']}/platforms/")
 
             print("Use --help for all options.")
             return EXIT_SUCCESS
@@ -372,13 +383,236 @@ def main_rfosimage(argv: Optional[List[str]] = None) -> int:
         return EXIT_GENERAL_ERROR
 
 
+def _get_python_version(python_path):
+    """Get the major.minor version tuple from a Python interpreter."""
+    rc = subprocess.run([python_path, "--version"], capture_output=True, text=True)
+    ver_str = rc.stdout.strip() or rc.stderr.strip()
+    try:
+        return tuple(int(x) for x in ver_str.split()[1].split(".")[:2])
+    except (IndexError, ValueError):
+        return None
+
+
+def _find_python(min_version, max_version=None):
+    """Find a Python interpreter >= min_version and <= max_version.
+    Versions are strings like '3.10' or '2.7'. max_version=None means no upper limit.
+    Returns the path to the interpreter, or None."""
+    min_parts = tuple(int(x) for x in min_version.split("."))
+    max_parts = tuple(int(x) for x in max_version.split(".")) if max_version else None
+    is_py2 = min_parts[0] == 2
+
+    if is_py2:
+        candidates = ["python2.7", "python2.6", "python2"]
+    else:
+        # Try versioned interpreters from high to low, then generic
+        candidates = [f"python3.{m}" for m in range(20, min_parts[1] - 1, -1)]
+        candidates.append("python3")
+
+    for cmd in candidates:
+        path = shutil.which(cmd)
+        if not path:
+            continue
+        ver = _get_python_version(path)
+        if not ver:
+            continue
+        if ver < min_parts:
+            continue
+        if max_parts and ver > max_parts:
+            continue
+        return path
+
+    return None
+
+
+def _create_venv(venv_path, python_path):
+    """Create a virtualenv using the appropriate method for the Python version."""
+    ver = _get_python_version(python_path)
+    is_python2 = ver and ver[0] == 2
+
+    if is_python2:
+        # Check if virtualenv is available under this Python
+        rc = subprocess.run([python_path, "-m", "virtualenv", "--version"], capture_output=True)
+        if rc.returncode != 0:
+            print(f"Installing virtualenv for {python_path}...")
+            rc = subprocess.run([python_path, "-m", "pip", "install", "virtualenv"], capture_output=True)
+            if rc.returncode != 0:
+                print(f"error: virtualenv is required for {python_path} and could not be installed")
+                sys.exit(1)
+        rc = subprocess.run([python_path, "-m", "virtualenv", venv_path])
+    else:
+        rc = subprocess.run([python_path, "-m", "venv", venv_path])
+
+    return rc.returncode == 0
+
+
+def _load_ansible_versions(osimager):
+    """Load ansible version definitions from ansible.json via two-layer resolution.
+    Returns dict keyed by version string."""
+    import json
+
+    # Try user dir first, then system data dir
+    for base in [osimager.settings['user_dir'], osimager.system_data_dir]:
+        if not base:
+            continue
+        path = os.path.join(base, "ansible.json")
+        if os.path.isfile(path):
+            with open(path, 'r') as f:
+                data = json.load(f)
+            return {entry["version"]: entry for entry in data.get("versions", [])}
+
+    return {}
+
+
+def _scan_specs_for_venvs(osimager):
+    """Scan all specs for unique ansible_version values.
+    Returns a set of version strings."""
+    import json
+    required = set()
+    specs = osimager.resolve_data_files("specs", "*.json")
+    for spec_file in specs:
+        try:
+            with open(spec_file, 'r') as f:
+                data = json.load(f)
+        except Exception:
+            continue
+
+        def collect(entry):
+            av = entry.get("ansible_version")
+            if av:
+                required.add(av)
+
+        collect(data)
+        for entry in data.get("version_specific", []):
+            collect(entry)
+            for arch_entry in entry.get("arch_specific", []):
+                collect(arch_entry)
+        for entry in data.get("arch_specific", []):
+            collect(entry)
+
+    return required
+
+
 def main_mkvenv(argv: Optional[List[str]] = None) -> int:
     """Entry point for mkvenv command."""
     if argv is None:
         argv = sys.argv[1:]
 
     try:
-        osimager = OSImager(argv=argv, which="venv")
+        extra_args = {
+            "--all": {"flags": ["--all"], "kwargs": {"default": False, "action": "store_true", "help": "Create all missing venvs", "dest": "all"}},
+            "ansible_version": {"flags": ["ansible_version"], "kwargs": {"nargs": "?", "default": None, "help": "Ansible version to create venv for (e.g. 2.16)"}},
+        }
+        osimager = OSImager(argv=argv, which="venv", extra_args=extra_args)
+        args = osimager.args
+        venv_dir = osimager.settings['venv_dir']
+
+        # Load ansible version definitions from ansible.json
+        ansible_defs = _load_ansible_versions(osimager)
+        if not ansible_defs:
+            print("error: ansible.json not found")
+            print("  Install osimager-data or create ~/.config/osimager/ansible.json")
+            return EXIT_GENERAL_ERROR
+
+        # Scan all specs for required ansible versions
+        required = _scan_specs_for_venvs(osimager)
+
+        version = args.ansible_version
+        create_all = args.all
+
+        # No args: list status
+        if not version and not create_all:
+            print(f"Venv directory: {venv_dir}")
+            print()
+            if not required:
+                print("No venvs required by any specs.")
+                return EXIT_SUCCESS
+            print("Required ansible venvs:")
+            for ver in sorted(required):
+                venv_path = os.path.join(venv_dir, ver)
+                exists = os.path.isfile(os.path.join(venv_path, "bin", "activate"))
+                adef = ansible_defs.get(ver)
+                if exists:
+                    status = "installed"
+                elif not adef:
+                    status = f"missing (ansible {ver} not defined in ansible.json)"
+                else:
+                    min_py = adef.get("python_min")
+                    max_py = adef.get("python_max")
+                    pkg = adef.get("pkg", "ansible-core")
+                    python_path = _find_python(min_py, max_py)
+                    if python_path:
+                        status = f"missing ({pkg}, python: {python_path})"
+                    else:
+                        req = f">= {min_py}"
+                        if max_py:
+                            req += f" and <= {max_py}"
+                        status = f"missing ({pkg}, requires python {req} - NOT FOUND)"
+                print(f"  {ver:10s} {status}")
+            return EXIT_SUCCESS
+
+        # Build list of versions to create
+        if create_all:
+            versions = sorted(required)
+        else:
+            versions = [version]
+
+        # Create each venv
+        for ver in versions:
+            venv_path = os.path.join(venv_dir, ver)
+            activator = os.path.join(venv_path, "bin", "activate")
+
+            if os.path.isfile(activator):
+                print(f"Venv {ver} already exists at {venv_path}")
+                continue
+
+            adef = ansible_defs.get(ver)
+            if not adef:
+                print(f"error: ansible {ver} not defined in ansible.json")
+                print(f"  Known versions: {', '.join(sorted(ansible_defs.keys()))}")
+                return EXIT_GENERAL_ERROR
+
+            min_py = adef.get("python_min")
+            max_py = adef.get("python_max")
+            pkg = adef.get("pkg", "ansible-core")
+
+            python_path = _find_python(min_py, max_py)
+            if not python_path:
+                req = f">= {min_py}"
+                if max_py:
+                    req += f" and <= {max_py}"
+                print(f"error: no Python {req} found for ansible {ver}")
+                print(f"  Install a compatible Python version and ensure it is in your PATH")
+                return EXIT_GENERAL_ERROR
+
+            pkg_spec = f"{pkg}=={ver}.*"
+            print(f"Creating venv for {pkg} {ver} (using {python_path})...")
+            os.makedirs(venv_dir, exist_ok=True)
+
+            if not _create_venv(venv_path, python_path):
+                print(f"error: failed to create venv at {venv_path}")
+                return EXIT_GENERAL_ERROR
+
+            pip = os.path.join(venv_path, "bin", "pip")
+
+            # Install pre-requirements from ansible.json before the ansible package
+            requirements = adef.get("requirements", [])
+            for req in requirements:
+                print(f"Installing prerequisite: {req}...")
+                rc = subprocess.run([pip, "install", req])
+                if rc.returncode != 0:
+                    print(f"error: failed to install {req} into {venv_path}")
+                    shutil.rmtree(venv_path, ignore_errors=True)
+                    return EXIT_GENERAL_ERROR
+
+            print(f"Installing {pkg_spec}...")
+            rc = subprocess.run([pip, "install", pkg_spec])
+            if rc.returncode != 0:
+                print(f"error: failed to install {pkg_spec} into {venv_path}")
+                shutil.rmtree(venv_path, ignore_errors=True)
+                return EXIT_GENERAL_ERROR
+
+            print(f"Venv {ver} created at {venv_path}")
+
         return EXIT_SUCCESS
 
     except SystemExit as e:

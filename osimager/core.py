@@ -8,12 +8,16 @@ import tempfile
 import shutil
 import subprocess
 import argparse
+import importlib.util
+import uuid
 try:
     import tomllib
 except ImportError:
     import tomli as tomllib
 from .utils import *
-from .constants import OSIMAGER_VERSION
+OSIMAGER_VERSION = "1.7.0"
+EXIT_SUCCESS = 0
+EXIT_ERROR = 1
 
 class OSImager:
     VERSION = OSIMAGER_VERSION
@@ -45,17 +49,26 @@ class OSImager:
 
     def init_settings(self, argv, which, extra_args):
 
+        # XDG base directories
+        xdg_config = os.environ.get("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
+        xdg_data = os.environ.get("XDG_DATA_HOME", os.path.expanduser("~/.local/share"))
+        xdg_cache = os.environ.get("XDG_CACHE_HOME", os.path.expanduser("~/.cache"))
+
         # Default settings
         self.settings = {
             "base_dir": os.path.dirname(os.path.abspath(__file__)),
-            "user_dir": os.path.expanduser("~/.config/osimager"),
-            "data_dir": "data",
+            "user_dir": os.path.join(xdg_config, "osimager"),
+            "data_dir": os.path.join(xdg_data, "osimager"),
             "packer_cmd": "packer",
-            "venv_dir": os.path.expanduser("~")+"/.venv",
+            "venv_dir": os.environ.get("OSIMAGER_VENV_DIR", os.environ.get("VENV_DIR", os.path.join(xdg_data, "osimager", "venvs"))),
             "ansible_playbook": "config.yml",
-            "packer_cache_dir": "/tmp",
+            "packer_cache_dir": os.path.join(xdg_cache, "osimager"),
             "iso_path": "/iso",
             "local_only": False,
+            "cpu_sockets": 1,
+            "cpu_cores": 2,
+            "memory": 2048,
+            "boot_disk_size": 16384,
             "credential_source": "vault",
             "vault_addr": "",
             "vault_token": ""
@@ -94,8 +107,9 @@ class OSImager:
                 "--dump-defs": {"flags": ["-x", "--defs"], "kwargs": {"default": False, "action": "store_true", "help": "Dump defs and exit", "dest": "dump_defs"}},
                 "--dump-config": {"flags": ["-u", "--dump"], "kwargs": {"default": False, "action": "store_true", "help": "Dump build and exit", "dest": "dump_build"}},
                 "--temp": {"flags": ["-m", "--temp"], "kwargs": {"help": "Specify temp directory", "dest": "temp_dir"}},
-                "--local-only": {"flags": ["--local-only"], "kwargs": {"default": False, "action": "store_true", "help": "Use local ISO files instead of downloading", "dest": "local_only"}},
+                "--local-only": {"flags": ["--local", "--local-only"], "kwargs": {"default": False, "action": "store_true", "help": "Use local ISO files instead of downloading", "dest": "local_only"}},
                 "--dispatcher": {"flags": ["--dispatcher"], "kwargs": {"default": False, "action": "store_true", "help": "Enable dispatcher progress output (PROGRESS=, ERROR=, RESULT=)", "dest": "dispatcher"}},
+                "--skip": {"flags": ["--skip"], "kwargs": {"default": False, "action": "store_true", "help": "Skip post-install configuration", "dest": "skip"}},
                 "n": {"flags": ["-n","--dry"], "kwargs": {"default": False, "action": "store_true", "help": "Dry run", "dest": "dry_run"}},
             }
             arg_defs.update(arg_full_defs)
@@ -154,6 +168,7 @@ class OSImager:
             self.local_only = args.local_only
             self.dispatcher = args.dispatcher
             self.dry_run = args.dry_run
+            self.skip = args.skip
             self.user_defines = args.defines
             self.fqdn = args.fqdn
         else:
@@ -166,6 +181,7 @@ class OSImager:
             self.dump_defs = False
             self.user_temp_dir = None
             self.dry_run = False
+            self.skip = False
             self.user_defines = None
 
         # Load settings from the config file
@@ -192,13 +208,11 @@ class OSImager:
                         print(f"Overriding setting: {new_key} = {new_val}")
                     do_save = True
 
-        # Apply command line --local-only override
+        # Apply command line --local-only override (runtime only, not saved)
         if which == "full" and hasattr(args, 'local_only') and args.local_only:
-            if self.settings['local_only'] != True:
-                self.settings['local_only'] = True
-                if self.verbose:
-                    print("Overriding setting: local_only = True")
-                do_save = True
+            self.settings['local_only'] = True
+            if self.verbose:
+                print("Overriding setting: local_only = True (runtime only)")
 
         if self.debug: print("do_save: "+str(do_save))
         if do_save:
@@ -206,6 +220,14 @@ class OSImager:
         self.settings['local_only'] = to_bool(self.settings.get('local_only',False))
 
         self.base_path = self.get_path("base_dir")
+
+        # Detect osimager-data package for two-layer data resolution
+        try:
+            import osimager_data
+            self.system_data_dir = osimager_data.DATA_DIR
+        except ImportError:
+            self.system_data_dir = None
+
         # Ensure user config directories exist
         os.makedirs(os.path.join(self.settings['user_dir'], 'locations'), exist_ok=True)
         # define all the settings in defs
@@ -256,7 +278,8 @@ class OSImager:
 
         save_keys = [
             'packer_cmd', 'packer_cache_dir', 'iso_path', 'local_only',
-            'data_dir', 'ansible_playbook',
+            'cpu_sockets', 'cpu_cores', 'memory', 'boot_disk_size',
+            'ansible_playbook',
             'credential_source', 'vault_addr', 'vault_token'
         ]
 
@@ -305,9 +328,58 @@ class OSImager:
         if self.debug: print("get_path: returning: "+path)
         return path
 
+    def resolve_data_path(self, *parts):
+        """Resolve a data file path with two-layer lookup.
+
+        Checks user_dir first (overrides), then osimager_data package (baseline).
+        Returns the first path that exists, or None.
+        """
+        # Layer 1: user override
+        user_path = os.path.join(self.settings['user_dir'], *parts)
+        if os.path.exists(user_path):
+            return user_path
+
+        # Layer 2: osimager_data package
+        if self.system_data_dir:
+            system_path = os.path.join(self.system_data_dir, *parts)
+            if os.path.exists(system_path):
+                return system_path
+
+        return None
+
+    def resolve_data_files(self, subdir, pattern="*.json"):
+        """Scan both user dir and system data dir, merging results.
+
+        User dir files take precedence over system files with the same name.
+        For specs (which are subdirectories), keys by the directory name.
+        Returns list of file paths.
+        """
+        seen = {}
+
+        # Layer 1: user overrides (take precedence)
+        user_dir = os.path.join(self.settings['user_dir'], subdir)
+        if os.path.isdir(user_dir):
+            for f in find_files(user_dir, pattern):
+                # Key by relative path from the subdir (handles nested specs)
+                rel = os.path.relpath(f, user_dir)
+                seen[rel] = f
+
+        # Layer 2: system baseline (fills in missing)
+        if self.system_data_dir:
+            system_dir = os.path.join(self.system_data_dir, subdir)
+            if os.path.isdir(system_dir):
+                for f in find_files(system_dir, pattern):
+                    rel = os.path.relpath(f, system_dir)
+                    if rel not in seen:
+                        seen[rel] = f
+
+        return list(seen.values())
+
     def load_specific(self, data, debug = False):
 #        if debug: print("data: "+json.dumps(data,indent=4))
         specifics = [ "platform", "location", "dist", "version", "arch", "firmware" ]
+        sections = {"files", "evars", "defs", "variables", "pre_provisioners", "provisioners", "post_provisioners", "config", "method", "merge"}
+        specific_keys = {s + "_specific" for s in specifics}
         for section in specifics:
             if debug: print(f"section: {section}")
             name_key = section
@@ -325,6 +397,12 @@ class OSImager:
                     if re.fullmatch(specific_data_name, name, re.IGNORECASE):
                         if debug: print("====> loading!")
                         self.load_data(entry,False)
+                        # Hoist scalar fields (e.g. ansible_version) onto parent data so they
+                        # survive into self.spec. Known sections and *_specific keys
+                        # are already handled by load_data/load_specific recursion.
+                        for key, val in entry.items():
+                            if key not in sections and key not in specific_keys:
+                                data[key] = val
 
     def load_data(self, data, debug = False):
 
@@ -350,6 +428,12 @@ class OSImager:
 
             # Retrieve the current attribute value dynamically
             attr = getattr(self, section, None)
+
+            # Protect platform_defs keys from being overwritten
+            if section == "defs":
+                protected = getattr(self, 'platform_defs', {})
+                if protected and isinstance(new_val, dict):
+                    new_val = {k: v for k, v in new_val.items() if k not in protected}
 
             if isinstance(new_val,dict):
 #                merge_or_replace(attr,new_val,method)
@@ -463,7 +547,12 @@ class OSImager:
             return None
 
         if where == 'specs':
-            file_path = os.path.join(self.get_path("data_dir"), where, what, 'spec.json')
+            file_path = self.resolve_data_path(where, what, 'spec.json')
+            if not file_path:
+                print(f"error: spec '{what}' not found")
+                print(f"  Install baseline data: pip install osimager-data")
+                print(f"  Or create your own:    {self.settings['user_dir']}/specs/")
+                sys.exit(1)
         elif where == 'locations':
             # Locations support .json and .toml — JSON takes priority
             loc_dir = os.path.join(self.settings['user_dir'], "locations")
@@ -474,10 +563,13 @@ class OSImager:
             else:
                 file_path = os.path.join(loc_dir, what)
         else:
-            file_path = os.path.join(self.get_path("data_dir"), where, what)
-
-        if where != 'locations' and not file_path.endswith(".json"):
-            file_path += ".json"
+            what_file = what if what.endswith(".json") else what + ".json"
+            file_path = self.resolve_data_path(where, what_file)
+            if not file_path:
+                print(f"error: {where} '{what}' not found")
+                print(f"  Install baseline data: pip install osimager-data")
+                print(f"  Or create your own:    {self.settings['user_dir']}/{where}/")
+                sys.exit(1)
         if debug: print("load_data_file: file_path: "+str(file_path))
 
         return self.load_file(where,file_path)
@@ -649,7 +741,7 @@ class OSImager:
 
     def get_platforms(self,names = None):
         debug = False
-        files = find_files(os.path.join(self.get_path("data_dir"), "platforms"),'*.json')
+        files = self.resolve_data_files("platforms", "*.json")
         if debug: print("files: "+str(files))
         platforms = []
         for file_name in files:
@@ -721,7 +813,7 @@ class OSImager:
 
         if not search_string or search_string == "all":
             search_string = ".*"
-        files = find_files(os.path.join(self.get_path("data_dir"), "specs"),'*.json')
+        files = self.resolve_data_files("specs", "*.json")
         if debug: print("get_specs: files: "+str(files))
         specs = []
         for file_name in files:
@@ -752,6 +844,7 @@ class OSImager:
         checkit(dist, f"error: spec file {file_name} provides section has no dist!")
         versions = provides.get("versions",None)
         checkit(versions, f"error: spec file {file_name} provides section has no versions!")
+        default_arches = provides.get("arches",None)
         if isinstance(versions,list):
             version_list = []
             for vstr in versions:
@@ -761,10 +854,19 @@ class OSImager:
         provide_list = []
         for version in version_list:
             if debug: print("version: "+version)
+            # Determine arches for this version: check version_specific overrides first
+            version_arches = default_arches
+            for vs in data.get("version_specific", []):
+                vs_ver = vs.get("version", "")
+                if re.fullmatch(vs_ver, version, re.IGNORECASE):
+                    if "arches" in vs:
+                        version_arches = vs["arches"]
             provide_entry = {
                 "dist": dist,
                 "version": version
             }
+            if version_arches:
+                provide_entry["arches"] = version_arches
             provide_list.append(provide_entry)
 
         return provide_list
@@ -882,7 +984,7 @@ class OSImager:
         index = {}
 #        specs = self.get_specs()
 #        print("specs: "+str(specs))
-        files = find_files(os.path.join(self.get_path("data_dir"), "specs"),'*.json')
+        files = self.resolve_data_files("specs", "*.json")
         for file_name in files:
             try:
                with open(file_name, 'r') as f:
@@ -898,7 +1000,17 @@ class OSImager:
             for entry in spec_provides:
                 dist = entry.get('dist',"")
                 version = entry.get('version',"")
-                for arch in arches:
+                # Use per-spec arches intersected with global (environment) arches
+                spec_arches = entry.get('arches', None)
+                if spec_arches:
+                    # Add amd64 alias when x86_64 is present
+                    spec_arches = list(spec_arches)
+                    if 'x86_64' in spec_arches and 'amd64' not in spec_arches:
+                        spec_arches.append('amd64')
+                    entry_arches = [a for a in spec_arches if a in arches]
+                else:
+                    entry_arches = arches
+                for arch in entry_arches:
                     iso_url = self.resolve_iso_url(data, version, arch)
                     if not iso_url:
                         continue
@@ -1006,13 +1118,16 @@ class OSImager:
             raise ValueError("Target must be in format platform/location/spec")
     
         platform_name = tuple[0]
-        platform_file = os.path.join(self.get_path("data_dir"), "platforms", platform_name + ".json")
-        if not os.path.isfile(platform_file):
+        platform_file = self.resolve_data_path("platforms", platform_name + ".json")
+        if not platform_file:
             valid = [os.path.basename(f).removesuffix(".json")
-                     for f in sorted(glob.glob(os.path.join(self.get_path("data_dir"), "platforms", "*.json")))
-                     if os.path.basename(f).removesuffix(".json") not in ("all", "none")]
+                     for f in sorted(self.resolve_data_files("platforms", "*.json"))
+                     if os.path.basename(f).removesuffix(".json") not in ("none",)]
             print(f"error: unknown platform '{platform_name}'")
-            print(f"valid platforms: {', '.join(valid)}")
+            if valid:
+                print(f"valid platforms: {', '.join(valid)}")
+            else:
+                print(f"  No platforms found. Install baseline data: pip install osimager-data")
             sys.exit(1)
         self.defs['platform'] = platform_name
         location_name = tuple[1]
@@ -1047,7 +1162,7 @@ class OSImager:
             "ANSIBLE_STDOUT_CALLBACK": "minimal"
         }
 
-        self.defs['install_path'] = os.path.join(self.base_path, "install")
+        self.defs['install_path'] = os.path.join(self.settings['user_dir'], "install")
 
         # Need to create the default provisioner here (in case of replacement by any files)
         self.provisioners = [
@@ -1068,6 +1183,11 @@ class OSImager:
         # Platform
         self.platform = self.load_data_file("platforms", platform_name)
         self.defs['platform_name'] = platform_name
+
+        # Save and apply platform_defs (these cannot be overridden by specs)
+        self.platform_defs = self.platform.get("platform_defs", {})
+        if self.platform_defs:
+            self.defs.update(self.platform_defs)
         
         # Set platform_type from the platform config type field
         platform_type = self.config.get('type', platform_name)
@@ -1086,10 +1206,10 @@ class OSImager:
 
 #        self.evars["ANSIBLE_ROLES_PATH"] = self.spec_path
 
-        # Set PATH to prioritize venv if specified
-        venv = self.spec.get("venv", None)
-        if venv:
-            venv_bin_path = self.get_path('venv_dir', venv, 'bin')
+        # Set PATH to prioritize ansible venv if specified
+        ansible_version = self.spec.get("ansible_version", None)
+        if ansible_version and not self.skip:
+            venv_bin_path = self.get_path('venv_dir', ansible_version, 'bin')
             current_path = os.environ.get('PATH', '')
             self.evars["PATH"] = f"{venv_bin_path}:{current_path}"
 
@@ -1127,13 +1247,15 @@ class OSImager:
         # Add spec_dir definition - directory containing the spec file
         spec_dir = os.path.dirname(spec_path)
         
+        self.build_id = "packer-" + uuid.uuid4().hex[:12]
         self.defs.update({
             "base_path": self.settings['base_dir'],
-            "data_path": self.get_path("data_dir"),
+            "data_path": self.system_data_dir or self.get_path("data_dir"),
             "user_dir": self.settings['user_dir'],
             "temp_dir": self.temp_dir,
             "tmpdir": self.temp_dir,
             "spec_dir": spec_dir,
+            "build_id": self.build_id,
             "dist": dist,
             "version": version,
             "major": major,
@@ -1264,12 +1386,15 @@ class OSImager:
         self.variables = do_sub(self.variables,self)
 
         provisioners = []
-        if self.debug: print(f"pre_provisioners: {self.pre_provisioners}")
-        provisioners.extend(do_sub(self.pre_provisioners,self))
-        if self.debug: print(f"provisioners: {self.provisioners}")
-        provisioners.extend(do_sub(self.provisioners,self))
-        if self.debug: print(f"post_provisioners: {self.post_provisioners}")
-        provisioners.extend(do_sub(self.post_provisioners,self))
+        if self.skip:
+            if self.verbose: print("Skipping post-install configuration (--skip)")
+        else:
+            if self.debug: print(f"pre_provisioners: {self.pre_provisioners}")
+            provisioners.extend(do_sub(self.pre_provisioners,self))
+            if self.debug: print(f"provisioners: {self.provisioners}")
+            provisioners.extend(do_sub(self.provisioners,self))
+            if self.debug: print(f"post_provisioners: {self.post_provisioners}")
+            provisioners.extend(do_sub(self.post_provisioners,self))
 
         self.spec['files'] = do_sub(self.spec.get("files",[]),self)
         self.config = do_sub(self.config,self)
@@ -1309,14 +1434,13 @@ class OSImager:
         if not required:
             return True
 
-        files_path = os.path.join(self.get_path("data_dir"), "files")
         missing = False
         for entry in required:
             entry = do_sub(entry, self) if isinstance(entry, dict) else entry
             filepath = entry.get("file", "")
             filepath = do_substr(filepath, self)
-            full_path = os.path.join(files_path, filepath)
-            if not os.path.exists(full_path):
+            full_path = self.resolve_data_path("files", filepath)
+            if not full_path:
                 missing = True
                 desc = entry.get("description", filepath)
                 print(f"\nerror: required file not found: {filepath}")
@@ -1326,7 +1450,7 @@ class OSImager:
                     print(f"  Download from: {url}")
                 location = entry.get("location", "")
                 if location:
-                    print(f"  Place it in: {os.path.join(files_path, location)}")
+                    print(f"  Place it in: {os.path.join(self.settings['user_dir'], 'files', location)}")
                 print()
 
         if missing:
@@ -1343,7 +1467,9 @@ class OSImager:
 
         index = self.get_index()
         if not index:
-            print("No specs found.")
+            print("No specs found. Have you installed osimager-data?")
+            print(f"  pip install osimager-data")
+            print(f"  Or create your own: {self.settings['user_dir']}/specs/")
             return
 
         # Resolve iso_url for each spec using a dummy location
@@ -1486,16 +1612,13 @@ class OSImager:
             if not isinstance(file, dict): continue
             sources = file.get("sources",[])
             data = ""
-            files_path = os.path.join(self.get_path("data_dir"), "files")
-            if self.debug: print("files_path: "+str(files_path))
             for source_file_spec in sources:
                 if self.debug: print("gen_files: source_file_spec: "+source_file_spec)
                 source_file = do_substr(source_file_spec,self)
                 if self.debug: print("gen_files: source_file: "+source_file)
-                # ALWAYS relative to files dir
-                source_path = os.path.join(files_path,source_file)
-                if self.debug: print("gen_files: source_path: "+source_path)
-                if not os.path.exists(source_path):
+                source_path = self.resolve_data_path("files", source_file)
+                if self.debug: print("gen_files: source_path: "+str(source_path))
+                if not source_path:
                     print("error: unable to find source file: "+source_file)
                     sys.exit(1)
                 if self.debug: print("gen_files: appending source...")
@@ -1513,6 +1636,25 @@ class OSImager:
                 with open(dest_path, 'w') as f:
                     f.write(data)
                     f.close()
+
+    def run_build_script(self, script_path):
+        """Load and execute a Python build script from the data directory."""
+        path = self.resolve_data_path(script_path)
+        if not path:
+            print(f"warning: build script not found: {script_path}")
+            return
+        if self.verbose:
+            print(f"Running build script: {path}")
+        try:
+            spec = importlib.util.spec_from_file_location("build_script", path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            if hasattr(module, 'run'):
+                module.run(self)
+            else:
+                print(f"warning: build script {path} has no run() function")
+        except Exception as e:
+            print(f"error: build script {path} failed: {e}")
 
     def run_packer(self):
 
@@ -1534,9 +1676,9 @@ class OSImager:
             print("  mkisofs is required by Packer to create CD/ISO images.")
             sys.exit(1)
 
-        # Change to data directory before gen_files so relative paths work correctly
-        # This is needed for both mkosimage and rfosimage when running from /opt/osimager/bin
-        data_path = self.get_path("data_dir")
+        # Change to system data directory (osimager-data package) for Packer/Ansible
+        # config.yml and tasks/ are referenced with relative paths from this directory
+        data_path = self.system_data_dir or self.get_path("data_dir")
         if os.path.exists(data_path) and os.getcwd() != data_path:
             if self.verbose:
                 print(f"Changing directory from {os.getcwd()} to {data_path}")
@@ -1578,24 +1720,17 @@ class OSImager:
         # packer command starts here
         cmd = []
 
-        # If a virtual env is specified, activate it during execution
-        venv = self.spec.get("venv",None)
-        if venv:
-                activator = self.get_path("venv_dir",venv,"bin/activate")
+        # If ansible_version is specified, activate its venv during execution
+        ansible_version = self.spec.get("ansible_version",None)
+        if ansible_version and not self.skip:
+                activator = self.get_path("venv_dir",ansible_version,"bin/activate")
                 if self.verbose: print("activator: "+activator)
                 if not os.path.isfile(activator):
-                        venv_base = self.get_path("venv_dir")
-                        print(f"error: virtual environment '{venv}' not found")
-                        print(f"  Expected at: {os.path.dirname(os.path.dirname(activator))}")
-                        print("")
-                        print(f"  This spec requires Ansible {venv}. Create the venv with:")
-                        print(f"    mkvenv")
-                        print("")
-                        print(f"  Or manually:")
-                        print(f"    python3 -m venv {venv_base}/{venv}")
-                        print(f"    {venv_base}/{venv}/bin/pip install ansible-core=={venv}.*")
+                        print(f"error: post-install requires Ansible {ansible_version}")
+                        print(f"  Create the venv with: mkvenv {ansible_version}")
+                        print(f"  Or skip post-install with: --skip")
                         sys.exit(1)
-                if self.verbose: print("Activating venv: "+venv)
+                if self.verbose: print("Activating venv: "+ansible_version)
                 cmd.append(".")
                 cmd.append(activator)
                 cmd.append("&&")
@@ -1618,6 +1753,11 @@ class OSImager:
         print(cmd_str)
         if self.dispatcher: print("PROGRESS=15", flush=True)
 
+        # Run pre_build script if defined in platform
+        pre_build = self.platform.get("pre_build")
+        if pre_build:
+            self.run_build_script(pre_build)
+
         # Stay in data directory when running packer since config.yml is located there
         if not self.dry_run:
             # Ensure we're in the data directory where config.yml exists
@@ -1635,6 +1775,12 @@ class OSImager:
                     print(f'RESULT={{"spec": "{spec_name}", "name": "{name}", "status": "success"}}', flush=True)
                 else:
                     print(f'ERROR={{"message": "packer build failed with exit code {self.exit_code}", "spec": "{spec_name}", "name": "{name}"}}', flush=True)
+
+            # Run post_build script if defined in platform
+            if self.exit_code == 0:
+                post_build = self.platform.get("post_build")
+                if post_build:
+                    self.run_build_script(post_build)
 
         if not self.user_temp_dir and not self.keep:
             shutil.rmtree(self.temp_dir)

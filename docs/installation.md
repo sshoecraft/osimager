@@ -82,6 +82,41 @@ deactivate
 
 In your OS spec file, set `"venv": "~/venvs/ansible-2.10"` and osimager will switch to it for the build.
 
+## Proxmox Plugin
+
+The official `packer-plugin-proxmox` always converts built VMs into Proxmox templates, which renames disk files and sets immutable attributes that cannot be reversed through the API. OSImager requires a patched version of the plugin that adds a `skip_convert_to_template` option (defaulting to true).
+
+Build and install the patched plugin:
+
+```bash
+# Prerequisites: Go 1.21+
+git clone https://github.com/sshoecraft/packer-plugin-proxmox.git
+cd packer-plugin-proxmox
+go build -o packer-plugin-proxmox .
+```
+
+Install the built binary:
+
+```bash
+packer plugins install --path packer-plugin-proxmox github.com/hashicorp/proxmox
+```
+
+Verify it is installed:
+
+```bash
+packer plugins installed
+```
+
+You should see a line like:
+
+```
+~/.config/packer/plugins/github.com/hashicorp/proxmox/packer-plugin-proxmox_v1.2.3_x5.0_linux_amd64
+```
+
+If you had the official plugin installed previously, `--init-plugins` will not overwrite the patched version as long as the version numbers match.
+
+---
+
 ## Legacy VMware Tools
 
 Legacy vmtools can be downloaded directly from Broadcom. Search for "legacy vmtools".

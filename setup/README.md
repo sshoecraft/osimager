@@ -114,6 +114,53 @@ Without one of these, VMs will be able to talk to each other and the host but wo
 
 
 
+## QEMU/KVM Setup
+
+Install QEMU and libvirt:
+
+```
+sudo apt install qemu-system-x86 qemu-utils libvirt-daemon-system libvirt-clients
+```
+
+For hardware-accelerated builds, add your user to the `kvm` group:
+
+```
+sudo usermod -aG kvm $USER
+```
+
+Log out and back in for the group change to take effect. Without this, QEMU falls back to software emulation (`accelerator: none`) which is significantly slower.
+
+### Networking
+
+QEMU uses the `qemu-bridge-helper` to attach VMs to the lab bridge. Two things are needed:
+
+1. Allow br0 in the bridge helper config:
+
+```
+sudo mkdir -p /etc/qemu
+echo "allow br0" | sudo tee /etc/qemu/bridge.conf
+```
+
+2. Set the setuid bit on the bridge helper so non-root users can create tap interfaces:
+
+```
+sudo chmod u+s /usr/lib/qemu/qemu-bridge-helper
+```
+
+Then in your location config (`~/.config/osimager/locations/lab.json`), add a qemu platform_specific entry:
+
+```json
+{
+  "platform": "qemu",
+  "config": {
+    "net_bridge": "br0"
+  }
+}
+```
+
+This tells Packer's QEMU builder to use bridged networking via br0 instead of the default user-mode (NAT) networking. The VM will get a DHCP address from dnsmasq on the 192.168.120.0/24 subnet, just like VirtualBox and VMware VMs.
+
+
 ## VMware Workstation Networking
 
 

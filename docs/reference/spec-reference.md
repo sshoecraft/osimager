@@ -1,6 +1,6 @@
 # Spec Reference
 
-Spec files are JSON documents that define everything OSImager needs to build an OS image: the distribution, versions, architectures, installer files, boot commands, provisioners, and platform-specific configuration. They live in `osimager/data/specs/<name>/spec.json`.
+Spec files are JSON documents that define everything OSImager needs to build an OS image: the distribution, versions, architectures, installer files, boot commands, provisioners, and platform-specific configuration. They live in `osimager_data/specs/<name>/spec.json` in the data package, or in `~/.config/osimager/specs/<name>/spec.json` to override the baseline.
 
 ---
 
@@ -14,7 +14,6 @@ Every top-level key that can appear in a spec JSON file:
 | `include` | string or list | Inheritance chain -- references to other spec(s) to load first |
 | `method` | string | `"merge"` (default) or `"replace"` -- controls how this spec's data merges with inherited data |
 | `merge` | list | Key names within dict sections that should be deep-merged instead of overwritten |
-| `flavor` | string | OS family: `"linux"`, `"unix"`, or `"windows"` |
 | `platforms` | array | Which platforms this spec supports (e.g., `["virtualbox", "vmware", "vsphere"]`) |
 | `locations` | array | Optional filter restricting which locations can use this spec |
 | `install_notice` | array | Informational messages displayed before build |
@@ -80,7 +79,7 @@ Each entry in `files` concatenates multiple source files into a single output fi
 }
 ```
 
-Source paths are relative to `osimager/data/files/`. Template substitution is applied to both source paths and file contents.
+Source paths are relative to the data package's `files/` directory (`osimager_data/files/`, or a `~/.config/osimager/files/` override). Template substitution is applied to both source paths and file contents.
 
 ### The `required_files` Array
 
@@ -374,9 +373,9 @@ These variables are automatically available in `defs` during a build:
 | `name` | Instance name | `rhel-9.4-x86_64` |
 | `fqdn` | Fully qualified domain name | `rhel-9.4-x86_64.lab.local` |
 | `ip` | Resolved IP address | `192.168.1.100` |
-| `base_path` | OSImager base directory | `/opt/osimager` |
-| `data_path` | Data directory path | `/opt/osimager/data` |
-| `spec_dir` | Directory containing the active spec file | `/opt/osimager/data/specs/rhel` |
+| `base_path` | OSImager engine package directory | `.../site-packages/osimager` |
+| `data_path` | Resolved data directory (`osimager_data` package) | `.../site-packages/osimager_data` |
+| `spec_dir` | Directory containing the active spec file | `.../osimager_data/specs/rhel` |
 | `temp_dir` | Temporary build directory | `/tmp/tmpXXXXXX` |
 | `user_dir` | User config directory | `~/.config/osimager` |
 | `boot_disk_size` | Boot disk size in MB | `16384` |
@@ -417,7 +416,7 @@ The `E>...<E` syntax allows inline Python expressions with access to all defs as
 | **Architectures** | i386, x86_64, aarch64 |
 | **Include chain** | rhel -> linux -> ssh |
 | **Installer type** | Kickstart |
-| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none |
+| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, xenserver, hyperv, azure, gcp, aws, none |
 
 **Cloud support:**
 
@@ -454,7 +453,7 @@ The `E>...<E` syntax allows inline Python expressions with access to all defs as
 | **Architectures** | x86_64, aarch64 |
 | **Include chain** | alma -> rhel -> linux -> ssh |
 | **Installer type** | Kickstart (inherited from RHEL) |
-| **Platforms** | Inherited from RHEL: virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none |
+| **Platforms** | Inherited from RHEL: virtualbox, vmware, vsphere, proxmox, qemu, xenserver, hyperv, azure, gcp, aws, none |
 
 **Cloud support:**
 
@@ -550,7 +549,7 @@ Version 8.x uses a different ISO URL pattern (`-dvd1.iso` suffix) compared to 9.
 | **Architectures** | i386, x86_64, aarch64 |
 | **Include chain** | debian -> linux -> ssh |
 | **Installer type** | Preseed |
-| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none |
+| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, xenserver, hyperv, azure, gcp, aws, none |
 
 **Cloud support:**
 
@@ -579,7 +578,7 @@ Version 8.x uses a different ISO URL pattern (`-dvd1.iso` suffix) compared to 9.
 | **Architectures** | x86_64, aarch64 |
 | **Include chain** | ubuntu -> linux -> ssh |
 | **Installer type** | Preseed (18.04), Cloud-init/Autoinstall (20.04+) |
-| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none |
+| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, xenserver, hyperv, azure, gcp, aws, none |
 
 **Cloud support:**
 
@@ -607,7 +606,7 @@ Version 8.x uses a different ISO URL pattern (`-dvd1.iso` suffix) compared to 9.
 | **Architectures** | x86_64, aarch64 |
 | **Include chain** | sles -> linux -> ssh |
 | **Installer type** | AutoYaST (XML) |
-| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, libvirt, xenserver, hyperv, azure, gcp, aws, none |
+| **Platforms** | virtualbox, vmware, vsphere, proxmox, qemu, xenserver, hyperv, azure, gcp, aws, none |
 
 **Cloud support:**
 
@@ -640,7 +639,6 @@ Version 8.x uses a different ISO URL pattern (`-dvd1.iso` suffix) compared to 9.
 | **Architectures** | x86_64 |
 | **Include chain** | None (standalone) |
 | **Installer type** | Kickstart |
-| **Flavor** | `linux` |
 | **Platforms** | vmware, vsphere |
 
 **Key version-specific patterns:**
@@ -668,7 +666,6 @@ Version 8.x uses a different ISO URL pattern (`-dvd1.iso` suffix) compared to 9.
 | **Architectures** | i386 |
 | **Include chain** | None (standalone) |
 | **Installer type** | Manual (with `configure_system` script) |
-| **Flavor** | `unix` |
 | **Platforms** | virtualbox, vmware, proxmox |
 
 The most minimal spec in the system. Uses a `configure_system` script uploaded via `pre_provisioners` and an Ansible playbook referenced via `>>spec_dir<</config.yml`. No SSH/WinRM communicator base -- configuration is handled entirely through `pre_provisioners`.

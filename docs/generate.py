@@ -17,11 +17,13 @@ from collections import defaultdict
 # Add parent directory to path so we can import osimager
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from osimager.utils import explode_string_with_dynamic_range
+import osimager_data
 
 
 DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(DOCS_DIR)
-DATA_DIR = os.path.join(PROJECT_DIR, "osimager", "data")
+# Data lives in the separate osimager_data package, not in the engine repo.
+DATA_DIR = osimager_data.DATA_DIR
 SPECS_DIR = os.path.join(DATA_DIR, "specs")
 PLATFORMS_DIR = os.path.join(DATA_DIR, "platforms")
 
@@ -37,6 +39,64 @@ def expand_versions(version_strings):
     for vs in version_strings:
         versions.extend(explode_string_with_dynamic_range(vs))
     return versions
+
+
+def iso_url_present(spec_data, version, arch):
+    """Mirror of OSImager.resolve_iso_url: is there a non-empty iso_url for this
+    version/arch? Specs no longer declare provides.arches -- an arch is supported
+    when its arch_specific (or default) iso_url resolves to a non-empty string. An
+    explicit "iso_url": "" blocks an arch."""
+    iso_url = spec_data.get("defs", {}).get("iso_url", "")
+    for a_s in spec_data.get("arch_specific", []):
+        if a_s.get("arch", "") == arch and "iso_url" in a_s.get("defs", {}):
+            iso_url = a_s["defs"]["iso_url"]
+    for vs in spec_data.get("version_specific", []):
+        if re.fullmatch(vs.get("version", ""), version, re.IGNORECASE):
+            if "iso_url" in vs.get("defs", {}):
+                iso_url = vs["defs"]["iso_url"]
+            for a_s in vs.get("arch_specific", []):
+                if a_s.get("arch", "") == arch and "iso_url" in a_s.get("defs", {}):
+                    iso_url = a_s["defs"]["iso_url"]
+    return bool(iso_url)
+
+
+def candidate_arches(spec_data):
+    """Architectures a spec could provide: every arch named in an arch_specific
+    entry (top-level or per-version), plus x86_64 when a bare iso_url is defined
+    without arch_specific (the common single-arch case). amd64 is treated as an
+    x86_64 alias and not listed separately."""
+    arches = set()
+    for a_s in spec_data.get("arch_specific", []):
+        if a_s.get("arch"):
+            arches.add(a_s["arch"])
+    for vs in spec_data.get("version_specific", []):
+        for a_s in vs.get("arch_specific", []):
+            if a_s.get("arch"):
+                arches.add(a_s["arch"])
+    has_bare_iso = bool(spec_data.get("defs", {}).get("iso_url")) or any(
+        "iso_url" in vs.get("defs", {}) for vs in spec_data.get("version_specific", [])
+    )
+    if has_bare_iso:
+        arches.add("x86_64")
+    arches.discard("amd64")
+    return arches
+
+
+def compute_arches(spec_data, versions):
+    """Return (sorted arch list for display, total version x arch count) by
+    resolving iso_url availability per version/arch."""
+    candidates = candidate_arches(spec_data)
+    arch_order = ["x86_64", "aarch64", "arm64", "ppc64le", "ppc64", "s390x", "i386", "i686"]
+    supported = set()
+    total = 0
+    for version in versions:
+        for arch in candidates:
+            if iso_url_present(spec_data, version, arch):
+                supported.add(arch)
+                total += 1
+    ordered = [a for a in arch_order if a in supported]
+    ordered += sorted(a for a in supported if a not in arch_order)
+    return ordered, total
 
 
 def _classify_sources(all_sources, dist):
@@ -207,7 +267,6 @@ def generate_supported_os():
 
         dist = provides.get("dist", spec_name)
         version_strings = provides.get("versions", [])
-        arches = provides.get("arches", [])
 
         versions = expand_versions(version_strings)
         platforms = get_platforms_for_spec(spec_data, spec_name)
@@ -215,8 +274,9 @@ def generate_supported_os():
         installer = get_installer_type(spec_data, dist)
         clouds = detect_cloud_support(spec_data)
 
-        # Count specs (version x arch)
-        spec_count = len(versions) * len(arches)
+        # Arches and spec count are derived from iso_url availability per
+        # version/arch (specs no longer declare provides.arches).
+        arches, spec_count = compute_arches(spec_data, versions)
         total_specs += spec_count
         total_versions += len(versions)
 
@@ -295,7 +355,7 @@ def generate_supported_os():
         lines.append("")
 
         # Platforms
-        local_plats = [p for p in d["platforms"] if p in ("virtualbox", "vmware", "qemu", "libvirt", "hyperv", "xenserver")]
+        local_plats = [p for p in d["platforms"] if p in ("virtualbox", "vmware", "qemu", "hyperv", "xenserver")]
         enterprise_plats = [p for p in d["platforms"] if p in ("vsphere", "proxmox")]
         cloud_plats = [p for p in d["platforms"] if p in ("azure", "gcp", "aws")]
         other_plats = [p for p in d["platforms"] if p in ("none",)]
@@ -394,13 +454,12 @@ def generate_defs_reference():
     # Load all platform configs
     platform_files = sorted([f for f in os.listdir(PLATFORMS_DIR) if f.endswith(".json")])
 
-    # Load all.json defaults
-    all_data = load_json(os.path.join(PLATFORMS_DIR, "all.json"))
-    all_defs = all_data.get("defs", {})
+    # Configuration defaults (formerly in all.json, now in config/built-in defaults)
+    all_defs = {"cpu_sockets": 1, "cpu_cores": 2, "memory": 2048, "boot_disk_size": 16384}
 
-    lines.append("## Base Defaults (all.json)")
+    lines.append("## Configuration Defaults")
     lines.append("")
-    lines.append("These defaults are inherited by all platforms:")
+    lines.append("These defaults are set in `~/.config/osimager/config.json` (or built-in if not configured):")
     lines.append("")
     lines.append("| Variable | Default Value |")
     lines.append("|----------|--------------|")
@@ -409,7 +468,7 @@ def generate_defs_reference():
     lines.append("")
 
     # Categorize platforms
-    local_platforms = ["virtualbox", "vmware", "qemu", "libvirt", "hyperv", "xenserver"]
+    local_platforms = ["virtualbox", "vmware", "qemu", "hyperv", "xenserver"]
     enterprise_platforms = ["vsphere", "proxmox"]
     cloud_platforms = ["azure", "gcp", "aws"]
     special_platforms = ["none"]
@@ -464,7 +523,7 @@ def generate_defs_reference():
                 lines.append("**Template variables referenced** (`>>var<<`):")
                 lines.append("")
                 for var in inline_vars:
-                    source = "all.json default" if var in all_defs else "location" if var in (
+                    source = "config default" if var in all_defs else "location" if var in (
                         "vms_path", "iso_path", "domain", "gateway", "cidr", "subnet", "prefix",
                         "netmask", "dns_search", "datacenter", "esxi_host", "cluster", "datastore",
                         "folder", "vm_network", "azure_location", "azure_resource_group",

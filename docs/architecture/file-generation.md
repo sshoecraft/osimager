@@ -24,7 +24,7 @@ Each spec can define a `files` array. Each entry specifies source fragments to c
 }
 ```
 
-Source paths are relative to `osimager/data/files/`.
+Source paths are relative to the data package's `files/` directory (`osimager_data/files/`, or a `~/.config/osimager/files/` override).
 
 ### The `gen_files()` Method
 
@@ -32,7 +32,7 @@ Source paths are relative to `osimager/data/files/`.
 
 1. Apply `do_sub()` to the files array itself (resolves `>>major<<` in source paths like `rhel/kickstart_>>major<<.cfg`).
 2. For each entry in the array:
-   - Read each source file from `osimager/data/files/`.
+   - Read each source file from the resolved `files/` directory (`resolve_data_path()` -- user override first, then the `osimager_data` package).
    - Concatenate all sources in order into a single string.
    - Apply `do_substr()` on the concatenated content — all 12 substitution actions run against the full text.
    - Write the result to `{temp_dir}/{dest}`.
@@ -49,7 +49,7 @@ Source filenames can contain template markers. For example, RHEL uses `rhel/kick
 
 **Used by:** RHEL, CentOS, AlmaLinux, Rocky Linux, Oracle Linux, ESXi
 
-Kickstart files are assembled from versioned fragments in `data/files/rhel/`:
+Kickstart files are assembled from versioned fragments in `files/rhel/`:
 
 - `kickstart_3.cfg` through `kickstart_10.cfg` — version-specific base configs
 - `ks-part.sh` — partition script
@@ -69,15 +69,15 @@ Template variables in kickstart files include:
 - `6>images/linux:password<6` — SHA512 root password hash
 - `|>images/linux:username<|` — root username
 
-ESXi uses its own kickstart files in `data/files/esxi/`.
+ESXi uses its own kickstart files in `files/esxi/`.
 
-Oracle Linux overrides the RHEL kickstart for version 6 with a custom `kickstart_6.cfg` in `data/files/oel/`.
+Oracle Linux overrides the RHEL kickstart for version 6 with a custom `kickstart_6.cfg` in `files/oel/`.
 
 ### Preseed (Debian, Ubuntu 18.04)
 
 **Used by:** Debian 8-9, Ubuntu 18.04
 
-Preseed files are debconf answer files in `data/files/debian/`:
+Preseed files are debconf answer files in `files/debian/`:
 
 - `debian.seed` — main preseed template
 - `debian.fix` — post-install fix script
@@ -88,7 +88,7 @@ Template variables include network configuration, DNS, timezone, and password ha
 
 **Used by:** Debian 10+, Ubuntu 20.04+
 
-Cloud-init configuration in `data/files/ubuntu/` (also used by modern Debian):
+Cloud-init configuration in `files/ubuntu/` (also used by modern Debian):
 
 - `user-data` — cloud-init user-data YAML
 - `meta-data` — cloud-init meta-data
@@ -99,7 +99,7 @@ These are served via a virtual CD with label `cidata` (set via `cd_label` def). 
 
 **Used by:** SLES 12.x, 15.x, 16.x
 
-AutoYaST XML configuration files in `data/files/sles/`:
+AutoYaST XML configuration files in `files/sles/`:
 
 - `autoinst_12.xml` — SLES 12 configuration
 - `autoinst_15.xml` — SLES 15 configuration
@@ -111,7 +111,7 @@ The `version_specific` entries select the appropriate XML file based on the majo
 
 **Used by:** Windows, Windows Server
 
-XML answer file in `data/files/windows/`:
+XML answer file in `files/windows/`:
 
 - `Autounattend.xml` — unattended Windows installation configuration
 
@@ -136,7 +136,7 @@ Contains product keys, disk partitioning, locale settings, and administrator cre
 
 ## Common Files
 
-`data/files/linux/` contains files used across distributions:
+`files/linux/` contains files used across distributions:
 
 - `banner` — MOTD banner template
 - `findcd` — helper script for finding the CD-ROM device
@@ -165,7 +165,7 @@ The playbook defaults to `config.yml` (configurable via `ansible_playbook` setti
 
 ### Task Files
 
-`data/tasks/` contains 23 Ansible task files imported by `data/ansible/config.yml`:
+`tasks/` contains 22 Ansible task files imported by `config.yml`:
 
 - `Debian_pre.yml`, `Linux_post.yml` — per-OS-family pre/post tasks
 - `spec.yml` — spec-specific tasks

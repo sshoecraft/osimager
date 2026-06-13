@@ -1,8 +1,0 @@
-{
-  "defs": {
-    "cpu_sockets": 1,
-    "cpu_cores": 2,
-    "memory": 2048,
-    "boot_disk_size": 16385
-  }
-}
