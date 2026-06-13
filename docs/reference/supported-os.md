@@ -6,9 +6,9 @@ This page is auto-generated from the spec data files.
 
 | Metric | Count |
 |--------|-------|
-| Distributions | 11 |
-| Total versions | 281 |
-| Total specs (version x arch) | 505 |
+| Distributions | 20 |
+| Total versions | 299 |
+| Total specs (version x arch) | 524 |
 
 ## Overview
 
@@ -25,6 +25,15 @@ This page is auto-generated from the spec data files.
 | VMware ESXi | 5.5U3 - 8.0U2 | x86_64 | kickstart | - |
 | System V Release 4 | 2.1 | i386 | none | - |
 | Windows Server | 2016 - 2025 | x86_64 | autounattend | Azure, GCP, AWS |
+| VMware ESX | 4.1U3 | x86_64 | kickstart | - |
+| VMware ESXi 3.5 | 3.5U5 | i386 | kickstart | - |
+| Fedora | 7 - 43 | x86_64, aarch64, i386 | kickstart | GCP, AWS |
+| FreeBSD | 14.4 - 15.0 | x86_64 | none | - |
+| MX Linux | 23.5 | x86_64 | none | - |
+| Proxmox VE | 3.4 - 9.1 | x86_64 | answer.toml | - |
+| SCO OpenServer | 5.0.5 | i386 | none | - |
+| UnixWare | 7.1 | i386 | none | - |
+| XCP-ng | 8.2.1 | x86_64 | answerfile.xml | - |
 
 ## Distribution Details
 
@@ -295,5 +304,182 @@ This page is auto-generated from the spec data files.
 - **AWS**: version patterns 2016, 2019, 2022, 2025
 
 **Spec count:** 4
+
+---
+
+### VMware ESX
+
+**Spec name:** `esx`
+
+**Installer type:** kickstart
+
+**Version ranges:** `4.1U3`
+
+**Versions (1):** 4.1U3
+
+**Architectures:** x86_64
+
+**Platforms:** Local: vmware | Enterprise: vsphere
+
+**Spec count:** 1
+
+---
+
+### VMware ESXi 3.5
+
+**Spec name:** `esxi35`
+
+**Installer type:** kickstart
+
+**Version ranges:** `3.5U5`
+
+**Versions (1):** 3.5U5
+
+**Architectures:** i386
+
+**Platforms:** Local: vmware | Enterprise: vsphere
+
+**Spec count:** 1
+
+---
+
+### Fedora
+
+**Spec name:** `fedora`
+
+**Include chain:** fedora → linux → ssh
+
+**Installer type:** kickstart
+
+**Version ranges:** `7, 43`
+
+**Versions (2):** 7, 43
+
+**Architectures:** x86_64, aarch64, i386
+
+**Platforms:** Local: virtualbox, vmware, qemu, hyperv | Enterprise: vsphere, proxmox | Cloud: azure, gcp, aws | Other: none
+
+**Cloud image support:**
+
+- **GCP**: version patterns 43
+- **AWS**: version patterns 43
+
+**Spec count:** 3
+
+---
+
+### FreeBSD
+
+**Spec name:** `freebsd`
+
+**Include chain:** freebsd → ssh
+
+**Installer type:** none
+
+**Version ranges:** `14.4, 15.0`
+
+**Versions (2):** 14.4, 15.0
+
+**Architectures:** x86_64
+
+**Platforms:** Local: virtualbox, vmware, qemu, hyperv | Enterprise: vsphere, proxmox
+
+**Spec count:** 2
+
+---
+
+### MX Linux
+
+**Spec name:** `mxlinux`
+
+**Include chain:** mxlinux → linux → ssh
+
+**Installer type:** none
+
+**Version ranges:** `23.5`
+
+**Versions (1):** 23.5
+
+**Architectures:** x86_64
+
+**Platforms:** Local: virtualbox, vmware, qemu | Enterprise: proxmox | Other: none
+
+**Spec count:** 1
+
+---
+
+### Proxmox VE
+
+**Spec name:** `proxmox-ve`
+
+**Include chain:** proxmox-ve → linux → ssh
+
+**Installer type:** answer.toml
+
+**Version ranges:** `3.4, 4.4, 5.4, 6.4, 7.4, 8.4, 9.0, 9.1`
+
+**Versions (8):** 3.4, 4.4, 5.4, 6.4, 7.4, 8.4, 9.0, 9.1
+
+**Architectures:** x86_64
+
+**Platforms:** Local: virtualbox, vmware, qemu | Enterprise: vsphere | Other: none
+
+**Spec count:** 8
+
+---
+
+### SCO OpenServer
+
+**Spec name:** `sco`
+
+**Installer type:** none
+
+**Version ranges:** `5.0.5`
+
+**Versions (1):** 5.0.5
+
+**Architectures:** i386
+
+**Platforms:** Local: virtualbox, vmware
+
+**Spec count:** 1
+
+---
+
+### UnixWare
+
+**Spec name:** `unixware`
+
+**Installer type:** none
+
+**Version ranges:** `7.1`
+
+**Versions (1):** 7.1
+
+**Architectures:** i386
+
+**Platforms:** Local: virtualbox, vmware
+
+**Spec count:** 1
+
+---
+
+### XCP-ng
+
+**Spec name:** `xcpng`
+
+**Include chain:** xcpng → linux → ssh
+
+**Installer type:** answerfile.xml
+
+**Version ranges:** `8.2.1`
+
+**Versions (1):** 8.2.1
+
+**Architectures:** x86_64
+
+**Platforms:** Local: virtualbox, vmware, qemu | Other: none
+
+**Spec count:** 1
 
 ---

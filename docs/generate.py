@@ -99,23 +99,59 @@ def compute_arches(spec_data, versions):
     return ordered, total
 
 
+# When source filenames don't reveal the installer type, fall back to the
+# distribution's known answer-file mechanism. Keeps the audit honest for the
+# JSON/answer-file installers added in the 2026 distro expansion.
+DIST_INSTALLER = {
+    "proxmox-ve": "answer.toml",
+    "xcpng": "answerfile.xml",
+    "xenserver": "answerfile.xml",
+    "alpine": "alpine-answerfile",
+    "openbsd": "openbsd-autoinstall",
+    "arch": "archinstall",
+    "photon": "photon-kickstart",
+    "fcos": "ignition",
+    "coreos": "ignition",
+    "flatcar": "ignition",
+    "esxi": "kickstart",
+    "esx": "kickstart",
+    "esxi35": "kickstart",
+}
+
+
 def _classify_sources(all_sources, dist):
-    """Classify installer type from source file list."""
-    source_str = " ".join(all_sources).lower()
-    if "kickstart" in source_str or "ks-part" in source_str:
+    """Classify installer type from source filenames. Most-specific tokens first
+    so JSON installers aren't swallowed by broader matches (e.g. Photon's JSON
+    kickstart vs a plain kickstart .cfg)."""
+    s = " ".join(all_sources).lower()
+    if "ignition" in s or ".ign" in s:
+        return "ignition"
+    if "archinstall" in s:
+        return "archinstall"
+    if "agama" in s:
+        return "agama"
+    if "install.conf" in s:
+        return "openbsd-autoinstall"
+    if "answer.toml" in s:
+        return "answer.toml"
+    if "answerfile.xml" in s:
+        return "answerfile.xml"
+    if "photon" in s and (".json" in s or "kickstart" in s):
+        return "photon-kickstart"
+    if "kickstart" in s or "ks-part" in s:
         return "kickstart"
-    elif "preseed" in source_str or ".seed" in source_str:
+    if "preseed" in s or ".seed" in s:
         return "preseed"
-    elif "cloud-init" in source_str or "user-data" in source_str:
+    if "cloud-init" in s or "user-data" in s:
         return "cloud-init"
-    elif "autoinst" in source_str or "autoyast" in source_str:
+    if "autoinst" in s or "autoyast" in s:
         return "autoyast"
-    elif "autounattend" in source_str:
+    if "autounattend" in s:
         return "autounattend"
-    elif "debian" in source_str:
+    if ".answers" in s or "answerfile" in s:
+        return "alpine-answerfile"
+    if "debian" in s:
         return "preseed"
-    elif dist in ("esxi",):
-        return "kickstart"
     return None
 
 
@@ -156,7 +192,8 @@ def get_installer_type(spec_data, dist):
                 if result != "none":
                     return result
 
-    return "none"
+    # Sources/includes didn't reveal it -- fall back to the distro's known method.
+    return DIST_INSTALLER.get(dist, "none")
 
 
 def detect_cloud_support(spec_data):
@@ -218,7 +255,9 @@ def get_include_chain(spec_data):
     return chain
 
 
-# Distribution display names
+# Distribution display names. Any spec dir not listed here falls back to its
+# directory name, so an unmapped distro still appears in the tables -- it just
+# shows the slug until a friendly name is added.
 DIST_NAMES = {
     "rhel": "Red Hat Enterprise Linux",
     "alma": "AlmaLinux",
@@ -229,18 +268,60 @@ DIST_NAMES = {
     "ubuntu": "Ubuntu",
     "sles": "SUSE Linux Enterprise Server",
     "esxi": "VMware ESXi",
+    "esx": "VMware ESX",
+    "esxi35": "VMware ESXi 3.5",
     "sysvr4": "System V Release 4",
     "windows": "Windows",
     "windows-server": "Windows Server",
+    "fedora": "Fedora",
+    "freebsd": "FreeBSD",
+    "mxlinux": "MX Linux",
+    "proxmox-ve": "Proxmox VE",
+    "sco": "SCO OpenServer",
+    "unixware": "UnixWare",
+    "xcpng": "XCP-ng",
+    # 2026 distro expansion (names land ahead of the specs; harmless if unused)
+    "amazon": "Amazon Linux",
+    "opensuse": "openSUSE Leap",
+    "opensuse-leap": "openSUSE Leap",
+    "photon": "VMware Photon OS",
+    "alpine": "Alpine Linux",
+    "openbsd": "OpenBSD",
+    "arch": "Arch Linux",
+    "fcos": "Fedora CoreOS",
+    "coreos": "Fedora CoreOS",
+    "flatcar": "Flatcar Container Linux",
+    "vyos": "VyOS",
+    "mint": "Linux Mint",
+    "linuxmint": "Linux Mint",
+    "pfsense": "pfSense",
+    "opnsense": "OPNsense",
+    "truenas": "TrueNAS",
 }
 
-# Ordered list of distributions for display
+# Preferred display order for the mainstream families. Any other buildable spec
+# dir (one with a `provides` section) is appended alphabetically -- see
+# ordered_spec_names() -- so the count reflects every distro in the repo.
 DIST_ORDER = [
     "rhel", "alma", "rocky", "centos", "oel",
     "debian", "ubuntu", "sles",
     "esxi", "sysvr4",
     "windows-server",
 ]
+
+
+def ordered_spec_names():
+    """All spec dirs that contain a spec.json: DIST_ORDER first (for a sensible
+    mainstream ordering), then everything else alphabetically. Specs without a
+    `provides` section (base specs like linux/ssh/winrm) are filtered out by the
+    caller."""
+    names = sorted(
+        d for d in os.listdir(SPECS_DIR)
+        if os.path.exists(os.path.join(SPECS_DIR, d, "spec.json"))
+    )
+    ordered = [d for d in DIST_ORDER if d in names]
+    ordered += [d for d in names if d not in DIST_ORDER]
+    return ordered
 
 
 def generate_supported_os():
@@ -256,7 +337,7 @@ def generate_supported_os():
 
     # Collect all distro data
     distros = []
-    for spec_name in DIST_ORDER:
+    for spec_name in ordered_spec_names():
         spec_path = os.path.join(SPECS_DIR, spec_name, "spec.json")
         if not os.path.exists(spec_path):
             continue

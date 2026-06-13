@@ -119,8 +119,8 @@ OSImager merges these three configs together, performs template substitution, ge
 
 ## Features
 
-- **700+ OS specs** covering 12 distributions across decades of releases
-- **12 platforms**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, Hyper-V, XenServer, Azure, GCP, AWS
+- **500+ OS specs** spanning 20+ distributions across decades of releases (see [Supported OS](https://sshoecraft.github.io/osimager/reference/supported-os/) for the generated catalog)
+- **11 platforms**: VirtualBox, VMware, vSphere, Proxmox, QEMU/KVM, Hyper-V, XenServer, Azure, GCP, AWS
 - **Automated installation**: Kickstart (RHEL/CentOS/Alma/Rocky/OEL), preseed (Debian), cloud-init (Ubuntu 20.04+), AutoYaST (SLES), Autounattend (Windows)
 - **Ansible provisioning**: Post-install configuration via Ansible playbooks
 - **Hierarchical configuration**: Platform/location/spec system with deep inheritance and per-version/per-platform overrides
