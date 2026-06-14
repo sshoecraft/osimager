@@ -41,30 +41,38 @@ def expand_versions(version_strings):
     return versions
 
 
-def iso_url_present(spec_data, version, arch):
-    """Mirror of OSImager.resolve_iso_url: is there a non-empty iso_url for this
-    version/arch? Specs no longer declare provides.arches -- an arch is supported
-    when its arch_specific (or default) iso_url resolves to a non-empty string. An
-    explicit "iso_url": "" blocks an arch."""
-    iso_url = spec_data.get("defs", {}).get("iso_url", "")
-    for a_s in spec_data.get("arch_specific", []):
-        if a_s.get("arch", "") == arch and "iso_url" in a_s.get("defs", {}):
-            iso_url = a_s["defs"]["iso_url"]
-    for vs in spec_data.get("version_specific", []):
-        if re.fullmatch(vs.get("version", ""), version, re.IGNORECASE):
-            if "iso_url" in vs.get("defs", {}):
-                iso_url = vs["defs"]["iso_url"]
-            for a_s in vs.get("arch_specific", []):
-                if a_s.get("arch", "") == arch and "iso_url" in a_s.get("defs", {}):
-                    iso_url = a_s["defs"]["iso_url"]
-    return bool(iso_url)
+# Spec fields that make a version/arch buildable: an installer ISO or a prebuilt
+# disk image to import. Either one counts (mirrors core.py make_index).
+IMAGE_FIELDS = ("iso_url", "disk_image_url")
+
+
+def image_url_present(spec_data, version, arch):
+    """Mirror of OSImager.resolve_url_field: is there a non-empty iso_url OR
+    disk_image_url for this version/arch? Specs no longer declare provides.arches
+    -- an arch is supported when one of these resolves to a non-empty string for
+    it. An explicit "": "" blocks that arch/field."""
+    for field in IMAGE_FIELDS:
+        url = spec_data.get("defs", {}).get(field, "")
+        for a_s in spec_data.get("arch_specific", []):
+            if a_s.get("arch", "") == arch and field in a_s.get("defs", {}):
+                url = a_s["defs"][field]
+        for vs in spec_data.get("version_specific", []):
+            if re.fullmatch(vs.get("version", ""), version, re.IGNORECASE):
+                if field in vs.get("defs", {}):
+                    url = vs["defs"][field]
+                for a_s in vs.get("arch_specific", []):
+                    if a_s.get("arch", "") == arch and field in a_s.get("defs", {}):
+                        url = a_s["defs"][field]
+        if url:
+            return True
+    return False
 
 
 def candidate_arches(spec_data):
     """Architectures a spec could provide: every arch named in an arch_specific
-    entry (top-level or per-version), plus x86_64 when a bare iso_url is defined
-    without arch_specific (the common single-arch case). amd64 is treated as an
-    x86_64 alias and not listed separately."""
+    entry (top-level or per-version), plus x86_64 when a bare iso_url/disk_image_url
+    is defined without arch_specific (the common single-arch case). amd64 is
+    treated as an x86_64 alias and not listed separately."""
     arches = set()
     for a_s in spec_data.get("arch_specific", []):
         if a_s.get("arch"):
@@ -73,10 +81,12 @@ def candidate_arches(spec_data):
         for a_s in vs.get("arch_specific", []):
             if a_s.get("arch"):
                 arches.add(a_s["arch"])
-    has_bare_iso = bool(spec_data.get("defs", {}).get("iso_url")) or any(
-        "iso_url" in vs.get("defs", {}) for vs in spec_data.get("version_specific", [])
+    has_bare_image = any(spec_data.get("defs", {}).get(f) for f in IMAGE_FIELDS) or any(
+        f in vs.get("defs", {})
+        for vs in spec_data.get("version_specific", [])
+        for f in IMAGE_FIELDS
     )
-    if has_bare_iso:
+    if has_bare_image:
         arches.add("x86_64")
     arches.discard("amd64")
     return arches
@@ -91,7 +101,7 @@ def compute_arches(spec_data, versions):
     total = 0
     for version in versions:
         for arch in candidates:
-            if iso_url_present(spec_data, version, arch):
+            if image_url_present(spec_data, version, arch):
                 supported.add(arch)
                 total += 1
     ordered = [a for a in arch_order if a in supported]

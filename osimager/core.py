@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.7.0"
+OSIMAGER_VERSION = "1.8.0"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -871,8 +871,11 @@ class OSImager:
 
         return provide_list
 
-    def resolve_iso_url(self, data, version, arch):
-        """Best-effort resolve iso_url from spec data for a given version/arch."""
+    def resolve_url_field(self, data, version, arch, field):
+        """Resolve a URL-valued spec field (iso_url, disk_image_url, ...) for a
+        given version/arch. Applies arch_specific and version_specific overrides
+        (version_specific arch_specific wins last) and >>var<< / E>...<E
+        substitution. Returns the resolved string, or None if unset/blank."""
         parts = version.split('.')
         major = parts[0] if len(parts) > 0 else ""
         minor = parts[1] if len(parts) > 1 else ""
@@ -882,35 +885,35 @@ class OSImager:
             ">>minor<<": minor,
             ">>arch<<": arch,
         }
-        # check defs for iso_url
-        iso_url = data.get("defs", {}).get("iso_url", "")
+        # check defs for the field
+        url = data.get("defs", {}).get(field, "")
         # check top-level arch_specific overrides
         for a_s in data.get("arch_specific", []):
             if a_s.get("arch", "") == arch:
                 a_s_defs = a_s.get("defs", {})
-                if "iso_url" in a_s_defs:
-                    iso_url = a_s_defs["iso_url"]
+                if field in a_s_defs:
+                    url = a_s_defs[field]
         # check version_specific overrides
         for vs in data.get("version_specific", []):
             vs_ver = vs.get("version", "")
             if re.fullmatch(vs_ver, version, re.IGNORECASE):
                 vs_defs = vs.get("defs", {})
-                if "iso_url" in vs_defs:
-                    iso_url = vs_defs["iso_url"]
+                if field in vs_defs:
+                    url = vs_defs[field]
                 # check arch_specific within version_specific
                 for a_s in vs.get("arch_specific", []):
                     if a_s.get("arch", "") == arch:
                         a_s_defs = a_s.get("defs", {})
-                        if "iso_url" in a_s_defs:
-                            iso_url = a_s_defs["iso_url"]
-        if not iso_url:
+                        if field in a_s_defs:
+                            url = a_s_defs[field]
+        if not url:
             return None
         # basic substitution (per-iteration values not in self.defs)
         for k, v in subs.items():
-            iso_url = iso_url.replace(k, v)
+            url = url.replace(k, v)
         # resolve remaining >>var<< markers from spec defs, then self.defs as fallback
         spec_defs = data.get("defs", {})
-        remaining = re.findall(r'>>(.*?)<<', iso_url)
+        remaining = re.findall(r'>>(.*?)<<', url)
         for var in remaining:
             val = spec_defs.get(var, self.defs.get(var, ""))
             if val:
@@ -925,18 +928,29 @@ class OSImager:
                         val = val[:s] + str(eval(val[s+2:e-2])) + val[e:]
                     except Exception:
                         break
-                iso_url = iso_url.replace(f">>{var}<<", val)
+                url = url.replace(f">>{var}<<", val)
         # evaluate E>...<E expressions in the URL itself
-        while 'E>' in iso_url and '<E' in iso_url:
-            start = iso_url.index('E>')
-            end = iso_url.index('<E') + 2
-            expr = iso_url[start+2:end-2]
+        while 'E>' in url and '<E' in url:
+            start = url.index('E>')
+            end = url.index('<E') + 2
+            expr = url[start+2:end-2]
             try:
                 result = str(eval(expr))
-                iso_url = iso_url[:start] + result + iso_url[end:]
+                url = url[:start] + result + url[end:]
             except Exception:
                 break
-        return iso_url
+        return url
+
+    def resolve_iso_url(self, data, version, arch):
+        """Best-effort resolve iso_url from spec data for a given version/arch."""
+        return self.resolve_url_field(data, version, arch, "iso_url")
+
+    def resolve_disk_image_url(self, data, version, arch):
+        """Resolve disk_image_url (qcow2/vmdk/ova) for image-import builds -- the
+        disk-image analogue of resolve_iso_url. Appliances that ship a prebuilt
+        image instead of an installer ISO declare disk_image_url; the import
+        builder consumes it as input rather than booting an installer."""
+        return self.resolve_url_field(data, version, arch, "disk_image_url")
 
     def check_iso_local(self, iso_url):
         """Check if an ISO file exists locally (file:// path, iso_path setting, or packer cache)."""
@@ -1012,20 +1026,27 @@ class OSImager:
                     entry_arches = arches
                 for arch in entry_arches:
                     iso_url = self.resolve_iso_url(data, version, arch)
-                    if not iso_url:
+                    disk_image_url = self.resolve_disk_image_url(data, version, arch)
+                    # A spec/version/arch is buildable if it provides either an
+                    # installer ISO or a prebuilt disk image to import.
+                    if not iso_url and not disk_image_url:
                         continue
                     key = dist + "-" + version + "-" + arch
-                    iso_local = self.check_iso_local(iso_url)
-                    index[key] = {
+                    entry = {
                         "provides": {
                             "dist": dist,
                             "version": version,
                             "arch": arch
                         },
                         "path": str(file_name),
-                        "iso_url": iso_url,
-                        "iso_local": iso_local
+                        "iso_url": iso_url or "",
+                        "iso_local": self.check_iso_local(iso_url) if iso_url else False
                     }
+                    if disk_image_url:
+                        entry["disk_image_url"] = disk_image_url
+                        entry["disk_image_local"] = self.check_iso_local(disk_image_url)
+                        entry["image_import"] = True
+                    index[key] = entry
 
         sorted_index = {k: index[k] for k in sorted(index, key=natural_key)}
         return sorted_index
@@ -1360,6 +1381,16 @@ class OSImager:
             if debug: print(f"get_iso_file: iso_name: {iso_name}, iso_path: {iso_path}")
             self.defs['iso_name'] = iso_name
 
+        # Image-import builds: derive disk_image_name and flag the build so the
+        # platform builder can branch (boot a prebuilt image instead of an ISO).
+        disk_image_url = self.defs.get("disk_image_url", None)
+        if disk_image_url and not self.defs.get("disk_image_name", None):
+            if disk_image_url.startswith("/"):
+                self.defs['disk_image_name'] = os.path.basename(disk_image_url)
+            else:
+                self.defs['disk_image_name'] = get_filename_from_url(disk_image_url)
+        self.defs['image_import'] = "true" if disk_image_url else ""
+
         # Load credentials - fail if vault/secret references exist but credentials missing
         cred_error = self.load_credentials()
         if cred_error:
@@ -1656,6 +1687,22 @@ class OSImager:
         except Exception as e:
             print(f"error: build script {path} failed: {e}")
 
+    def run_build_hooks(self, hook_name):
+        """Run pre_build/post_build hooks declared by the spec and the platform.
+        Spec hooks run first, then the platform's. A pre_build hook can mutate
+        the ISO before Packer consumes it (e.g. coreos-installer iso customize to
+        bake an Ignition config in) and may adjust self.config/self.defs, since
+        pre_build runs before the build JSON is written."""
+        scripts = []
+        spec_hook = self.spec.get(hook_name)
+        if spec_hook:
+            scripts.append(spec_hook)
+        plat_hook = self.platform.get(hook_name)
+        if plat_hook:
+            scripts.append(plat_hook)
+        for script in scripts:
+            self.run_build_script(script)
+
     def run_packer(self):
 
         # Check prerequisites
@@ -1694,6 +1741,10 @@ class OSImager:
         # generate files
         self.gen_files()
         if self.dispatcher: print("PROGRESS=10", flush=True)
+
+        # Run pre_build hooks (spec then platform) before writing the build JSON
+        # so a hook may transform the ISO/disk image and adjust self.config.
+        self.run_build_hooks("pre_build")
 
         # Create output file
         output_file = os.path.join(self.defs.get("tmpdir","/tmp"), self.defs.get("name","build") + ".json")
@@ -1753,11 +1804,6 @@ class OSImager:
         print(cmd_str)
         if self.dispatcher: print("PROGRESS=15", flush=True)
 
-        # Run pre_build script if defined in platform
-        pre_build = self.platform.get("pre_build")
-        if pre_build:
-            self.run_build_script(pre_build)
-
         # Stay in data directory when running packer since config.yml is located there
         if not self.dry_run:
             # Ensure we're in the data directory where config.yml exists
@@ -1776,11 +1822,9 @@ class OSImager:
                 else:
                     print(f'ERROR={{"message": "packer build failed with exit code {self.exit_code}", "spec": "{spec_name}", "name": "{name}"}}', flush=True)
 
-            # Run post_build script if defined in platform
+            # Run post_build hooks (spec then platform)
             if self.exit_code == 0:
-                post_build = self.platform.get("post_build")
-                if post_build:
-                    self.run_build_script(post_build)
+                self.run_build_hooks("post_build")
 
         if not self.user_temp_dir and not self.keep:
             shutil.rmtree(self.temp_dir)
