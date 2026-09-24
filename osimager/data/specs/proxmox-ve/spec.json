@@ -35,7 +35,7 @@
       "ansible_version": "2.16",
 
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Proxmox/proxmox-ve_>>version<<-1.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</proxmox-ve_>>version<<-1.iso" } }
       ]
     },
     {

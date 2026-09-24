@@ -25,6 +25,7 @@
     "disk_size": ">>boot_disk_size<<M",
     "format": "qcow2",
     "accelerator": "E>'kvm' if os.access('/dev/kvm', os.W_OK) else 'none'<E",
+    "cpu_model": "E>'host' if os.access('/dev/kvm', os.W_OK) else 'max'<E",
     "cd_files": "%>cd_files<%",
     "cd_label": ">>cd_label<<",
     "headless": true,

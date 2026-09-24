@@ -29,7 +29,7 @@
     {
       "version": "25\\.10",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</truenas/TrueNAS-SCALE->>version<<.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</TrueNAS-SCALE->>version<<.iso" } }
       ]
     }
   ]

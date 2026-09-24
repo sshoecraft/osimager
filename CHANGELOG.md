@@ -10,6 +10,25 @@ All notable changes to OSImager are documented here. The format is based on
 > bumped per change. There is no 1.6.x — the version went 1.5.0 → 1.7.0 during
 > the data-separation work.
 
+## [1.9.1] — 2026-09-23
+
+### Fixed
+- **RHEL 9 and 10 qemu builds kernel-panicked about 26 seconds into the
+  installer** (`Attempted to kill init! exitcode=0x00007f00`). The build VM got
+  QEMU's default `qemu64` CPU model, which only has the baseline x86-64
+  instruction set. RHEL 9 is built for x86-64-v2 and RHEL 10 for x86-64-v3, so
+  glibc refused to start and init exited 127. The qemu platform now sets
+  `cpu_model` to `host` under KVM and `max` without it, so the guest sees the
+  real CPU's features. This covers bridged and non-bridged builds alike. The
+  finished VM was already fine: its libvirt domain uses `host-passthrough`.
+- **Local-only ISOs in vendor subdirectories were never found.** 64 spec
+  `file://` URLs pointed at `<iso_path>/<Vendor>/<file>` (`RedHat/`,
+  `AlmaLinux/`, `Debian/`, `SUSE/`, `Windows/`, `OracleLinux/` and others),
+  while ISOs live flat in `iso_path` and every platform builds the path as
+  `<iso_path>/<iso_name>`. `--local --avail` hid those targets and the build
+  pre-flight rejected them ("ISO file not found") even with the ISO present.
+  All spec ISO paths are now flat.
+
 ## [1.9.0] — 2026-09-23
 
 ### Changed

@@ -30,7 +30,7 @@
     {
       "version": "2\\.7\\.2",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</pfSense/pfSense-CE->>version<<-RELEASE-amd64.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</pfSense-CE->>version<<-RELEASE-amd64.iso" } }
       ]
     }
   ]

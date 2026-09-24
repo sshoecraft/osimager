@@ -19,13 +19,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R5-U>>minor<<-Server-i386-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R5-U>>minor<<-Server-i386-dvd.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R5-U>>minor<<-Server-x86_64-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R5-U>>minor<<-Server-x86_64-dvd.iso"
           }
         }
       ],
@@ -105,13 +105,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-x86_64-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R6-U>>minor<<-Server-x86_64-dvd.iso"
           }
         }
       ]
@@ -122,7 +122,7 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R6-U>>minor<<-Server-i386-dvd.iso"
           }
         }
       ]
@@ -171,7 +171,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</OracleLinux/OracleLinux-R7-U>>minor<<-Server-x86_64-dvd.iso"
+            "iso_url": "file://>>iso_path<</OracleLinux-R7-U>>minor<<-Server-x86_64-dvd.iso"
           }
         }
       ]

@@ -73,7 +73,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO"
+            "iso_url": "file://>>iso_path<</SW_DVD9_Win_Svr_STD_Core_and_DataCtr_Core_2016_64Bit_English_-3_MLF_X21-30350.ISO"
           }
         }
       ],
@@ -116,7 +116,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO"
+            "iso_url": "file://>>iso_path<</SW_DVD9_Win_Server_STD_CORE_2019_1809.2_64Bit_English_DC_STD_MLF_X22-18452_2.ISO"
           }
         }
       ],
@@ -146,7 +146,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Windows/SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO"
+            "iso_url": "file://>>iso_path<</SW_DVD9_Win_Server_STD_CORE_2022_2108.4_64Bit_English_DC_STD_MLF_X22-98396.ISO"
           }
         }
       ],
@@ -176,7 +176,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Windows/windows_server_2025_x64_dvd.iso"
+            "iso_url": "file://>>iso_path<</windows_server_2025_x64_dvd.iso"
           }
         }
       ],

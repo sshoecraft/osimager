@@ -26,7 +26,7 @@
         "aws_ami_owners": ["137112412989"]
       },
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/amzn2-kvm->>version<<-x86_64.qcow2" } }
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</amzn2-kvm->>version<<-x86_64.qcow2" } }
       ]
     },
     {
@@ -36,8 +36,8 @@
         "aws_ami_owners": ["137112412989"]
       },
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/al2023-kvm->>version<<-x86_64.qcow2" } },
-        { "arch": "aarch64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/al2023-kvm->>version<<-aarch64.qcow2" } }
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</al2023-kvm->>version<<-x86_64.qcow2" } },
+        { "arch": "aarch64", "defs": { "disk_image_url": "file://>>iso_path<</al2023-kvm->>version<<-aarch64.qcow2" } }
       ]
     }
   ]

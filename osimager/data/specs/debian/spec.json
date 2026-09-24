@@ -152,13 +152,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         }
       ]
@@ -228,13 +228,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         }
       ]
@@ -289,13 +289,13 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         },
         {
           "arch": "aarch64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian->>version<<.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian->>version<<.0->>deb_arch<<-DVD-1.iso"
           }
         }
       ]
@@ -425,13 +425,13 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian-12.3.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian-12.3.0->>deb_arch<<-DVD-1.iso"
           }
         },
         {
           "arch": "aarch64",
           "defs": {
-            "iso_url": "file://>>iso_path<</Debian/debian-12.3.0->>deb_arch<<-DVD-1.iso"
+            "iso_url": "file://>>iso_path<</debian-12.3.0->>deb_arch<<-DVD-1.iso"
           }
         }
       ]

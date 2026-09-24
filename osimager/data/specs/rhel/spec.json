@@ -225,7 +225,7 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/RHEL3.0-i386-ES-DVD.iso"
+            "iso_url": "file://>>iso_path<</RHEL3.0-i386-ES-DVD.iso"
           }
         }
       ]
@@ -236,13 +236,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/RHEL>>version<<-i386-AS-DVD.iso"
+            "iso_url": "file://>>iso_path<</RHEL>>version<<-i386-AS-DVD.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/RHEL>>version<<-x86_64-AS-DVD.iso"
+            "iso_url": "file://>>iso_path<</RHEL>>version<<-x86_64-AS-DVD.iso"
           }
         }
       ],
@@ -473,13 +473,13 @@
         {
           "arch": "i386",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/rhel-server-5.9-i386-dvd.iso"
+            "iso_url": "file://>>iso_path<</rhel-server-5.9-i386-dvd.iso"
           }
         },
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/rhel-server-5.9-x86_64-dvd.iso"
+            "iso_url": "file://>>iso_path<</rhel-server-5.9-x86_64-dvd.iso"
           }
         }
       ]
@@ -490,7 +490,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "file://>>iso_path<</RedHat/rhel-server-5.10-x86_64-dvd.iso"
+            "iso_url": "file://>>iso_path<</rhel-server-5.10-x86_64-dvd.iso"
           }
         }
       ]
@@ -918,15 +918,15 @@
     {
       "version": "9\\.5",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</RedHat/rhel-9.5-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</RedHat/rhel-9.5-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</rhel-9.5-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</rhel-9.5-aarch64-dvd.iso" } }
       ]
     },
     {
       "version": "9\\.7",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</RedHat/rhel-9.7-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</RedHat/rhel-9.7-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</rhel-9.7-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</rhel-9.7-aarch64-dvd.iso" } }
       ]
     },
     {
@@ -934,7 +934,7 @@
       "ansible_version": "2.18",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://archive.org/download/rhel->>version<<-x86_64-resources/rhel->>version<<-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</RedHat/rhel->>version<<-aarch64-dvd.iso" } }
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</rhel->>version<<-aarch64-dvd.iso" } }
       ],
       "defs": {
         "iso_url": "",

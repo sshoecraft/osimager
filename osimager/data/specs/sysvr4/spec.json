@@ -14,7 +14,7 @@
     {
       "arch": "i386",
       "defs": {
-        "iso_url": "file://>>iso_path<</SystemV/sysvr4-2.1-i386.iso"
+        "iso_url": "file://>>iso_path<</sysvr4-2.1-i386.iso"
       }
     }
   ],

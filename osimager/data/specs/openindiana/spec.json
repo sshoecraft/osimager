@@ -29,7 +29,7 @@
     {
       "version": "hipster",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</openindiana/OI-hipster-text-x86.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</OI-hipster-text-x86.iso" } }
       ]
     }
   ]

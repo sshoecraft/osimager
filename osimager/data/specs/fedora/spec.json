@@ -215,7 +215,7 @@
         ]
       },
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-x86_64-DVD.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora->>version<<-x86_64-DVD.iso" } }
       ]
     },
     {
@@ -259,19 +259,19 @@
         }
       ],
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-x86_64-DVD.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora->>version<<-x86_64-DVD.iso" } }
       ]
     },
     {
       "version": "[89]|[12][0-9]|3[01]",
       "arch_specific": [
-        { "arch": "i386", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-i386-DVD.iso" } }
+        { "arch": "i386", "defs": { "iso_url": "file://>>iso_path<</Fedora->>version<<-i386-DVD.iso" } }
       ]
     },
     {
       "version": "2[89]|3[0-9]|4[0-2]",
       "arch_specific": [
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-aarch64-DVD.iso" } }
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</Fedora->>version<<-aarch64-DVD.iso" } }
       ]
     }
   ]

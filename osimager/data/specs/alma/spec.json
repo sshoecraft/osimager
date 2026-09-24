@@ -29,8 +29,8 @@
     {
       "version": "8\\.[3-9]",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-aarch64-dvd.iso" } }
       ]
     },
     {
@@ -56,8 +56,8 @@
     {
       "version": "9\\.[0-6]",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-aarch64-dvd.iso" } }
       ]
     },
     {
@@ -83,8 +83,8 @@
     {
       "version": "10\\.0",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux/AlmaLinux->>version<<-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</AlmaLinux->>version<<-aarch64-dvd.iso" } }
       ]
     },
     {

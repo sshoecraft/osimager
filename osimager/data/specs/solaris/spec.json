@@ -29,7 +29,7 @@
     {
       "version": "11\\.4",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</solaris/sol->>version<<-x86.ova" } }
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</sol->>version<<-x86.ova" } }
       ]
     }
   ]
