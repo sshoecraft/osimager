@@ -1,0 +1,1497 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/configuration/lab-setup/">
+      
+      
+        <link rel="prev" href="../credential-setup/">
+      
+      
+        <link rel="next" href="../../architecture/overview/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Lab Network Setup - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lab-network-setup" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lab Network Setup
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Network Setup
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Network Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bridge-and-tap-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridge and Tap Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bridge and Tap Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bridge-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridge Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-and-installing-tapthat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building and Installing tapthat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dns-and-dhcp-with-dnsmasq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS and DHCP with dnsmasq
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DNS and DHCP with dnsmasq">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#host-dns-resolution-systemd-resolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Host DNS Resolution (systemd-resolved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-ips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static IPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internet-access-for-the-lab-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internet Access for the Lab Network
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vmware-workstation-networking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VMware Workstation Networking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VMware Workstation Networking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vmnet-device-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vmnet Device Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#infrastructure-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure Servers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/qemu-libvirt-uri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU libvirt URI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/photon-kickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Photon OS Kickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#bridge-and-tap-interface" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridge and Tap Interface
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bridge and Tap Interface">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bridge-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bridge Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-and-installing-tapthat" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building and Installing tapthat
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#dns-and-dhcp-with-dnsmasq" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DNS and DHCP with dnsmasq
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="DNS and DHCP with dnsmasq">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#host-dns-resolution-systemd-resolved" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Host DNS Resolution (systemd-resolved)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#static-ips" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Static IPs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#internet-access-for-the-lab-network" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Internet Access for the Lab Network
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#vmware-workstation-networking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        VMware Workstation Networking
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="VMware Workstation Networking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vmnet-device-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        vmnet Device Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#infrastructure-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Infrastructure Servers
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="lab-network-setup">Lab Network Setup<a class="headerlink" href="#lab-network-setup" title="Permanent link">&para;</a></h1>
+<p>This guide covers setting up an isolated lab network on a Linux host so VMs built by OSImager can communicate with each other and the outside world. This works with both VirtualBox and VMware Workstation.</p>
+<hr />
+<h2 id="bridge-and-tap-interface">Bridge and Tap Interface<a class="headerlink" href="#bridge-and-tap-interface" title="Permanent link">&para;</a></h2>
+<p>The lab network uses a tap interface (<code>vbnet</code>) bridged to <code>br0</code> on the 192.168.120.0/24 subnet. The tap must be named <code>vbnet</code> because <code>vmnet</code> conflicts with VMware.</p>
+<p>VirtualBox VMs connect directly to <code>vbnet</code>. The <code>tapthat</code> utility opens the tap connection and gives br0 carrier.</p>
+<h3 id="bridge-configuration">Bridge Configuration<a class="headerlink" href="#bridge-configuration" title="Permanent link">&para;</a></h3>
+<p>Create <code>/etc/network/interfaces.d/br0</code> (or add to <code>/etc/network/interfaces</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>auto br0
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>iface br0 inet static
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    # Remove or change to 1500 if your network doesnt support jumbo frames
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    mtu 9000
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    pre-up ip tuntap add dev vbnet mode tap user root
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    pre-up ip link set dev vbnet up
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    pre-up ip link set dev vbnet mtu 9000
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    pre-down ip link del dev vbnet
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    bridge_ports vbnet
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    address 192.168.120.1
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    netmask 255.255.255.0
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    bridge_stp off
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    bridge_maxwait 0
+</code></pre></div>
+<p>If your <code>/etc/network/interfaces</code> doesn't already source the <code>interfaces.d</code> directory, add:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>source /etc/network/interfaces.d/*
+</code></pre></div>
+<h3 id="building-and-installing-tapthat">Building and Installing tapthat<a class="headerlink" href="#building-and-installing-tapthat" title="Permanent link">&para;</a></h3>
+<p>The <code>tapthat</code> utility is included in the <code>setup/</code> directory of the OSImager source. It opens the tap interface file descriptor, which gives vbnet carrier status and makes the bridge work.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>setup/
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>make
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>sudo<span class="w"> </span>make<span class="w"> </span>install
+</code></pre></div>
+<p>This compiles <code>tapthat</code>, installs it to <code>/usr/local/sbin/</code>, copies the systemd service file, reloads systemd, and enables the service for boot.</p>
+<hr />
+<h2 id="dns-and-dhcp-with-dnsmasq">DNS and DHCP with dnsmasq<a class="headerlink" href="#dns-and-dhcp-with-dnsmasq" title="Permanent link">&para;</a></h2>
+<p>dnsmasq provides DNS and DHCP for the lab subnet, listening only on br0.</p>
+<p>Create <code>/etc/dnsmasq.d/lab.conf</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>log-dhcp
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>log-queries
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>log-facility=/var/log/dnsmasq.log
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>server=192.168.120.1
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>interface=br0
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>bind-interfaces
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>no-dhcp-interface=eth0 lo
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>server=192.168.1.1
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>expand-hosts
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>domain-needed
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>domain=vm.localdomain
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>local=/vm.localdomain/
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>dhcp-range=192.168.120.100,192.168.120.200,3h
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>dhcp-option=option:router,192.168.120.1
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>dhcp-authoritative
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>dhcp-leasefile=/var/lib/misc/dnsmasq-lab.leases
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a># If you want to setup a PXE server you can do that here
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>#enable-tftp=br0
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>#tftp-root=/pxeimage
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>#dhcp-boot=pxelinux.0,boothost,192.168.120.1
+</code></pre></div>
+<p>Key settings:</p>
+<ul>
+<li><code>bind-interfaces</code> -- prevents dnsmasq from conflicting with systemd-resolved on port 53</li>
+<li><code>local=/vm.localdomain/</code> -- makes dnsmasq authoritative for the lab domain so queries for AAAA/MX records don't get forwarded upstream and return errors</li>
+<li><code>expand-hosts</code> -- appends <code>vm.localdomain</code> to short hostnames from <code>/etc/hosts</code></li>
+</ul>
+<p>dnsmasq automatically registers hostnames from DHCP leases in its DNS, so any VM that gets an IP via DHCP and sends a hostname will be resolvable without a manual entry.</p>
+<h3 id="host-dns-resolution-systemd-resolved">Host DNS Resolution (systemd-resolved)<a class="headerlink" href="#host-dns-resolution-systemd-resolved" title="Permanent link">&para;</a></h3>
+<p>On systems running systemd-resolved (Ubuntu 20.04+), you need to tell resolved to route the lab domain queries to dnsmasq.</p>
+<p>Create <code>/etc/systemd/network/10-br0.network</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>[Match]
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>Name=br0
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>[Network]
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>DNS=192.168.120.1
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Domains=vm.localdomain
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>KeepConfiguration=yes
+</code></pre></div>
+<p>Then restart networkd:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>systemctl<span class="w"> </span>restart<span class="w"> </span>systemd-networkd
+</code></pre></div>
+<p><code>KeepConfiguration=yes</code> is required -- without it, networkd will strip the static IP that ifupdown configured on br0.</p>
+<p>This tells systemd-resolved to send any <code>vm.localdomain</code> queries to dnsmasq on 192.168.120.1, so the host can resolve lab VM hostnames.</p>
+<h3 id="static-ips">Static IPs<a class="headerlink" href="#static-ips" title="Permanent link">&para;</a></h3>
+<p>VMs with static IPs are defined in <code>/etc/hosts</code>. dnsmasq picks these up via <code>expand-hosts</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>192.168.120.1   vmgate.vm.localdomain vmgate
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>192.168.120.2   adserver.vm.localdomain adserver
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>192.168.120.3   esxhost.vm.localdomain esxhost
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>192.168.120.4   vcenter.vm.localdomain vcenter
+</code></pre></div>
+<hr />
+<h2 id="internet-access-for-the-lab-network">Internet Access for the Lab Network<a class="headerlink" href="#internet-access-for-the-lab-network" title="Permanent link">&para;</a></h2>
+<p>The 192.168.120.0/24 subnet is not directly routable from your LAN. For VMs on the lab network to reach the internet, you need one of:</p>
+<ul>
+<li><strong>Static route on your gateway/router</strong>: Add a route for 192.168.120.0/24 pointing to the host's LAN IP (e.g. 192.168.1.x). This is the cleanest approach.</li>
+<li><strong>IP masquerading on the host</strong>: If you can't modify your router, set up iptables NAT on the host to masquerade traffic from 192.168.120.0/24 out the physical NIC.</li>
+</ul>
+<p>Without one of these, VMs will be able to talk to each other and the host but won't have internet access.</p>
+<hr />
+<h2 id="vmware-workstation-networking">VMware Workstation Networking<a class="headerlink" href="#vmware-workstation-networking" title="Permanent link">&para;</a></h2>
+<p>VMware Workstation needs a vmnet configured on the 192.168.120.0/24 lab subnet so VMs can reach br0 and each other.</p>
+<p>We do this by marking the vbnet tap interface created above as a bridge, and "soft-creating" vmnet2 as a vbnet bridge.</p>
+<p>Edit <code>/etc/vmware/networking</code> and add these lines to define vmnet2 plus the bridge mapping at the end:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>... after the VNET_1 lines ...
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>answer VNET_2_DHCP no
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>answer VNET_2_MTU 9000
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>answer VNET_2_VIRTUAL_ADAPTER no
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>... after the VNET_8 lines ...
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>answer VNL_DEFAULT_BRIDGE_VNET -1
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>add_bridge_mapping &lt;your primary network interface here&gt; 0
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>add_bridge_mapping vbnet 2
+</code></pre></div>
+<p>If your network doesn't support jumbo frames, remove the MTU 9000 line.</p>
+<p>This bridges vmnet2 directly to the <code>vbnet</code> tap interface with no DHCP and no virtual adapter. dnsmasq on br0 handles DHCP and hands out the correct default route (192.168.120.1).</p>
+<p>Any VM in VMware Workstation that needs to be on the lab network must have its network adapter set to "Custom: Specific virtual network" and select <code>/dev/vmnet2</code>.</p>
+<h3 id="vmnet-device-permissions">vmnet Device Permissions<a class="headerlink" href="#vmnet-device-permissions" title="Permanent link">&para;</a></h3>
+<p>If you are running VMware Workstation as a non-root user, the <code>/dev/vmnet*</code> device nodes must be world read/write.</p>
+<p>VMware creates these device nodes directly, bypassing udev, so a udev rule won't work. Create a systemd service to set permissions after VMware starts:</p>
+<p><code>/etc/systemd/system/vmnet-permissions.service</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>[Unit]
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Description=Set vmnet device permissions
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>After=vmware.service
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>Requires=vmware.service
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>[Service]
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>Type=oneshot
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>ExecStart=/bin/bash -c "chmod 666 /dev/vmnet*"
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>[Install]
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>WantedBy=multi-user.target
+</code></pre></div>
+<p>Then enable it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>systemctl<span class="w"> </span>daemon-reload
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>systemctl<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>vmnet-permissions.service
+</code></pre></div>
+<hr />
+<h2 id="infrastructure-servers">Infrastructure Servers<a class="headerlink" href="#infrastructure-servers" title="Permanent link">&para;</a></h2>
+<p>The core infra runs on a VMware Workstation instance installed on the local (Debian/Ubuntu) host. Any version of Workstation that supports Windows Server 2022 and ESXi 8.0U2 should work.</p>
+<p>To build the adserver:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>make<span class="w"> </span>adserver
+</code></pre></div>
+<p>Once the adserver is up, you'll need to enable the AD feature and create your domain. The "lab" location in osimager uses the adserver as DNS (for domain join) -- it needs to be running for the other builds to work.</p>
+<p>To build the esxhost (if you want a vSphere env):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>make<span class="w"> </span>esxhost
+</code></pre></div>
+<p>Once the host is up you can import vCenter into Workstation using the OVA. If you want to deploy on the nested ESXi server you can use the installer.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
