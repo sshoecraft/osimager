@@ -1,0 +1,10 @@
+{
+  "config": {
+    "communicator": "ssh",
+    "ssh_host": "E>'>>ip<<' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else (None if '>>platform<<' in ['vsphere', 'aws', 'azure', 'gcp'] else ('127.0.0.1' if '>>platform<<' == 'virtualbox' else (('' if '>>dist<<' == 'proxmox-ve' else '>>fqdn<<') if '>>platform<<' == 'qemu' else '{{ .Host }}')))<E",
+    "ssh_port": "E>'{{ .SSHHostPort }}' if '>>platform<<' == 'virtualbox' else '22'<E",
+    "ssh_username": "{{ user `ssh-username` }}",
+    "ssh_password": "{{ user `ssh-password` }}",
+    "ssh_timeout": "45m"
+  }
+}

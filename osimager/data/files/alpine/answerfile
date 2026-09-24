@@ -1,0 +1,17 @@
+KEYMAPOPTS="us us"
+HOSTNAMEOPTS="-n >>hostname<<"
+DEVDOPTS=mdev
+INTERFACESOPTS="auto lo
+iface lo inet loopback
+
+auto eth0
+iface eth0 inet dhcp
+    hostname >>hostname<<
+"
+DNSOPTS="-d >>domain<< >>dns1<<"
+TIMEZONEOPTS="-z UTC"
+PROXYOPTS=none
+APKREPOSOPTS="-1"
+SSHDOPTS=openssh
+NTPOPTS="-c openntpd"
+DISKOPTS="-m sys /dev/sda"

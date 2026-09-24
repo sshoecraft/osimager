@@ -1,0 +1,238 @@
+{
+  "provides": {
+    "dist": "ubuntu",
+    "versions": [
+      "18.04",
+      "20.04",
+      "22.04",
+      "24.04.[2-3]",
+      "25.10",
+      "26.04"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "xenserver",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 32768,
+    "deb_arch": "E>'amd64' if '>>arch<<' == 'x86_64' else ('arm64' if '>>arch<<' == 'aarch64' else '>>arch<<')<E",
+    "cd_files": ">>temp_dir<</user-data,>>temp_dir<</meta-data",
+    "cd_label": "cidata"
+  },
+  "config": {
+    "boot_wait": "5s",
+    "shutdown_command": "/sbin/shutdown -P now",
+    "boot_command": [
+      "e<down><down><down>",
+      "<end><bs><bs><bs><bs><bs>",
+      " autoinstall",
+      " network-config=disabled",
+      " net.ifnames=0 biosdevname=0",
+      " ---",
+      "<leftCtrlOn><x><leftCtrlOff>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [
+        "ubuntu/user-data"
+      ],
+      "dest": "user-data"
+    },
+    {
+      "sources": [
+        "ubuntu/meta-data"
+      ],
+      "dest": "meta-data"
+    }
+  ],
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Ubuntu_64"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "ubuntu-64"
+      }
+    },
+    {
+      "platform": "vsphere",
+      "config": {
+        "guest_os_type": "ubuntu64Guest"
+      }
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "18.04",
+      "ansible_version": "2.16",
+
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://releases.ubuntu.com/18.04/ubuntu-18.04.6-live-server-amd64.iso"
+          }
+        }
+      ],
+      "defs": {
+        "iso_url": "",
+        "cd_files": ">>temp_dir<</ubuntu.seed",
+        "cd_label": "media"
+      },
+      "method": "replace",
+      "files": [
+        {
+          "sources": [
+            "ubuntu/ubuntu.seed"
+          ],
+          "dest": "ubuntu.seed"
+        }
+      ],
+      "config": {
+        "boot_command": [
+          "<esc><esc><esc>",
+          "<enter><wait>",
+          "/install/vmlinuz",
+          " initrd=/install/initrd.gz",
+          " auto-install/enable=true",
+          " debconf/priority=critical",
+          " preseed/file=/media/ubuntu.seed",
+          " net.ifnames=0 biosdevname=0",
+          " ---<enter>",
+          "<wait10><wait10>",
+          "<leftAltOn><f2><leftAltOff>",
+          "<enter><wait>",
+          "mount $(blkid | grep >>cd_label<< | cut -d: -f1) /media<enter>",
+          "<leftAltOn><f1><leftAltOff>",
+          "<enter><wait><enter>",
+          "<down><down><down><down><enter>"
+        ]
+      }
+    },
+    {
+      "version": "20.04",
+      "ansible_version": "2.18",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/20.04/ubuntu-20.04.6-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/20.04/release/ubuntu-20.04.5-live-server-arm64.iso" } }
+      ],
+      "defs": {
+        "iso_url": "",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "0001-com-ubuntu-server-focal",
+        "azure_image_sku": "20_04-lts-gen2",
+        "gcp_source_image_family": "ubuntu-2004-lts",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-20",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
+      },
+      "config": {
+        "boot_command": [
+          "<esc><esc><esc>",
+          "<enter><wait>",
+          "/casper/vmlinuz",
+          " initrd=/casper/initrd",
+          " autoinstall",
+          " network-config=disabled",
+          " net.ifnames=0 biosdevname=0",
+          " ---",
+          "<enter>"
+        ]
+      }
+    },
+    {
+      "version": "22.04",
+      "ansible_version": "2.18",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/22.04/ubuntu-22.04.5-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/22.04/release/ubuntu-22.04.5-live-server-arm64.iso" } }
+      ],
+      "defs": {
+        "iso_url": "",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "0001-com-ubuntu-server-jammy",
+        "azure_image_sku": "22_04-lts-gen2",
+        "gcp_source_image_family": "ubuntu-2204-lts",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-22",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
+      }
+    },
+    {
+      "version": "24.04.*",
+      "ansible_version": "2.18",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/>>version<</ubuntu->>version<<-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/>>version<</release/ubuntu->>version<<-live-server-arm64.iso" } }
+      ],
+      "defs": {
+        "iso_url": "",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "ubuntu-24_04-lts",
+        "azure_image_sku": "server",
+        "gcp_source_image_family": "ubuntu-2404-lts-amd64",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-24",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd-gp3/ubuntu-noble-24.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
+      }
+    },
+    {
+      "version": "24.04\\.2",
+      "arch_specific": [
+        { "arch": "aarch64", "defs": { "iso_url": "https://old-releases.ubuntu.com/releases/24.04.2/ubuntu-24.04.2-live-server-arm64.iso" } }
+      ]
+    },
+    {
+      "version": "25.10",
+      "ansible_version": "2.18",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/>>version<</ubuntu->>version<<-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/>>version<</release/ubuntu->>version<<-live-server-arm64.iso" } }
+      ],
+      "defs": {
+        "iso_url": ""
+      }
+    },
+    {
+      "version": "26.04",
+      "ansible_version": "2.18",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/>>version<</ubuntu->>version<<-live-server-amd64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdimage.ubuntu.com/releases/>>version<</release/ubuntu->>version<<-live-server-arm64.iso" } }
+      ],
+      "defs": {
+        "iso_url": "",
+        "azure_image_publisher": "Canonical",
+        "azure_image_offer": "ubuntu-26_04-lts",
+        "azure_image_sku": "server",
+        "gcp_source_image_family": "ubuntu-2604-lts-amd64",
+        "gcp_source_image_project_id": "ubuntu-os-cloud",
+        "gcp_image_family": "ubuntu-26",
+        "aws_ami_filter_name": "ubuntu/images/hvm-ssd-gp3/ubuntu-resolute-26.04-amd64-server-*",
+        "aws_ami_owners": ["099720109477"]
+      }
+    }
+  ]
+}

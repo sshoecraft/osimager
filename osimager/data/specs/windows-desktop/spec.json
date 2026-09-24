@@ -1,0 +1,75 @@
+{
+  "provides": {
+    "dist": "windows-desktop",
+    "versions": [
+      "10",
+      "11"
+    ]
+  },
+  "include": "windows",
+  "method": "merge",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv",
+    "none"
+  ],
+  "defs": {
+    "timezone": "Central Standard Time",
+    "cpu_cores": 4,
+    "memory": 8192,
+    "cd_files": [
+      ">>temp_dir<</Autounattend.xml",
+      ">>data_path<</data/files/windows/build/*"
+    ],
+    "cd_label": "packer"
+  },
+  "config": {
+    "boot_wait": "3s",
+    "boot_command": [
+      "<enter><wait10><enter>"
+    ],
+    "shutdown_command": "shutdown /s /t 0 /d p:0:0 /c \"Packer Shutdown\""
+  },
+  "files": [
+    {
+      "sources": [
+        "windows/Autounattend.xml"
+      ],
+      "dest": "Autounattend.xml"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "10",
+      "defs": {
+        "product_key": "W269N-WFGWX-YVC9B-4J6C9-T83GX"
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Windows/Win10_22H2_English_x64.iso" } }
+      ],
+      "platform_specific": [
+        { "platform": "virtualbox", "config": { "guest_os_type": "Windows10_64" } },
+        { "platform": "vmware", "config": { "guest_os_type": "windows9-64" } },
+        { "platform": "vsphere", "config": { "guest_os_type": "windows9_64Guest" } }
+      ]
+    },
+    {
+      "version": "11",
+      "defs": {
+        "product_key": "W269N-WFGWX-YVC9B-4J6C9-T83GX"
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Windows/Win11_24H2_English_x64.iso" } }
+      ],
+      "platform_specific": [
+        { "platform": "virtualbox", "config": { "guest_os_type": "Windows11_64" } },
+        { "platform": "vmware", "config": { "guest_os_type": "windows11-64" } },
+        { "platform": "vsphere", "config": { "guest_os_type": "windows11_64Guest" } }
+      ]
+    }
+  ]
+}

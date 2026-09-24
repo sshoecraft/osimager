@@ -1,0 +1,37 @@
+{
+  "provides": {
+    "dist": "openwrt",
+    "versions": [
+      "24.10"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "qemu",
+    "proxmox",
+    "vmware",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 512,
+    "memory": 256,
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "root",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "shutdown_command": "poweroff"
+  },
+  "version_specific": [
+    {
+      "version": "24\\.10",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</openwrt/openwrt->>version<<.0-x86-64-generic-ext4-combined-efi.img" } },
+        { "arch": "aarch64", "defs": { "disk_image_url": "file://>>iso_path<</openwrt/openwrt->>version<<.0-armsr-armv8-generic-ext4-combined-efi.img" } }
+      ]
+    }
+  ]
+}

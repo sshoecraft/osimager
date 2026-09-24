@@ -1,0 +1,27 @@
+---
+# Can be downloaded from: https://github.com/schubergphilis/RHEL6-CIS.git
+#- name: Run CIS for rhel-6
+#  include_role:
+#    name: RHEL6-CIS
+
+- name: Remove HWADDR from ifcfg-eth0
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^HWADDR='
+    state: absent
+  ignore_errors: true
+
+- name: Remove MACADDR from ifcfg-eth0
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^MACADDR='
+    state: absent
+  ignore_errors: true
+
+- name: Delete persistent net rules
+  file:
+    path: /etc/udev/rules.d/70-persistent-net.rules
+    state: absent
+  ignore_errors: true

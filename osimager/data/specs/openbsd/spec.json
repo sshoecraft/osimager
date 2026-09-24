@@ -1,0 +1,55 @@
+{
+  "provides": {
+    "dist": "openbsd",
+    "versions": [
+      "7.6"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "pre_build": "scripts/openbsd_autoinstall.py",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 1024,
+    "obsd_arch": "E>'amd64' if '>>arch<<' == 'x86_64' else ('arm64' if '>>arch<<' == 'aarch64' else 'i386')<E",
+    "http_host": "10.0.2.2"
+  },
+  "variables": {
+    "ssh-username": "ansible",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "30s",
+    "shutdown_command": "halt -p",
+    "boot_command": [
+      "A<enter>",
+      "<wait5>",
+      "http://>>http_host<<:>>http_port<</install.conf<enter>",
+      "<wait>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [ "openbsd/install.conf" ],
+      "dest": "install.conf"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "7\\.6",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://cdn.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdn.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },
+        { "arch": "i386", "defs": { "iso_url": "https://cdn.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } }
+      ]
+    }
+  ]
+}

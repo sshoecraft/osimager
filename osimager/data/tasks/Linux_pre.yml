@@ -1,0 +1,13 @@
+---
+- name: Check if system is EFI-based
+  stat:
+    path: /sys/firmware/efi
+  register: efi_check
+
+- name: Find grub.cfg on EFI partition
+  find:
+    paths: /boot/efi
+    patterns: grub.cfg
+    recurse: yes
+    file_type: file
+  register: efi_grub_cfg

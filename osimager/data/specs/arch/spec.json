@@ -1,0 +1,64 @@
+{
+  "provides": {
+    "dist": "arch",
+    "versions": [
+      "rolling"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 2048,
+    "cd_files": [
+      ">>temp_dir<</user_configuration.json",
+      ">>temp_dir<</user_credentials.json"
+    ],
+    "cd_label": "OEMDRV"
+  },
+  "variables": {
+    "ssh-username": "ansible",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "30s",
+    "shutdown_command": "sudo systemctl poweroff",
+    "boot_command": [
+      "<wait>mount -L OEMDRV /mnt<enter><wait>",
+      "archinstall --config /mnt/user_configuration.json --creds /mnt/user_credentials.json --silent<enter>",
+      "<wait60><wait60><wait60>",
+      "reboot<enter>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [ "arch/user_configuration.json" ],
+      "dest": "user_configuration.json"
+    },
+    {
+      "sources": [ "arch/user_credentials.json" ],
+      "dest": "user_credentials.json"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "rolling",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://geo.mirror.pkgbuild.com/iso/latest/archlinux-x86_64.iso" } }
+      ],
+      "platform_specific": [
+        { "platform": "virtualbox", "config": { "guest_os_type": "ArchLinux_64" } },
+        { "platform": "vmware", "config": { "guest_os_type": "archlinux-64" } }
+      ]
+    }
+  ]
+}

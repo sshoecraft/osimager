@@ -1,0 +1,27 @@
+---
+# Download from https://github.com/ansible-lockdown/RHEL8-CIS.git
+#- name: Run CIS
+#  include_role:
+#    name: RHEL8-CIS
+
+- name: Remove HWADDR from ifcfg-eth0
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^HWADDR='
+    state: absent
+  ignore_errors: true
+
+- name: Remove MACADDR from ifcfg-eth0
+  become: true
+  lineinfile:
+    path: /etc/sysconfig/network-scripts/ifcfg-eth0
+    regexp: '^MACADDR='
+    state: absent
+  ignore_errors: true
+
+- name: Delete persistent net rules
+  file:
+    path: /etc/udev/rules.d/70-persistent-net.rules
+    state: absent
+  ignore_errors: true

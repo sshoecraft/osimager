@@ -1,0 +1,55 @@
+# FreeBSD automated installation configuration
+
+# Auto-detect disk
+for disk in vtbd0 ada0 da0 nvd0; do
+    [ -e /dev/${disk} ] && break
+done
+PARTITIONS=${disk}
+DISTRIBUTIONS="base.txz kernel.txz"
+export nonInteractive="YES"
+
+#!/bin/sh
+# Post-install configuration (runs chrooted in new system)
+
+# Hostname
+sysrc hostname=">>fqdn<<"
+
+# Detect first non-loopback network interface
+for iface in $(ifconfig -l); do
+    case $iface in lo*) continue;; esac
+    break
+done
+
+# Network configuration
+E>'sysrc ifconfig_${iface}="inet >>ip<< netmask >>netmask<<"' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else 'sysrc ifconfig_DEFAULT=DHCP'<E
+E>'sysrc defaultrouter=">>gateway<<"' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else ''<E
+E>'echo "nameserver >>dns1<<" > /etc/resolv.conf' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else ''<E
+E>'echo "search >>domain<<" >> /etc/resolv.conf' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else ''<E
+
+# Enable SSH
+sysrc sshd_enable=YES
+sed -i '' 's/^#PermitRootLogin no/PermitRootLogin yes/' /etc/ssh/sshd_config
+sed -i '' 's/^#UseDNS yes/UseDNS no/' /etc/ssh/sshd_config
+
+# Set root password (SHA-512 hash)
+echo '6>images/linux:password<6' | pw usermod root -H 0
+
+# Bring up network in chroot for package installation
+E>'ifconfig $iface inet >>ip<< netmask >>netmask<<\nroute add default >>gateway<<' if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else 'dhclient $iface'<E
+
+# Install packages
+env ASSUME_ALWAYS_YES=YES pkg bootstrap -f
+pkg install -y sudo python3
+E>'pkg install -y open-vm-tools-nox11\nsysrc vmware_guestd_enable=YES' if '>>platform_name<<' in ('vmware','vsphere') else ''<E
+
+# Disable sendmail
+sysrc sendmail_enable=NONE
+
+# Enable NTP
+sysrc ntpd_enable=YES
+
+# Skip boot menu delay
+sysrc -f /boot/loader.conf autoboot_delay=-1
+
+# Reboot into installed system
+shutdown -r now

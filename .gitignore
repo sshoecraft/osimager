@@ -78,3 +78,8 @@ Thumbs.db
 *.save2
 *.orig
 *.old
+
+# Local scratch notes in the repo root
+/b
+/m
+/t

@@ -1,0 +1,2 @@
+# This is the default task called when a spec doesnt supply spec_config in the defs
+---

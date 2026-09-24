@@ -1,0 +1,18 @@
+---
+- name: Check if motd files exist
+  raw: test -f "{{ item }}"
+  delegate_to: localhost
+  register: motd_check
+  with_items:
+    - /etc/motd.d/cockpit
+    - /etc/motd.d/insights-client
+  ignore_errors: true
+  changed_when: false
+
+- name: Remove motd files if they exist
+  file:
+    path: "{{ item.item }}"
+    state: absent
+  with_items: "{{ motd_check.results }}"
+  when: item.rc == 0
+  ignore_errors: true

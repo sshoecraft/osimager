@@ -1,0 +1,60 @@
+---
+- name: Make sure google-compute-engine is installed
+  package:
+    name: google-compute-engine
+    state: present
+  ignore_errors: true
+  register: install
+- debug: var=install
+
+- name: Remove google-osconfig-agent
+  package:
+    name: google-osconfig-agent
+    state: absent
+  ignore_errors: true
+  register: install
+- debug: var=install
+
+- name: Install google ops agent
+  shell: curl -SSo - https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh | bash -s -- --also-install
+  ignore_errors: true
+  register: install
+- debug: var=install
+
+- name: Stop and disable google-guest-agent service
+  service:
+    name: google-guest-agent
+    state: stopped
+    enabled: false
+  ignore_errors: true
+
+# XXX make sure path is the same in
+#   files/linux/gcp/instance_configs.cfg.template
+- name: Create directory for GCP scripts
+  file:
+    path: /gcp_scripts
+    state: directory
+    mode: '0755'
+
+- name: Create /etc/default directory
+  file:
+    path: /etc/default
+    state: directory
+    mode: '0755'
+
+- name: Copy GCP metadata template to /etc/default/instance_configs.cfg.template
+  copy:
+    src: files/linux/gcp/instance_configs.cfg.template
+    dest: /etc/default/instance_configs.cfg.template
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Run GCP instance setup
+  command: /usr/bin/google_instance_setup
+  ignore_errors: true
+
+- name: cleanup gsutil cache
+  file:
+    path: /root/.gsutil
+    state: absent

@@ -4,7 +4,7 @@ OSImager v1.7.0 -- a Python-based OS image builder that orchestrates HashiCorp P
 
 ## Package Structure
 
-The engine ships **no data**. All specs, platforms, installer files, Ansible tasks, and examples live in a separate `osimager_data` package; the engine resolves them at runtime via two-layer resolution (see [Data Resolution](#data-resolution) below).
+The engine and its baseline data ship as one package. All specs, platforms, installer files, Ansible tasks, and examples live under `osimager/data/`; the engine resolves them at runtime via two-layer resolution (see [Data Resolution](#data-resolution) below). The data was briefly a separate `osimager-data` package, so it could be released on its own schedule; that bought nothing, and keeping two packages in step cost more than it saved, so it was folded back in.
 
 ```
 osimager/                -- the engine package
@@ -12,15 +12,15 @@ osimager/                -- the engine package
     core.py              -- OSImager class, all build logic + OSIMAGER_VERSION (1786 lines)
     cli.py               -- 3 CLI entry points: main_mkosimage, main_rfosimage, main_mkvenv (625 lines)
     utils.py             -- template substitution engine, version expansion, password hashing, network utils (847 lines)
-
-osimager_data/           -- the data package (separate repo, baseline data)
-    platforms/           -- 11 platform configs
-    specs/               -- 24 spec directories (distro families + base communicator/OS specs)
-    files/               -- installer templates organized by distro (12 directories)
-    tasks/               -- 22 Ansible task files for post-install provisioning
-    ansible.json         -- ansible-version -> python-range / pip-prereqs definitions
-    config.yml           -- main Ansible playbook referenced by the default provisioner
-    examples/            -- quickstart-location.toml, example-secrets, example-vault, example-location.json, example-location.toml
+    data/                -- baseline data, shipped as package data
+        platforms/       -- 11 platform configs
+        specs/           -- 24 spec directories (distro families + base communicator/OS specs)
+        files/           -- installer templates organized by distro (12 directories)
+        tasks/           -- 22 Ansible task files for post-install provisioning
+        scripts/         -- platform/spec pre_build and post_build hooks
+        ansible.json     -- ansible-version -> python-range / pip-prereqs definitions
+        config.yml       -- main Ansible playbook referenced by the default provisioner
+        examples/        -- quickstart-location.toml, example-secrets, example-vault, example-location.json, example-location.toml
 ```
 
 ## The OSImager Class
@@ -68,10 +68,10 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
 
 ## Data Resolution
 
-The engine never reads data from its own package. Every spec, platform, file, task, and example is resolved through two layers, user directory first:
+Every spec, platform, file, task, and example is resolved through two layers, user directory first:
 
 1. **User directory** -- `~/.config/osimager/<subdir>/` (overrides). A user can drop a `specs/`, `platforms/`, `files/`, `tasks/`, or `ansible.json` here to override or extend the baseline.
-2. **`osimager_data` package** -- the shipped baseline, located via `osimager_data.DATA_DIR`.
+2. **Bundled baseline** -- `osimager/data/` inside the installed package (`system_data_dir`).
 
 `resolve_data_path()` returns the first existing path; `resolve_data_files()` merges both layers by relative path with the user copy winning. The paths below are relative to either layer's root.
 

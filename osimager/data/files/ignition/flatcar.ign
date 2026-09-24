@@ -1,0 +1,27 @@
+{
+  "ignition": { "version": "3.4.0" },
+  "passwd": {
+    "users": [
+      {
+        "name": "core",
+        "passwordHash": "6>images/linux:password<6",
+        "groups": [ "sudo", "wheel" ]
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      { "name": "sshd.service", "enabled": true }
+    ]
+  },
+  "storage": {
+    "files": [
+      {
+        "path": "/etc/hostname",
+        "mode": 420,
+        "overwrite": true,
+        "contents": { "source": "data:,>>hostname<<%0A" }
+      }
+    ]
+  }
+}

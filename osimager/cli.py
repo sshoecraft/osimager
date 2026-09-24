@@ -42,8 +42,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
         if osimager.avail:
             index = osimager.get_index()
             if not index:
-                print("No specs found. Have you installed osimager-data?")
-                print(f"  pip install osimager-data")
+                print(f"No specs found in {osimager.system_data_dir}/specs/ (incomplete install?)")
                 print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
                 return EXIT_SUCCESS
 
@@ -220,8 +219,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     iso_flag = " (*)" if entry.get('iso_local', False) else ""
                     print(f"  {spec_key}{iso_flag}")
             else:
-                print("No specs found. Have you installed osimager-data?")
-                print(f"  pip install osimager-data")
+                print(f"No specs found in {osimager.system_data_dir}/specs/ (incomplete install?)")
                 print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
             return EXIT_SUCCESS
 
@@ -292,8 +290,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                     print("")
                     print("Use --list to see available specs.")
                 else:
-                    print("No platforms found. Have you installed osimager-data?")
-                    print(f"  pip install osimager-data")
+                    print(f"No platforms found in {osimager.system_data_dir}/platforms/ (incomplete install?)")
                     print(f"  Or create your own: {osimager.settings['user_dir']}/platforms/")
 
             print("Use --help for all options.")
@@ -510,7 +507,7 @@ def main_mkvenv(argv: Optional[List[str]] = None) -> int:
         ansible_defs = _load_ansible_versions(osimager)
         if not ansible_defs:
             print("error: ansible.json not found")
-            print("  Install osimager-data or create ~/.config/osimager/ansible.json")
+            print(f"  Expected {osimager.system_data_dir}/ansible.json or ~/.config/osimager/ansible.json")
             return EXIT_GENERAL_ERROR
 
         # Scan all specs for required ansible versions

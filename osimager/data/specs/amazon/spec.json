@@ -1,0 +1,44 @@
+{
+  "provides": {
+    "dist": "amazon",
+    "versions": [
+      "2",
+      "2023"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "linux",
+  "platforms": [
+    "aws",
+    "qemu",
+    "proxmox",
+    "vmware",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 32768
+  },
+  "version_specific": [
+    {
+      "version": "2",
+      "defs": {
+        "aws_ami_filter_name": "amzn2-ami-hvm-*-x86_64-gp2",
+        "aws_ami_owners": ["137112412989"]
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/amzn2-kvm->>version<<-x86_64.qcow2" } }
+      ]
+    },
+    {
+      "version": "2023",
+      "defs": {
+        "aws_ami_filter_name": "al2023-ami-2023.*-x86_64",
+        "aws_ami_owners": ["137112412989"]
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/al2023-kvm->>version<<-x86_64.qcow2" } },
+        { "arch": "aarch64", "defs": { "disk_image_url": "file://>>iso_path<</amazon/al2023-kvm->>version<<-aarch64.qcow2" } }
+      ]
+    }
+  ]
+}

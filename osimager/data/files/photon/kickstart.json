@@ -1,0 +1,35 @@
+{
+    "hostname": ">>fqdn<<",
+    "password": {
+        "crypted": true,
+        "text": "6>images/linux:password<6"
+    },
+    "disk": "/dev/sda",
+    "partitions": [
+        {"mountpoint": "/boot", "size": 128, "filesystem": "ext4"},
+        {"size": 256, "filesystem": "swap"},
+        {"mountpoint": "/", "size": 0, "filesystem": "ext4"}
+    ],
+    "packages": [
+        "minimal",
+        "linux",
+        "initramfs",
+        "openssh-server",
+        "sudo",
+        "python3",
+        "open-vm-tools",
+        "tar"
+    ],
+    "network": {
+        "type": "E>'dhcp' if '>>ip<<' in ('', 'dhcp') else 'static'<E",
+        "ip_addr": ">>ip<<",
+        "netmask": ">>netmask<<",
+        "gateway": ">>gateway<<",
+        "nameserver": ">>dns1<<"
+    },
+    "postinstall": [
+        "#!/bin/sh",
+        "sed -i 's/^#*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config",
+        "systemctl enable sshd"
+    ]
+}

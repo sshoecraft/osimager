@@ -1,0 +1,43 @@
+{
+  "archinstall-language": "English",
+  "bootloader": "Grub",
+  "hostname": ">>hostname<<",
+  "kernels": [ "linux" ],
+  "locale_config": {
+    "kb_layout": "us",
+    "sys_enc": "UTF-8",
+    "sys_lang": "en_US.UTF-8"
+  },
+  "network_config": { "type": "nm" },
+  "packages": [ "openssh", "sudo", "python", "qemu-guest-agent" ],
+  "services": [ "sshd" ],
+  "timezone": "UTC",
+  "disk_config": {
+    "config_type": "default_layout",
+    "device_modifications": [
+      {
+        "device": "/dev/sda",
+        "wipe": true,
+        "partitions": [
+          {
+            "status": "create",
+            "type": "primary",
+            "fs_type": "fat32",
+            "start": { "value": 1, "unit": "MiB" },
+            "size": { "value": 512, "unit": "MiB" },
+            "mountpoint": "/boot",
+            "flags": [ "boot", "esp" ]
+          },
+          {
+            "status": "create",
+            "type": "primary",
+            "fs_type": "ext4",
+            "start": { "value": 513, "unit": "MiB" },
+            "size": { "value": 100, "unit": "Percent" },
+            "mountpoint": "/"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "provides": {
+    "dist": "dragonfly",
+    "versions": [
+      "6.4"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "qemu",
+    "vmware",
+    "virtualbox",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 2048,
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "root",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "shutdown_command": "/sbin/shutdown -p now"
+  },
+  "version_specific": [
+    {
+      "version": "6\\.4",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://mirror-master.dragonflybsd.org/iso-images/dfly-x86_64->>version<<.0_REL.iso" } }
+      ]
+    }
+  ]
+}

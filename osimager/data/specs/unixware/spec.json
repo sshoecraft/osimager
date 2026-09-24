@@ -1,0 +1,81 @@
+{
+  "provides": {
+    "dist": "unixware",
+    "versions": [
+      "7.1"
+    ]
+  },
+  "platforms": [
+    "virtualbox",
+    "vmware"
+  ],
+  "arch_specific": [
+    {
+      "arch": "i386",
+      "defs": {
+        "iso_url": "file://>>iso_path<</unixware-71-install.iso"
+      }
+    }
+  ],
+  "config": {
+    "boot_wait": "15s",
+    "boot_command": [
+      "<enter>"
+    ],
+    "shutdown_command": "/sbin/shutdown -y -g0"
+  },
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        },
+        {
+          "type": "shell-local",
+          "inline": [
+            "sleep 30",
+            "VBoxManage controlvm \">>name<<\" poweroff"
+          ]
+        }
+      ],
+      "config": {
+        "shutdown_command": "",
+        "disable_shutdown": true,
+        "guest_os_type": "Linux",
+        "rtc_time_base": "UTC",
+        "hard_drive_interface": "ide",
+        "vboxmanage": [
+          [
+            "modifyvm",
+            "{{.Name}}",
+            "--nic-type1=82540EM",
+            "--nic1=bridged",
+            "--bridge-adapter1=vbnet"
+          ]
+        ]
+      }
+    },
+    {
+      "platform": "vmware",
+      "post_provisioners": [
+        {
+          "type": "shell",
+          "inline": "poweroff"
+        },
+        {
+          "type": "shell-local",
+          "inline": "sleep 30"
+        }
+      ],
+      "config": {
+        "shutdown_command": "",
+        "guest_os_type": "other",
+        "disk_adapter_type": "ide",
+        "cdrom_adapter_type": "ide",
+        "network_adapter_type": "e1000"
+      }
+    }
+  ]
+}

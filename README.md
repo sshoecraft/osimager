@@ -41,7 +41,7 @@ A location defines your build environment -- network settings, DNS, and where IS
 Copy the quickstart template and edit it:
 
 ```bash
-cp "$(python3 -c "import osimager_data, os; print(os.path.join(osimager_data.DATA_DIR, 'examples', 'quickstart-location.toml'))")" \
+cp "$(python3 -c "import osimager, os; print(os.path.join(os.path.dirname(osimager.__file__), 'data', 'examples', 'quickstart-location.toml'))")" \
    ~/.config/osimager/locations/local.toml
 ```
 

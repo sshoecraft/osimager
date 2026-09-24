@@ -1,0 +1,100 @@
+{
+  "provides": {
+    "dist": "opensuse",
+    "versions": [
+      "15.6",
+      "16.0"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 32768,
+    "timezone": "America/Chicago",
+    "cd_files": ">>temp_dir<</autoinst.xml",
+    "cd_label": "OEMDRV",
+    "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "/sbin/shutdown -P now",
+    "boot_command": [
+      "<down><wait>textmode=1",
+      " autoyast=device://OEMDRV/autoinst.xml",
+      " net.ifnames=0 biosdevname=0",
+      "<enter>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [
+        "sles/autoinst_15.xml"
+      ],
+      "dest": "autoinst.xml"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "15\\.6",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://download.opensuse.org/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-x86_64-Media.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://download.opensuse.org/ports/aarch64/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-aarch64-Media.iso" } }
+      ],
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "OpenSUSE_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "opensuse-64"
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "opensuse64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "16\\.0",
+      "method": "replace",
+      "files": [
+        {
+          "sources": [
+            "agama/leap.json"
+          ],
+          "dest": "agama-install.json"
+        }
+      ],
+      "defs": {
+        "cd_files": ">>temp_dir<</agama-install.json"
+      },
+      "config": {
+        "boot_command": [
+          "<down><wait>inst.auto=device://OEMDRV/agama-install.json",
+          " net.ifnames=0 biosdevname=0",
+          "<enter>"
+        ]
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://download.opensuse.org/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-x86_64-Media.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://download.opensuse.org/ports/aarch64/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-aarch64-Media.iso" } }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "provides": {
+    "dist": "freebsd",
+    "versions": [
+      "14.4",
+      "15.0"
+    ],
+    "arches": [
+      "x86_64"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "bsd_arch": "E>'amd64' if '>>arch<<' == 'x86_64' else '>>arch<<'<E",
+    "cd_files": ">>temp_dir<</installerconfig",
+    "cd_label": "config",
+    "iso_url": "https://download.freebsd.org/releases/>>bsd_arch<</>>bsd_arch<</ISO-IMAGES/>>version<</FreeBSD->>version<<-RELEASE->>bsd_arch<<-disc1.iso"
+  },
+  "variables": {
+    "ssh-username": "{{vault `images/linux` `username`}}",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "shutdown -p now",
+    "boot_command": [
+      "<esc><wait>",
+      "boot -s<enter>",
+      "<wait15s>",
+      "/bin/sh<enter><wait>",
+      "mdmfs -s 100m md /tmp<enter><wait>",
+      "mount_cd9660 /dev/cd2 /mnt 2>/dev/null || mount_cd9660 /dev/cd1 /mnt 2>/dev/null || mount_cd9660 /dev/cd0 /mnt<enter><wait>",
+      "bsdinstall script /mnt/installerconfig<enter>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [
+        "freebsd/installerconfig"
+      ],
+      "dest": "installerconfig"
+    }
+  ],
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "FreeBSD_64"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "freebsd-64"
+      }
+    },
+    {
+      "platform": "vsphere",
+      "config": {
+        "guest_os_type": "freebsd64Guest"
+      }
+    },
+    {
+      "platform": "proxmox",
+      "config": {
+        "os": "other"
+      }
+    }
+  ]
+}

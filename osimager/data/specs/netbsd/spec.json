@@ -1,0 +1,39 @@
+{
+  "provides": {
+    "dist": "netbsd",
+    "versions": [
+      "10.1"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "qemu",
+    "vmware",
+    "virtualbox",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 2048,
+    "netbsd_arch": "E>'amd64' if '>>arch<<' == 'x86_64' else ('evbarm-aarch64' if '>>arch<<' == 'aarch64' else 'i386')<E",
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "root",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "shutdown_command": "/sbin/shutdown -p now"
+  },
+  "version_specific": [
+    {
+      "version": "10\\.1",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://cdn.netbsd.org/pub/NetBSD/NetBSD->>version<</images/NetBSD->>version<<->>netbsd_arch<<.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://cdn.netbsd.org/pub/NetBSD/NetBSD->>version<</images/NetBSD->>version<<->>netbsd_arch<<.iso" } },
+        { "arch": "i386", "defs": { "iso_url": "https://cdn.netbsd.org/pub/NetBSD/NetBSD->>version<</images/NetBSD->>version<<->>netbsd_arch<<.iso" } }
+      ]
+    }
+  ]
+}

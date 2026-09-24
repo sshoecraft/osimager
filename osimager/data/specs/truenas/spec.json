@@ -1,0 +1,36 @@
+{
+  "provides": {
+    "dist": "truenas",
+    "versions": [
+      "25.10"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "qemu",
+    "proxmox",
+    "vmware",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 32768,
+    "memory": 8192,
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "truenas_admin",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "version_specific": [
+    {
+      "version": "25\\.10",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</truenas/TrueNAS-SCALE->>version<<.iso" } }
+      ]
+    }
+  ]
+}

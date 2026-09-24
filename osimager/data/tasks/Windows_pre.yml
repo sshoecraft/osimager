@@ -1,0 +1,17 @@
+---
+- name: build name
+  debug: var=packer_build_name
+
+- name: methods
+  debug: var=methods
+
+- name: Set proxy (if defined)
+  command: netsh winhttp set proxy {{proxy}}
+  register: netsh_command
+  when:
+    - proxy is defined
+    - packer_build_name not in methods
+- debug: var=netsh_command
+  when:
+    - proxy is defined
+    - packer_build_name not in methods

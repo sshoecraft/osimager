@@ -1,0 +1,34 @@
+---
+- name: Set AlmaLinux repos to use repo.almalinux.org
+  shell: |
+    cd /etc/yum.repos.d
+    for repo in almalinux*.repo; do
+      test -f "$repo" || continue
+      sed -i 's|^mirrorlist=|#mirrorlist=|' "$repo"
+    done
+    # Map mirrorlist names to repo.almalinux.org directory names
+    set -- \
+      baseos:BaseOS \
+      appstream:AppStream \
+      crb:CRB \
+      extras:extras \
+      highavailability:HighAvailability \
+      nfv:NFV \
+      plus:plus \
+      resilientstorage:ResilientStorage \
+      rt:RT \
+      sap:SAP \
+      saphana:SAPHANA
+    for mapping; do
+      name="${mapping%%:*}"
+      dir="${mapping##*:}"
+      file="almalinux-${name}.repo"
+      test -f "$file" || continue
+      # Main repo
+      sed -i "/^\[${name}\]$/,/^\[/{s|^#mirrorlist=.*|#mirrorlist=https://mirrors.almalinux.org/mirrorlist/\$releasever/${name}\nbaseurl=https://repo.almalinux.org/almalinux/\$releasever/${dir}/\$basearch/os/|}" "$file"
+      # Debug repo
+      sed -i "/^\[${name}-debuginfo\]$/,/^\[/{s|^#mirrorlist=.*|#mirrorlist=https://mirrors.almalinux.org/mirrorlist/\$releasever/${name}-debug\nbaseurl=https://repo.almalinux.org/almalinux/\$releasever/${dir}/\$basearch/debug/tree/|}" "$file"
+      # Source repo
+      sed -i "/^\[${name}-source\]$/,/^\[/{s|^#mirrorlist=.*|#mirrorlist=https://mirrors.almalinux.org/mirrorlist/\$releasever/${name}-source\nbaseurl=https://repo.almalinux.org/almalinux/\$releasever/${dir}/Source/|}" "$file"
+    done
+  ignore_errors: true

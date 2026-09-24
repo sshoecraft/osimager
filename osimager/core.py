@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.8.0"
+OSIMAGER_VERSION = "1.9.0"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -221,12 +221,8 @@ class OSImager:
 
         self.base_path = self.get_path("base_dir")
 
-        # Detect osimager-data package for two-layer data resolution
-        try:
-            import osimager_data
-            self.system_data_dir = osimager_data.DATA_DIR
-        except ImportError:
-            self.system_data_dir = None
+        # Baseline data ships inside the package; user_dir overrides it
+        self.system_data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data")
 
         # Ensure user config directories exist
         os.makedirs(os.path.join(self.settings['user_dir'], 'locations'), exist_ok=True)
@@ -483,7 +479,7 @@ class OSImager:
             return None
 
         if self.verbose:
-            print("Loading file: " + file_path)
+            print("Loading file: " + str(file_path))
 
         try:
             if str(file_path).endswith('.toml'):
@@ -1225,6 +1221,14 @@ class OSImager:
         self.spec = self.load_file('specs',spec_path)
         self.defs['spec_name'] = spec_name
 
+        # A spec can opt out of post-install configuration (e.g. Proxmox VE, an
+        # appliance that configures itself from its answer file and ships no
+        # sudo). Honor it exactly like the --skip flag.
+        if self.spec.get('skip_config') and not self.skip:
+            self.skip = True
+            if self.verbose:
+                print(f"spec '{spec_name}' requests skip_config: skipping post-install configuration")
+
 #        self.evars["ANSIBLE_ROLES_PATH"] = self.spec_path
 
         # Set PATH to prioritize ansible venv if specified
@@ -1412,6 +1416,13 @@ class OSImager:
         
         # do def substitutions
         self.defs = do_sub(self.defs,self) # lol
+
+        # Auto-detect a locally-cached ISO: if the resolved iso_url already
+        # exists on disk (iso_path or packer_cache_dir), build from the local
+        # copy instead of forcing platforms to download it again.
+        if not self.defs.get('local_only') and self.check_iso_local(self.defs.get('iso_url', '')):
+            self.defs['local_only'] = True
+
         self.evars['RES_OPTIONS'] = "nameserver >>dns1<<"
         self.evars = do_sub(self.evars,self)
         self.variables = do_sub(self.variables,self)
@@ -1438,6 +1449,26 @@ class OSImager:
                             if len(self.config[key]) < 1:
                                     print("warning: removing empty value for: "+str(key))
                                     del self.config[key]
+
+        # Give each bridged qemu build a unique NIC MAC so packer's SSH-address
+        # DISCOVERY is unambiguous. This is NOT about parallel DHCP collisions
+        # (dispatcher proved shared-MAC parallel builds are fine — well-behaved
+        # distros send unique DHCP client-ids). It's that with the shared default
+        # 52:54:00:12:34:56, packer's bridge discovery matches a STALE ARP entry
+        # from an old build and connects to a dead IP (seen: real VM on .158,
+        # packer hung on stale .159). A unique MAC = one clean bridge address.
+        # Proxmox specifically needs it: it's static during the build, so its
+        # ssh_host uses packer discovery rather than a resolvable FQDN.
+        if (self.config.get('type') == 'qemu'
+                and self.config.get('net_bridge')
+                and 'qemuargs' not in self.config):
+            h = uuid.uuid4().hex
+            nic_mac = "52:54:00:%s:%s:%s" % (h[0:2], h[2:4], h[4:6])
+            net_device = self.config.get('net_device', 'virtio-net')
+            self.config['qemuargs'] = [
+                ["-netdev", "bridge,id=user.0,br=%s" % self.config['net_bridge']],
+                ["-device", "%s,netdev=user.0,mac=%s" % (net_device, nic_mac)],
+            ]
 
         self.build = {
             "variables": self.variables,
@@ -1619,6 +1650,8 @@ class OSImager:
                 print()
                 sys.exit(1)
         elif iso_url.startswith("http://") or iso_url.startswith("https://"):
+            if self.check_iso_local(iso_url):
+                return
             import urllib.request
             import urllib.error
             try:

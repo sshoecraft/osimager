@@ -6,7 +6,7 @@ Technical reference for the complete build pipeline executed when a user runs a 
 mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 ```
 
-All line numbers reference the source as of v1.7.0. Data (specs, platforms, files, tasks) lives in the separate `osimager_data` package, not in the engine; paths below such as `files/` and `specs/` are relative to that data package (or to a user override in `~/.config/osimager/`).
+All line numbers reference the source as of v1.7.0. Data (specs, platforms, files, tasks) lives in `osimager/data/` inside the package; paths below such as `files/` and `specs/` are relative to that directory (or to a user override in `~/.config/osimager/`).
 
 ---
 

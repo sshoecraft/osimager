@@ -24,7 +24,7 @@ Each spec can define a `files` array. Each entry specifies source fragments to c
 }
 ```
 
-Source paths are relative to the data package's `files/` directory (`osimager_data/files/`, or a `~/.config/osimager/files/` override).
+Source paths are relative to the data package's `files/` directory (`osimager/data/files/`, or a `~/.config/osimager/files/` override).
 
 ### The `gen_files()` Method
 
@@ -32,7 +32,7 @@ Source paths are relative to the data package's `files/` directory (`osimager_da
 
 1. Apply `do_sub()` to the files array itself (resolves `>>major<<` in source paths like `rhel/kickstart_>>major<<.cfg`).
 2. For each entry in the array:
-   - Read each source file from the resolved `files/` directory (`resolve_data_path()` -- user override first, then the `osimager_data` package).
+   - Read each source file from the resolved `files/` directory (`resolve_data_path()` -- user override first, then the bundled `osimager/data/` baseline).
    - Concatenate all sources in order into a single string.
    - Apply `do_substr()` on the concatenated content — all 12 substitution actions run against the full text.
    - Write the result to `{temp_dir}/{dest}`.

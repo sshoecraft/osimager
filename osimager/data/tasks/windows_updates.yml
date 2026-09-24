@@ -1,0 +1,163 @@
+---
+# Adapted from: https://github.com/RobVerduijn/lab/blob/master/roles/windows_update/tasks/main.yml
+- name: wait for connection
+  wait_for_connection:
+
+- name: set vars
+  set_fact:
+    windows_update_fail: false
+    category_names:
+      - Application
+      - Connectors
+      - CriticalUpdates
+      - DefinitionUpdates
+      - DeveloperKits
+      - Drivers
+      - FeaturePacks
+      - Guidance
+      - SecurityUpdates
+      - ServicePacks
+      - Tools
+      - UpdateRollups
+      - Updates
+      - Upgrades
+
+- name: ensure winrm service has delayed start
+  ansible.windows.win_service:
+    name: WinRM
+    state: started
+    start_mode: auto
+
+- name: check for pending reboot
+  ansible.builtin.win_shell: |
+    if (Get-Item -Path 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update\RebootRequired' -ErrorAction SilentlyContinue)
+      { return $true }
+    elseif (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager' -Name 'PendingFileRenameOperations' -ErrorAction SilentlyContinue)
+      { return $true }
+    elseif (Get-ChildItem -Path 'HKLM:\Software\Microsoft\Windows\CurrentVersion\Component Based Servicing\RebootPending' -ErrorAction SilentlyContinue)
+      { return $true }
+    elseif ((Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ActiveComputerName').ComputerName -ne
+            (Get-ItemProperty -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\ComputerName\ComputerName').ComputerName)
+      { return $true }
+    else
+      {return $false }
+  register: pending_reboot
+  changed_when: false
+
+- name: reboot system
+  ansible.windows.win_reboot:
+    post_reboot_delay: 60
+    reboot_timeout: 14400
+  when: pending_reboot.stdout_lines[0] == 'True'
+
+- name: ensure windows update service is running
+  ansible.windows.win_service:
+    name: wuauserv
+    state: started
+    start_mode: auto
+
+- block:
+    - block:
+        - name: Clear USO cache
+          win_shell: |
+            Stop-Service -Name BITS,WUAUSERV,WaaSMedicSvc,CryptSvc -Force
+            Remove-Item -Path C:\Windows\SoftwareDistribution -Recurse -Force
+            Remove-Item -Path C:\Windows\System32\catroot2 -Recurse -Force
+            Start-Service -Name BITS,WUAUSERV,WaaSMedicSvc,CryptSvc
+            Usoclient RefreshSettings
+            Usoclient ScanInstallWait
+          ignore_errors: true
+
+        - name: update system
+          ansible.windows.win_updates:
+            category_names: "{{ category_names }}"
+            state: installed
+            log_path: c:\ansible_wu.txt
+          register: win_update
+          ignore_unreachable: true  # needed when network card drivers are updated
+        - debug: var=win_update
+
+        # ensure win_update has valid values
+        # needed when previous task fails with unreachable
+        - name: check update status
+          ansible.windows.win_updates:
+            category_names: "{{ category_names }}"
+            state: searched
+            log_path: c:\ansible_wu.txt
+          register: win_update
+        - debug: var=win_update
+
+      rescue:
+        # we really need a rescue block
+        # because the update usually finishes with an error
+        - name: set windows update failure
+          set_fact:
+            windows_update_fail: true
+
+        # when there was a driver update the connection will be gone
+        # it will take a while before it is back
+        - name: wait for connection
+          wait_for_connection:
+            timeout: 3600
+
+        - name: ensure windows update service is stopped
+          ansible.windows.win_service:
+            name: wuauserv
+            state: stopped
+            start_mode: disabled
+
+        - name: check if windows update service is done stopping
+          ansible.builtin.win_shell: (Get-Service -name wuauserv).status
+          register: state_services
+          until: "'Stopped' in state_services.stdout"
+          retries: 360
+          delay: 10
+
+        - name: clean windows update download folder
+          ansible.windows.win_file:
+            path: C:\Windows\SoftwareDistribution\Download
+            state: absent
+          register: remove_res
+          retries: 360
+          until: not remove_res.failed | bool
+          ignore_errors: true
+          delay: 10
+
+    - block:
+        - name: reboot system
+          ansible.windows.win_reboot:
+            post_reboot_delay: 60
+            reboot_timeout: 14400
+          when:
+            - win_update.reboot_required is defined
+            - win_update.reboot_required | bool
+
+      rescue:
+        - name: wait for connection
+          wait_for_connection:
+            timeout: 3600
+
+  always:
+    - name: Stop and Disable windows update service
+      win_service:
+        name: wuauserv
+        start_mode: disabled
+        state: stopped
+
+# because we can't loop blocks we use recursion
+# the recursion ends when
+# - update_fail is false
+# - there are no more updates found
+# - the found_update_count equals the_installed_update_count
+# - the failed_update_count is zero or not defined
+# - there is no more reboot required
+# - python decides there is to much recursion ( this did not crash my (tower)server....yet )
+- name: Re-run these tasks
+  include_tasks: {{tasks_dir}}/windows_updates.yml
+  when: >
+    ( windows_update_fail | bool ) or
+    ( win_update.found_update_count is not defined ) or
+    ( win_update.installed_update_count is not defined ) or
+    ( win_update.failed_update_count is defined and win_update.failed_update_count > 0 ) or
+    ( win_update.reboot_required is defined and win_update.reboot_required | bool ) or
+    ( win_update.found_update_count != win_update.installed_update_count )

@@ -1,0 +1,145 @@
+
+### Unattended Installation
+d-i auto-install/enable boolean true
+d-i debconf/priority select critical
+d-i debian-installer/splash boolean false
+
+### Localization
+d-i debian-installer/locale string en_US.UTF-8
+d-i localechooser/supported-locales multiselect en_US.UTF-8
+d-i console-setup/ask_detect boolean false
+d-i keyboard-configuration/xkb-keymap select us
+d-i keyboard-configuration/layoutcode string us
+d-i keyboard-configuration/variantcode string
+d-i keyboard-configuration/modelcode string pc105
+d-i console-keymaps-at/keymap select us
+
+### Network configuration
+#d-i netcfg/choose_interface select eth0
+d-i netcfg/choose_interface select auto
+#d-i netcfg/hostname string device
+d-i netcfg/get_hostname string >>name<<
+d-i netcfg/get_domain string >>domain<<
+d-i hw-detect/load_firmware boolean true
+E>'\n'.join(['d-i netcfg/disable_autoconfig boolean true', 'd-i netcfg/get_ipaddress string >>ip<<', 'd-i netcfg/get_netmask string >>netmask<<', 'd-i netcfg/get_gateway string >>gateway<<', 'd-i netcfg/get_nameservers string >>dns1<< >>dns2<<', 'd-i netcfg/confirm_static boolean true']) if '>>ip<<' != '' and '>>ip<<' != 'dhcp' else 'd-i netcfg/disable_autoconfig boolean false'<E
+
+### Mirror settings
+d-i mirror/country string manual
+d-i mirror/http/hostname string httpredir.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/http/proxy string >>proxy<<
+
+### Account setup
+d-i passwd/root-login boolean true
+d-i passwd/root-password-crypted password 5>images/linux:password<5
+d-i passwd/make-user boolean false
+
+### Clock and time zone setup
+d-i clock-setup/utc boolean true
+d-i time/zone string UTC
+d-i clock-setup/ntp boolean true
+d-i clock-setup/ntp-server string >>ntp1<<
+
+### Partitioning
+d-i partman-auto/method string lvm
+d-i partman-auto-lvm/guided_size string max
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman-auto-lvm/new_vg_name string main
+d-i partman-md/device_remove_md boolean true
+d-i partman-md/confirm boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-basicmethods/method_only boolean false
+
+### LVM Partitioning
+d-i partman-auto/method string lvm
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+
+### EFI
+d-i partman-efi/non_efi_system boolean true
+
+### Grub
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/bootdev string default
+
+### Disk layout
+d-i partman-auto-lvm/new_vg_name string vgroot
+d-i partman-auto/expert_recipe string                         \
+      custom-lvm ::                                           \
+        1024 1024 1024 ext4 $primary{ } $bootable{ }          \
+        mountpoint{ /boot }                                   \
+        method{ format }                                      \
+        format{ }                                             \
+        use_filesystem{ }                                     \
+        filesystem{ ext4 }                                    \
+        .                                                     \
+        16384 100000000000 -1 ext4 $lvmok{ }                  \
+        mountpoint{ / }                                       \
+        lv_name{ root }                                       \
+        in_vg { vgroot }                                      \
+        method{ format }                                      \
+        format{ }                                             \
+        use_filesystem{ }                                     \
+        filesystem{ ext4 }                                    \
+        .                                                     \
+        4096 4096 4096 linux-swap $lvmok{ }                   \
+        lv_name{ swap }                             	      \
+        in_vg { vgroot }                                      \
+        method{ swap }                                        \
+        format{ }                                             \
+        .						      \
+
+# Write and configure LVM 
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm_write_new_label boolean true
+d-i partman-auto-lvm/guided_size string max
+
+### Base system installation
+d-i base-installer/install-recommends boolean true
+d-i base-installer/kernel/image string linux-image-amd64
+d-i debconf debconf/frontend select Noninteractive
+
+### Create hook to run debian.fix at the right time
+d-i preseed/early_command string \
+    mkdir -p /usr/lib/post-base-installer.d; \
+    cp /cdrom/debian.fix /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || \
+    cp /media/debian.fix /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || true; \
+    chmod +x /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || true
+
+### No mirror, use only DVD
+d-i apt-setup/use_mirror boolean false
+d-i apt-setup/no_mirror boolean true
+d-i mirror/country string manual
+d-i mirror/http/hostname string
+d-i mirror/http/directory string
+d-i mirror/http/proxy string
+
+### Apt setup
+d-i apt-setup/non-free boolean true
+d-i apt-setup/contrib boolean true
+d-i apt-setup/cdrom/set-first boolean true
+d-i apt-setup/services-select multiselect
+
+### Package selection
+tasksel tasksel/first multiselect standard, ssh-server
+d-i pkgsel/include string sudo vim tmux telnet wget curl net-tools ifupdown libpwquality1 openssh-server
+d-i pkgsel/upgrade select none
+d-i pkgsel/update-policy select none
+d-i pkgsel/updatedb boolean true
+popularity-contest popularity-contest/participate boolean false
+
+### Finishing up the installation
+d-i preseed/late_command string \
+    in-target sed -i 's/^.*PermitRootLogin.*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+d-i cdrom-detect/eject boolean false
+
+### Don't prompt when install completed
+d-i finish-install/reboot_in_progress note

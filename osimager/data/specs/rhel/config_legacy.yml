@@ -1,0 +1,13 @@
+---
+# RHEL 2.1/3/4 - ancient systems where Ansible gather_facts doesn't work
+- name: OS Configuration
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Run uptime via raw
+      raw: /usr/bin/uptime
+      register: uptime_output
+
+    - name: Show uptime output
+      debug:
+        msg: "{{ uptime_output.stdout }}"

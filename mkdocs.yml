@@ -55,6 +55,8 @@ nav:
     - Configuration Merging: architecture/configuration-merging.md
     - Template Engine: architecture/template-engine.md
     - File Generation: architecture/file-generation.md
+    - QEMU libvirt URI: data/qemu-libvirt-uri.md
+    - Photon OS Kickstart: data/photon-kickstart.md
   - Reference:
     - CLI Reference: reference/cli-reference.md
     - Platform Reference: reference/platform-reference.md

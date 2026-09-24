@@ -1,0 +1,120 @@
+{
+  "provides": {
+    "dist": "proxmox-ve",
+    "versions": [
+      "3.4",
+      "4.4",
+      "5.4",
+      "6.4",
+      "7.4",
+      "8.4",
+      "9.0",
+      "9.1"
+    ]
+  },
+  "skip_config": true,
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "qemu",
+    "none"
+  ],
+  "files": [
+    {
+      "sources": [
+        "proxmox-ve/answer.toml"
+      ],
+      "dest": "answer.toml"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "[3-4]\\..*",
+      "ansible_version": "2.16",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Proxmox/proxmox-ve_>>version<<-1.iso" } }
+      ]
+    },
+    {
+      "version": "5\\..*",
+      "ansible_version": "2.16",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_>>version<<-1.iso" } }
+      ]
+    },
+    {
+      "version": "6\\..*",
+      "ansible_version": "2.17",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_>>version<<-1.iso" } }
+      ]
+    },
+    {
+      "version": "[7-9]\\..*",
+      "ansible_version": "2.18",
+
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://enterprise.proxmox.com/iso/proxmox-ve_>>version<<-1.iso" } }
+      ]
+    },
+    {
+      "version": "[89]\\..*",
+      "config": {
+        "boot_wait": "15s",
+        "boot_command": [
+          "e",
+          "<down><down><down><end>",
+          " proxmox-start-auto-installer net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>",
+          "<wait60>",
+          "proxmox-fetch-answer partition >>cd_label<< >/run/automatic-installer-answers<enter>",
+          "<wait5>",
+          "exit<enter>"
+        ]
+      }
+    }
+  ],
+  "defs": {
+    "boot_disk_size": 65536,
+    "memory": 4096,
+    "answer_disk": "vda",
+    "cd_files": ">>temp_dir<</answer.toml",
+    "cd_label": "proxmox-ais"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "boot_command": [],
+    "shutdown_command": "E>(\"sed -i '/vmbr0 inet/s/static/dhcp/; /address /d; /gateway /d' /etc/network/interfaces; \" if \">>ip<<\" in (\"\", \"dhcp\") else \"\") + \"/sbin/shutdown -P now\"<E"
+  },
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "Debian_64"
+      },
+      "defs": {
+        "answer_disk": "sda"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "debian12-64"
+      },
+      "defs": {
+        "answer_disk": "sda"
+      }
+    },
+    {
+      "platform": "vsphere",
+      "defs": {
+        "answer_disk": "sda"
+      }
+    }
+  ]
+}

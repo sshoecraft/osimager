@@ -1,0 +1,14 @@
+[global]
+keyboard = "en-us"
+country = "us"
+fqdn = ">>fqdn<<"
+mailto = "root@localhost"
+timezone = "UTC"
+root-password = "|>images/linux:password<|"
+
+[network]
+E>'source = "from-dhcp"' if '>>ip<<' in ('', 'dhcp') else 'source = "from-answer"\ncidr = ">>ip<</>>prefix<<"\ngateway = ">>gateway<<"\ndns = ">>dns1<<"\nfilter.ID_NET_NAME = "eth0"'<E
+
+[disk-setup]
+filesystem = "ext4"
+disk-list = [">>answer_disk<<"]

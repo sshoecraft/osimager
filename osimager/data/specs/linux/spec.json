@@ -1,0 +1,18 @@
+{
+  "include": "ssh",
+  "defs": {
+    "boot_disk_size": 16384
+  },
+  "variables": {
+    "ssh-username": "{{vault `images/linux` `username`}}",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "platform_specific": [
+    {
+      "platform": "proxmox",
+      "config": {
+        "os": "l26"
+      }
+    }
+  ]
+}

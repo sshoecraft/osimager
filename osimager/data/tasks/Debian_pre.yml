@@ -1,0 +1,21 @@
+---
+- name: Set APT proxy server (if defined)
+  lineinfile:
+    path: /etc/apt/apt.conf
+    regexp: '^Acquire::http::Proxy'
+    line: "Acquire::http::Proxy \"{{ proxy }}\";"
+    state: present
+    create: true
+  when: proxy is defined
+
+- name: install dnsutils
+  package:
+    name: dnsutils
+    state: present
+  ignore_errors: true
+
+- name: install pwquality
+  package:
+    name: libpam-pwquality
+    state: present
+  ignore_errors: true

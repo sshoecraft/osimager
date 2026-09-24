@@ -17,13 +17,11 @@ from collections import defaultdict
 # Add parent directory to path so we can import osimager
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from osimager.utils import explode_string_with_dynamic_range
-import osimager_data
 
 
 DOCS_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_DIR = os.path.dirname(DOCS_DIR)
-# Data lives in the separate osimager_data package, not in the engine repo.
-DATA_DIR = osimager_data.DATA_DIR
+DATA_DIR = os.path.join(PROJECT_DIR, "osimager", "data")
 SPECS_DIR = os.path.join(DATA_DIR, "specs")
 PLATFORMS_DIR = os.path.join(DATA_DIR, "platforms")
 

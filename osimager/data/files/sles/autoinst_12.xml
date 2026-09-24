@@ -1,0 +1,202 @@
+<?xml version="1.0"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <deploy_image>
+    <image_installation config:type="boolean">false</image_installation>
+  </deploy_image>
+  <firewall>
+    <enable_firewall config:type="boolean">false</enable_firewall>
+    <start_firewall config:type="boolean">false</start_firewall>
+  </firewall>
+  <general>
+    <ask-list config:type="list"/>
+    <mode>
+      <confirm config:type="boolean">false</confirm>
+    </mode>
+    <mouse>
+      <id>none</id>
+    </mouse>
+    <proposals config:type="list"/>
+    <signature-handling>
+      <accept_file_without_checksum config:type="boolean">true</accept_file_without_checksum>
+      <accept_non_trusted_gpg_key config:type="boolean">true</accept_non_trusted_gpg_key>
+      <accept_unknown_gpg_key config:type="boolean">true</accept_unknown_gpg_key>
+      <accept_unsigned_file config:type="boolean">true</accept_unsigned_file>
+      <accept_verification_failed config:type="boolean">false</accept_verification_failed>
+      <import_gpg_key config:type="boolean">true</import_gpg_key>
+    </signature-handling>
+    <storage/>
+  </general>
+  <kdump>
+    <add_crash_kernel config:type="boolean">false</add_crash_kernel>
+  </kdump>
+  <login_settings/>
+  <networking>
+    <dns>
+      <domain>>>domain<<</domain>
+      <hostname>>>hostname<<</hostname>
+      <nameservers config:type="list">
+        <nameserver>>>dns1<<</nameserver>
+      </nameservers>
+      <resolv_conf_policy>auto</resolv_conf_policy>
+      <searchlist config:type="list">
+        <search>>>domain<<</search>
+      </searchlist>
+      <write_hostname config:type="boolean">true</write_hostname>
+    </dns>
+    <routing>
+      <ipv4_forward config:type="boolean">false</ipv4_forward>
+      <ipv6_forward config:type="boolean">false</ipv6_forward>
+      <routes config:type="list">
+        <route>
+          <destination>default</destination>
+          <device>eth0</device>
+          <gateway>>>gateway<<</gateway>
+          <netmask>-</netmask>
+        </route>
+      </routes>
+    </routing>
+    <interfaces config:type="list">
+      <interface>
+        <bootproto>E>'dhcp' if '>>ip<<' == 'dhcp' or '>>ip<<' == '' else 'static'<E</bootproto>
+        <device>E>'>>nic<<' if len('>>nic<<') else 'eth0'<E</device>
+        <ipaddr>>>ip<<</ipaddr>
+        <netmask>>>netmask<<</netmask>
+        <startmode>auto</startmode>
+        <usercontrol>no</usercontrol>
+      </interface>
+    </interfaces>
+    <keep_install_network config:type="boolean">true</keep_install_network>
+    <managed config:type="boolean">false</managed>
+  </networking>
+  <ntp-client>
+    <configure_dhcp config:type="boolean">false</configure_dhcp>
+    <peers config:type="list">
+      <peer>
+        <address>>>ntp1<<</address>
+        <initial_sync config:type="boolean">true</initial_sync>
+        <options/>
+        <type>server</type>
+      </peer>
+    </peers>
+    <start_at_boot config:type="boolean">true</start_at_boot>
+    <start_in_chroot config:type="boolean">true</start_in_chroot>
+  </ntp-client>
+  <partitioning config:type="list">
+    <drive>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+          <create config:type="boolean">true</create>
+          <crypt_fs config:type="boolean">false</crypt_fs>
+          <filesystem_id config:type="integer">142</filesystem_id>
+          <format config:type="boolean">false</format>
+          <loop_fs config:type="boolean">false</loop_fs>
+          <lvm_group>vgroot</lvm_group>
+          <mountby config:type="symbol">device</mountby>
+          <partition_id config:type="integer">142</partition_id>
+          <partition_nr config:type="integer">1</partition_nr>
+          <pool config:type="boolean">false</pool>
+          <resize config:type="boolean">false</resize>
+          <size>max</size>
+        </partition>
+      </partitions>
+      <type config:type="symbol">CT_DISK</type>
+      <use>all</use>
+    </drive>
+    <drive>
+      <device>/dev/vgroot</device>
+      <disklabel>msdos</disklabel>
+      <initialize config:type="boolean">true</initialize>
+      <partitions config:type="list">
+        <partition>
+           <label>swap</label>
+           <mountby config:type="symbol">device</mountby>
+           <filesystem config:type="symbol">swap</filesystem>
+           <lv_name>swap</lv_name>
+           <mount>swap</mount>
+           <size>4G</size>
+        </partition>
+        <partition>
+           <label>root</label>
+           <mountby config:type="symbol">device</mountby>
+           <filesystem config:type="symbol">xfs</filesystem>
+           <lv_name>root</lv_name>
+           <mount>/</mount>
+           <size>max</size>
+        </partition>
+      </partitions>
+      <type config:type="symbol">CT_LVM</type>
+      <use>all</use>
+    </drive>
+  </partitioning>
+  <report>
+    <errors>
+      <log config:type="boolean">true</log>
+      <show config:type="boolean">true</show>
+      <timeout config:type="integer">0</timeout>
+    </errors>
+    <messages>
+      <log config:type="boolean">true</log>
+      <show config:type="boolean">true</show>
+      <timeout config:type="integer">0</timeout>
+    </messages>
+    <warnings>
+      <log config:type="boolean">true</log>
+      <show config:type="boolean">true</show>
+      <timeout config:type="integer">0</timeout>
+    </warnings>
+    <yesno_messages>
+      <log config:type="boolean">true</log>
+      <show config:type="boolean">true</show>
+      <timeout config:type="integer">0</timeout>
+    </yesno_messages>
+  </report>
+  <services-manager>
+    <default_target>multi-user</default_target>
+    <services>
+      <disable config:type="list"/>
+      <enable config:type="list">
+        <service>sshd</service>
+      </enable>
+    </services>
+  </services-manager>
+  <software>
+    <packages config:type="list">
+      <package>yast2-trans-en_US</package>
+      <package>grub2</package>
+      <package>syslinux</package>
+      <package>snapper</package>
+      <package>sles-release</package>
+      <package>sudo</package>
+      <package>wget</package>
+    </packages>
+    <patterns config:type="list">
+      <pattern>base</pattern>
+    </patterns>
+  </software>
+  <keyboard>
+    <keymap>us</keymap>
+  </keyboard>
+  <language>
+    <language>en_US</language>
+    <languages>en_US</languages>
+  </language>
+  <timezone>
+    <hwclock>UTC</hwclock>
+    <timezone>>>timezone<<</timezone>
+  </timezone>
+  <users config:type="list">
+    <user>
+      <encrypted config:type="boolean">true</encrypted>
+      <fullname>root</fullname>
+      <gid>0</gid>
+      <home>/root</home>
+      <shell>/bin/bash</shell>
+      <uid>0</uid>
+      <user_password>6>images/linux:password<6</user_password>
+      <username>root</username>
+    </user>
+  </users>
+</profile>

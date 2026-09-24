@@ -55,3 +55,9 @@ version = {attr = "osimager.core.OSIMAGER_VERSION"}
 
 [tool.setuptools.packages.find]
 include = ["osimager"]
+
+[tool.setuptools.package-data]
+osimager = ["data/**/*"]
+
+[tool.setuptools.exclude-package-data]
+osimager = ["data/**/__pycache__/*", "data/**/*.pyc"]

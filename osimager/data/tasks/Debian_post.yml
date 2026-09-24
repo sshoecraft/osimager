@@ -1,0 +1,7 @@
+---
+- name: symlink /etc/dhcp to /etc/dhcp3 for vmware customization
+  file:
+    src: /etc/dhcp
+    dest: /etc/dhcp3
+    state: link
+  ignore_errors: yes

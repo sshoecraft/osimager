@@ -1,0 +1,50 @@
+{
+  "provides": {
+    "dist": "fedora-coreos",
+    "versions": [
+      "stable"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "pre_build": "scripts/coreos_customize.py",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 2048,
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "core",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "60s",
+    "shutdown_command": "sudo shutdown -P now",
+    "boot_command": []
+  },
+  "files": [
+    {
+      "sources": [
+        "ignition/fcos.ign"
+      ],
+      "dest": "config.ign"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "stable",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</CoreOS/fedora-coreos-stable-live-x86_64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</CoreOS/fedora-coreos-stable-live-aarch64.iso" } }
+      ]
+    }
+  ]
+}

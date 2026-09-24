@@ -1,0 +1,278 @@
+{
+  "provides": {
+    "dist": "fedora",
+    "versions": [
+      "[7-43]"
+    ]
+  },
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv",
+    "azure",
+    "gcp",
+    "aws",
+    "none"
+  ],
+  "files": [
+    {
+      "sources": [
+        "fedora/kickstart.cfg",
+        "rhel/ks-part.sh",
+        "rhel/kickstart_end.cfg",
+        "rhel/kickstart_post.cfg",
+        "rhel/install_vmwtools.sh",
+        "rhel/kickstart_end.cfg"
+      ],
+      "dest": "ks.cfg"
+    }
+  ],
+  "defs": {
+    "cd_files": ">>temp_dir<</ks.cfg",
+    "cd_label": "OEMDRV",
+    "merge": [ "ansible_extra_args" ],
+    "ansible_extra_args": [ "--scp-extra-args='-O'", "-e", "ansible_scp_extra_args='-O'" ]
+  },
+  "config": {
+    "boot_wait": "10s",
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "version_specific": [
+    {
+      "version": "7",
+      "ansible_version": "2.3",
+      "defs": {
+        "spec_config": "specs/rhel/config_legacy.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2"
+      },
+      "evars": {
+        "PACKER_SSH_OPTS": "-o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa"
+      },
+      "config": {
+        "boot_command": [
+          "<tab>linux ks=cdrom:/ks.cfg<enter>"
+        ],
+        "shutdown_command": "/sbin/shutdown -h now",
+        "ssh_key_exchange_algorithms": [
+          "diffie-hellman-group14-sha1"
+        ]
+      },
+      "arch_specific": [
+        {
+          "arch": "i386",
+          "defs": {
+            "iso_url": "file://>>iso_path<</F->>version<<-i386-DVD.iso"
+          }
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "qemu_agent": false
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Fedora",
+            "hard_drive_interface": "scsi",
+            "vboxmanage": [
+              [
+                "modifyvm",
+                "{{.Name}}",
+                "--nic-type1=82540EM",
+                "--nic1=bridged",
+                "--bridge-adapter1=vbnet"
+              ]
+            ]
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "fedora",
+            "disk_adapter_type": "sata",
+            "cdrom_adapter_type": "ide",
+            "network_adapter_type": "e1000"
+          }
+        }
+      ]
+    },
+    {
+      "version": "43",
+      "ansible_version": "2.18",
+      "files": [
+        {
+          "sources": [
+            "fedora/kickstart_43.cfg",
+            "rhel/ks-part.sh",
+            "rhel/kickstart_end.cfg",
+            "rhel/kickstart_post.cfg",
+            "rhel/install_vmwtools.sh",
+            "rhel/kickstart_end.cfg"
+          ],
+          "dest": "ks.cfg"
+        }
+      ],
+      "defs": {
+        "iso_url": "",
+        "cpu_cores": 4,
+        "memory": 4096,
+        "firmware": "efi",
+        "spec_config": "specs/fedora/config_43.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3",
+        "gcp_source_image_family": "fedora-cloud-43",
+        "gcp_source_image_project_id": "fedora-cloud",
+        "gcp_image_family": "fedora-43",
+        "aws_ami_filter_name": "Fedora-Cloud-Base-AmazonEC2.x86_64-43-*",
+        "aws_ami_owners": ["125523088429"]
+      },
+      "config": {
+        "boot_wait": "15s",
+        "boot_command": [
+          "<up><wait>e<wait>",
+          "<down><down><end> net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "firmware_specific": [
+        {
+          "firmware": "bios",
+          "config": {
+            "boot_wait": "15s",
+            "boot_command": [
+              "<up><wait>e<wait>",
+              "<down><down><end> net.ifnames=0 biosdevname=0",
+              "<leftCtrlOn>x<leftCtrlOff>"
+            ]
+          }
+        }
+      ],
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Server/x86_64/iso/Fedora-Server-dvd-x86_64-43-1.6.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/43/Server/aarch64/iso/Fedora-Server-dvd-aarch64-43-1.6.iso"
+          }
+        }
+      ],
+      "platform_specific": [
+        {
+          "platform": "proxmox",
+          "config": {
+            "qemu_agent": true
+          }
+        },
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Fedora_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "defs": {
+            "cpu_sockets": 2
+          },
+          "config": {
+            "guest_os_type": "fedora-64",
+            "merge": [ "vmx_data" ],
+            "vmx_data": {
+              "scsi0.virtualdev": "pvscsi"
+            }
+          }
+        },
+        {
+          "platform": "vsphere",
+          "config": {
+            "guest_os_type": "fedora64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "[89]|1[0-9]|20",
+      "ansible_version": "2.9",
+      "defs": {
+        "spec_config": "specs/rhel/config_legacy.yml",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python2"
+      },
+      "config": {
+        "boot_wait": "10s",
+        "boot_command": [
+          "<tab>linux ks=cdrom:/ks.cfg<enter>"
+        ]
+      },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-x86_64-DVD.iso" } }
+      ]
+    },
+    {
+      "version": "2[1-9]|3[0-9]|4[0-2]",
+      "ansible_version": "2.18",
+      "files": [
+        {
+          "sources": [
+            "fedora/kickstart_43.cfg",
+            "rhel/ks-part.sh",
+            "rhel/kickstart_end.cfg",
+            "rhel/kickstart_post.cfg",
+            "rhel/install_vmwtools.sh",
+            "rhel/kickstart_end.cfg"
+          ],
+          "dest": "ks.cfg"
+        }
+      ],
+      "defs": {
+        "firmware": "efi",
+        "ansible_extra_vars": "ansible_python_interpreter=/usr/bin/python3"
+      },
+      "config": {
+        "boot_wait": "30s",
+        "boot_command": [
+          "<up>e<down><down><end><bs><bs><bs><bs><bs>",
+          "inst.ks=hd:LABEL=OEMDRV:/ks.cfg",
+          " inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0",
+          "<leftCtrlOn>x<leftCtrlOff>"
+        ]
+      },
+      "firmware_specific": [
+        {
+          "firmware": "bios",
+          "config": {
+            "boot_wait": "10s",
+            "boot_command": [
+              "<up><wait><tab> inst.ks=hd:LABEL=OEMDRV:/ks.cfg inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0<enter>"
+            ]
+          }
+        }
+      ],
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-x86_64-DVD.iso" } }
+      ]
+    },
+    {
+      "version": "[89]|[12][0-9]|3[01]",
+      "arch_specific": [
+        { "arch": "i386", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-i386-DVD.iso" } }
+      ]
+    },
+    {
+      "version": "2[89]|3[0-9]|4[0-2]",
+      "arch_specific": [
+        { "arch": "aarch64", "defs": { "iso_url": "file://>>iso_path<</Fedora/Fedora->>version<<-aarch64-DVD.iso" } }
+      ]
+    }
+  ]
+}

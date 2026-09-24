@@ -1,0 +1,74 @@
+{
+  "provides": {
+    "dist": "alpine",
+    "versions": [
+      "3.21"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "hyperv",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 8192,
+    "memory": 1024,
+    "alpine_arch": "E>'x86' if '>>arch<<' == 'i386' else '>>arch<<'<E",
+    "cd_files": ">>temp_dir<</answerfile",
+    "cd_label": "OEMDRV"
+  },
+  "variables": {
+    "ssh-username": "{{vault `images/linux` `username`}}",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "20s",
+    "shutdown_command": "poweroff",
+    "boot_command": [
+      "root<enter><wait>",
+      "mount -L OEMDRV /mnt 2>/dev/null || mount /dev/sr1 /mnt 2>/dev/null || mount /dev/cdrom /mnt<enter><wait>",
+      "ERASE_DISKS=/dev/sda setup-alpine -e -f /mnt/answerfile<enter><wait10>",
+      "y<enter><wait10><wait10>",
+      "echo 'root:6>images/linux:password<6' | chpasswd -e -R /mnt 2>/dev/null; echo done<enter><wait>",
+      "reboot<enter>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [
+        "alpine/answerfile"
+      ],
+      "dest": "answerfile"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "3\\.21",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://dl-cdn.alpinelinux.org/alpine/v>>version<</releases/x86_64/alpine-standard->>version<<.0-x86_64.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://dl-cdn.alpinelinux.org/alpine/v>>version<</releases/aarch64/alpine-standard->>version<<.0-aarch64.iso" } },
+        { "arch": "i386", "defs": { "iso_url": "https://dl-cdn.alpinelinux.org/alpine/v>>version<</releases/x86/alpine-standard->>version<<.0-x86.iso" } }
+      ],
+      "platform_specific": [
+        {
+          "platform": "virtualbox",
+          "config": {
+            "guest_os_type": "Linux_64"
+          }
+        },
+        {
+          "platform": "vmware",
+          "config": {
+            "guest_os_type": "other6xlinux-64"
+          }
+        }
+      ]
+    }
+  ]
+}

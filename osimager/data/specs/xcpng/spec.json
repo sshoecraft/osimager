@@ -1,0 +1,76 @@
+{
+  "provides": {
+    "dist": "xcpng",
+    "versions": [
+      "8.2.1",
+      "8.3"
+    ]
+  },
+  "ansible_version": "2.16",
+  "include": "linux",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "qemu",
+    "none"
+  ],
+  "files": [
+    {
+      "sources": [
+        "xcpng/answerfile.xml"
+      ],
+      "dest": "answerfile.xml"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "8\\.2\\.1",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</xcp-ng->>version<<-20231130.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "8\\.3",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://mirrors.xcp-ng.org/isos/8.3/xcp-ng-8.3.0-20250606.2.iso"
+          }
+        }
+      ]
+    }
+  ],
+  "defs": {
+    "boot_disk_size": 65536,
+    "memory": 4096,
+    "cd_files": ">>temp_dir<</answerfile.xml",
+    "cd_label": "OEMDRV"
+  },
+  "config": {
+    "boot_wait": "10s",
+    "boot_command": [
+      "<tab> answerfile=cdrom:/answerfile.xml<enter>"
+    ],
+    "shutdown_command": "/sbin/shutdown -P now"
+  },
+  "platform_specific": [
+    {
+      "platform": "virtualbox",
+      "config": {
+        "guest_os_type": "RedHat7_64"
+      }
+    },
+    {
+      "platform": "vmware",
+      "config": {
+        "guest_os_type": "centos7-64"
+      }
+    }
+  ]
+}

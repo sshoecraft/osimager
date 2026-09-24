@@ -1,6 +1,6 @@
 # Platform Reference
 
-OSImager supports 11 platforms through Packer builder plugins. Each platform is defined by a JSON configuration file in the data package's `platforms/` directory (`osimager_data/platforms/`, or a `~/.config/osimager/platforms/` override) that specifies the Packer builder type, hardware defaults, credential requirements, and template variables.
+OSImager supports 11 platforms through Packer builder plugins. Each platform is defined by a JSON configuration file in the data package's `platforms/` directory (`osimager/data/platforms/`, or a `~/.config/osimager/platforms/` override) that specifies the Packer builder type, hardware defaults, credential requirements, and template variables.
 
 ## Overview
 

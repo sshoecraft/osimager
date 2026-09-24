@@ -13,7 +13,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 ### Key Instance Variables
 
 - `settings` — Runtime config: `base_dir`, `user_dir`, `packer_cmd`, `venv_dir`, `ansible_playbook`, `packer_cache_dir`, `local_only`, `credential_source`, `vault_addr`, `vault_token`, `iso_path`
-- `system_data_dir` — Path to osimager-data package (baseline data), or None if not installed
+- `system_data_dir` — Path to the bundled baseline data, `osimager/data/` beside `core.py`
 - `defs` — All template substitution variables, accumulated from settings/platform/location/spec/runtime
 - `config` — Packer builder configuration, becomes `builders[0]` in output
 - `variables` — Packer user variables for `{{user ...}}` references
@@ -36,7 +36,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `save_settings(config_path)` — Write current settings to config.json
 
 ### Data Resolution (Two-Layer)
-- `resolve_data_path(*parts)` — Find a data file: checks user dir (`~/.config/osimager/`) first, then osimager-data package. Returns first existing path, or None.
+- `resolve_data_path(*parts)` — Find a data file: checks user dir (`~/.config/osimager/`) first, then the bundled `osimager/data/`. Returns first existing path, or None.
 - `resolve_data_files(subdir, pattern)` — Scan both layers, merge results (user wins on name collisions). Used for listings.
 
 ### Data Loading
@@ -72,8 +72,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `resolve_packer_vault_refs(data)` — Replace `{{vault ...}}` in Packer JSON with local secret values
 
 ### Build Assembly
-- `make_build(target, name, ip)` — Full build pipeline: parse target, load platform/location/spec, resolve ISO, load credentials, perform substitutions, assemble Packer JSON
-- `gen_files()` — Assemble installer files from template fragments, write to temp dir
+- `make_build(target, name, ip)` — Full build pipeline: parse target, load platform/location/spec, resolve ISO, load credentials, perform substitutions, assemble Packer JSON.- `gen_files()` — Assemble installer files from template fragments, write to temp dir
 - `check_required_files()` — Verify spec's required_files exist on disk
 - `run_packer()` — Validate prereqs, `check_required_files()`, `check_iso_url()`, `gen_files()`, run **pre_build** hooks, write build JSON, set environment, execute packer command, then run **post_build** hooks on success.
 
@@ -95,3 +94,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - v1.5.0: Config format changed from INI (configparser) to JSON (config.json), iso_path moved from location defs to global settings. Removed `provides.arches` and `version_specific[].arches` — arches now derived from ISO URL resolution at index time. Specs use `arch_specific` entries with explicit per-arch iso_url and `"iso_url": ""` to block unsupported arches.
 - v1.7.0: Two-layer data resolution. Engine separated from data. User overrides in `~/.config/osimager/` (specs, platforms, files, scripts) take precedence over `osimager-data` package baseline. XDG paths for all directories. Removed constants.py (version/exit codes now in core.py). Fixed venv hoisting from version_specific entries.
 - v1.8.0: Disk-image import builds — `resolve_disk_image_url()` (sibling of `resolve_iso_url()`, both now share `resolve_url_field()`); `make_index()` indexes a spec/version/arch when it has an ISO **or** a `disk_image_url`; `make_build()` derives `disk_image_name` and the `image_import` def. Per-spec build hooks — `run_build_hooks()` runs `pre_build`/`post_build` from the spec then the platform; `pre_build` now runs before the build JSON is written so a hook can mutate the ISO/disk image (e.g. bake an Ignition config for CoreOS/Flatcar) before Packer consumes it.
+- v1.8.3: Per-spec `skip_config` — a spec can set `"skip_config": true` (e.g. Proxmox VE) and `make_build()` treats it like the `--skip` flag, skipping all post-install provisioning. Lets a self-configuring appliance (which sets itself up from its answer file and ships no `sudo`) build without running the generic Linux `config.yml` ansible playbook. The VM is still built, SSH'd into for shutdown, and registered via `post_build` — only the ansible provisioning is skipped.
+- v1.8.4: Proxmox VE self-registers in dnsmasq. The `proxmox-ve` spec `shutdown_command` flips the installed interface `static`→`dhcp` over packer's root SSH session before halt — no sudo, no dnsmasq edit, no ISO repack — so the built VM DHCPs and registers its hostname on run (only when no static IP is passed; Proxmox always installs static, so this is the only zero-config path). qemu `ssh_host` is scoped: discovered IP for Proxmox (static during the build), FQDN for everything else. Removed the dead `dnsmasq_hostsdir` engine feature (v1.8.2, never enabled). See memory `proxmox-dns-fix-and-mac-cleanup`.
+- v1.8.5: **Kept the per-build MAC injection (v1.8.1) — with a corrected rationale.** It is NOT for parallel DHCP collisions (dispatcher proved shared-MAC parallel builds are fine — well-behaved distros send unique DHCP client-ids). It IS for packer's SSH-address **discovery**: with the shared default `52:54:00:12:34:56`, packer's bridge discovery matches a stale ARP entry from an old build and connects to a dead IP (verified — real VM on `.158`, packer hung on stale `.159`). A unique per-build MAC makes the bridge address unambiguous; Proxmox specifically needs it because it's static during the build (`ssh_host` uses discovery, not FQDN). `make_build` no longer sets a `mac_address` def — the answer-file filter is `ID_NET_NAME=eth0`, not MAC-based.
+- v1.9.0: Data folded back into the engine. The baseline (specs, platforms, files, tasks, scripts, ansible.json, examples) ships as package data under `osimager/data/`; `system_data_dir` is that directory and is always set. The separate `osimager-data` package is no longer imported or needed. Two-layer resolution is unchanged — `~/.config/osimager/` still overrides the baseline.

@@ -1,0 +1,57 @@
+{
+  "provides": {
+    "dist": "flatcar",
+    "versions": [
+      "stable"
+    ]
+  },
+  "ansible_version": "2.18",
+  "include": "ssh",
+  "platforms": [
+    "virtualbox",
+    "vmware",
+    "vsphere",
+    "proxmox",
+    "qemu",
+    "none"
+  ],
+  "defs": {
+    "boot_disk_size": 16384,
+    "memory": 2048,
+    "flatcar_arch": "E>'amd64-usr' if '>>arch<<' == 'x86_64' else 'arm64-usr'<E",
+    "cd_files": ">>temp_dir<</config.ign",
+    "cd_label": "OEMDRV",
+    "spec_config": "tasks/spec.yml"
+  },
+  "variables": {
+    "ssh-username": "core",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
+  "config": {
+    "boot_wait": "45s",
+    "shutdown_command": "sudo shutdown -P now",
+    "boot_command": [
+      "<wait>sudo mount -L OEMDRV /mnt<enter><wait>",
+      "sudo flatcar-install -d /dev/sda -i /mnt/config.ign<enter>",
+      "<wait60><wait60>",
+      "sudo reboot<enter>"
+    ]
+  },
+  "files": [
+    {
+      "sources": [
+        "ignition/flatcar.ign"
+      ],
+      "dest": "config.ign"
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "stable",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://stable.release.flatcar-linux.net/>>flatcar_arch<</current/flatcar_production_iso_image.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://stable.release.flatcar-linux.net/>>flatcar_arch<</current/flatcar_production_iso_image.iso" } }
+      ]
+    }
+  ]
+}

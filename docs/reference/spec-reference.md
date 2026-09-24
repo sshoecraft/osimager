@@ -1,6 +1,6 @@
 # Spec Reference
 
-Spec files are JSON documents that define everything OSImager needs to build an OS image: the distribution, versions, architectures, installer files, boot commands, provisioners, and platform-specific configuration. They live in `osimager_data/specs/<name>/spec.json` in the data package, or in `~/.config/osimager/specs/<name>/spec.json` to override the baseline.
+Spec files are JSON documents that define everything OSImager needs to build an OS image: the distribution, versions, architectures, installer files, boot commands, provisioners, and platform-specific configuration. They live in `osimager/data/specs/<name>/spec.json` inside the package, or in `~/.config/osimager/specs/<name>/spec.json` to override the baseline.
 
 ---
 
@@ -79,7 +79,7 @@ Each entry in `files` concatenates multiple source files into a single output fi
 }
 ```
 
-Source paths are relative to the data package's `files/` directory (`osimager_data/files/`, or a `~/.config/osimager/files/` override). Template substitution is applied to both source paths and file contents.
+Source paths are relative to the data package's `files/` directory (`osimager/data/files/`, or a `~/.config/osimager/files/` override). Template substitution is applied to both source paths and file contents.
 
 ### The `required_files` Array
 
@@ -374,8 +374,8 @@ These variables are automatically available in `defs` during a build:
 | `fqdn` | Fully qualified domain name | `rhel-9.4-x86_64.lab.local` |
 | `ip` | Resolved IP address | `192.168.1.100` |
 | `base_path` | OSImager engine package directory | `.../site-packages/osimager` |
-| `data_path` | Resolved data directory (`osimager_data` package) | `.../site-packages/osimager_data` |
-| `spec_dir` | Directory containing the active spec file | `.../osimager_data/specs/rhel` |
+| `data_path` | Resolved data directory (bundled `osimager/data/`) | `.../site-packages/osimager/data` |
+| `spec_dir` | Directory containing the active spec file | `.../osimager/data/specs/rhel` |
 | `temp_dir` | Temporary build directory | `/tmp/tmpXXXXXX` |
 | `user_dir` | User config directory | `~/.config/osimager` |
 | `boot_disk_size` | Boot disk size in MB | `16384` |

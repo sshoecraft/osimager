@@ -1,0 +1,48 @@
+{
+  "product": {
+    "id": "Leap"
+  },
+  "localization": {
+    "language": "en_US.UTF-8",
+    "keyboard": "us",
+    "timezone": "America/Chicago"
+  },
+  "root": {
+    "password": "6>images/linux:password<6",
+    "hashedPassword": true,
+    "sshPublicKey": ""
+  },
+  "hostname": {
+    "static": ">>fqdn<<"
+  },
+  "software": {
+    "patterns": [
+      "base"
+    ]
+  },
+  "storage": {
+    "drives": [
+      {
+        "search": "*",
+        "partitions": [
+          { "search": "*", "delete": true },
+          { "filesystem": { "path": "/", "type": "btrfs" }, "size": { "min": "8 GiB" } },
+          { "filesystem": { "path": "swap" }, "size": "2 GiB" }
+        ]
+      }
+    ]
+  },
+  "network": {
+    "connections": [
+      {
+        "id": "eth0",
+        "interface": "eth0",
+        "method4": "E>'auto' if '>>ip<<' in ('', 'dhcp') else 'manual'<E",
+        "addresses": [ "E>'>>ip<</>>prefix<<' if '>>ip<<' not in ('', 'dhcp') else ''<E" ],
+        "gateway4": ">>gateway<<",
+        "nameservers": [ ">>dns1<<" ],
+        "autoconnect": true
+      }
+    ]
+  }
+}
