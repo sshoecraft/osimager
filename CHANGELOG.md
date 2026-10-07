@@ -10,6 +10,42 @@ All notable changes to OSImager are documented here. The format is based on
 > bumped per change. There is no 1.6.x — the version went 1.5.0 → 1.7.0 during
 > the data-separation work.
 
+## [1.9.3] — 2026-10-06
+
+### Fixed
+- **Proxmox builds hung forever at "Waiting for SSH to become available".**
+  For the proxmox platform, the ssh spec's `ssh_host` fell through to
+  `{{ .Host }}`. The proxmox-iso builder has no `.Host`, so packer rendered it
+  as the literal string `<no value>` and kept dialing that name, even though
+  the VM was up on the network. Proxmox now gets an empty `ssh_host`. That
+  makes the builder read the VM's address from the QEMU guest agent, which the
+  platform already enables with `qemu_agent: true`.
+
+## [1.9.2] — 2026-09-25
+
+### Fixed
+- **Debian 13 builds stalled at "apt configuration problem" or a DVD prompt.**
+  The seed's `early_command` copied `debian.fix` from `/media`, which only works
+  if a timed boot keystroke has already mounted the seed CD there. On a slow
+  host the keystroke loses that race, and because every failure was masked with
+  `|| true`, the fix was silently never installed. The stock media scan then
+  failed. The early command now mounts the seed CD by its label when `/media`
+  doesn't have the fix. If the copy still fails, the installer stops with an
+  error right there. This applies to the Debian 9, 10–11, 12 and 13 seeds.
+- **The `40cdrom` replacement in `debian.fix` left apt without the DVD.** It
+  only rewrote `sources.list`. It didn't bind `/cdrom` into
+  `/target/media/cdrom` or write apt's `00CDMountPoint`/`00NoMountCDROM`
+  config, so software selection asked for the DVD again. The replacement now
+  sets up the same state as Debian's base-installer, and it does so
+  idempotently. apt no longer mounts or probes drives itself, so the seed CD in
+  the second drive can no longer confuse the scan.
+- **Debian 13 package installation failed on packages the DVD doesn't carry.**
+  `tmux`, `open-vm-tools` and `qemu-guest-agent` are not on the Debian 13
+  DVD-1, and the install uses no network mirror. They are removed from
+  `pkgsel/include` in `debian.seed`.
+- The 25-minute parallel Debian 13 builds were not slow. Each one was sitting
+  at the first of those dialogs.
+
 ## [1.9.1] — 2026-09-23
 
 ### Fixed

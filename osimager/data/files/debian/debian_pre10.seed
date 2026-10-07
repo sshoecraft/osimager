@@ -108,11 +108,18 @@ d-i base-installer/kernel/image string linux-image-amd64
 d-i debconf debconf/frontend select Noninteractive
 
 ### Create hook to run debian.fix at the right time
+### The seed CD is not always still at /media when this runs, so mount it by
+### label. A failed copy stops here, not later at a DVD prompt.
 d-i preseed/early_command string \
-    mkdir -p /usr/lib/post-base-installer.d; \
-    cp /cdrom/debian.fix /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || \
-    cp /media/debian.fix /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || true; \
-    chmod +x /usr/lib/post-base-installer.d/10debian-fix 2>/dev/null || true
+    mkdir -p /usr/lib/post-base-installer.d /tmp/seedcd; \
+    fix=/media/debian.fix; \
+    if [ ! -r $fix ]; then \
+        mount -r $(blkid | grep -F 'LABEL=">>cd_label<<"' | cut -d: -f1 | head -n 1) /tmp/seedcd; \
+        fix=/tmp/seedcd/debian.fix; \
+    fi; \
+    cp $fix /usr/lib/post-base-installer.d/10debian-fix; \
+    chmod +x /usr/lib/post-base-installer.d/10debian-fix; \
+    if [ $fix != /media/debian.fix ]; then umount /tmp/seedcd; fi
 
 ### No mirror, use only DVD
 d-i apt-setup/use_mirror boolean false

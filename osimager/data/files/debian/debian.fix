@@ -3,11 +3,37 @@
 exec > /tmp/fix.log 2>&1
 set -x
 
+# Replace the stock cdrom generator. On a real CD drive it unmounts the DVD
+# from the target and lets apt-cdrom find a drive on its own, and with the
+# seed CD in a second drive that scan fails ("apt configuration problem").
+# Instead, keep the view of the DVD that base-installer set up: /cdrom bound
+# into the target, and apt told where it is and not to mount or probe drives.
+# Without the bind and the mount config, software selection asks for the DVD.
 script=/usr/lib/apt-setup/generators/40cdrom
 if test -e ${script}; then
     rm -f ${script}
-    cat >${script}<<__END_SCRIPT1
+    cat >${script}<<'__END_SCRIPT1'
 #!/bin/sh
+mkdir -p /target/media/cdrom
+if ! grep -q ' /target/media/cdrom ' /proc/mounts; then
+    mount -o bind /cdrom /target/media/cdrom
+fi
+cat >/target/etc/apt/apt.conf.d/00CDMountPoint <<'__END_CONF1'
+Acquire::cdrom {
+  mount "/media/cdrom";
+};
+Dir::Media::MountPath "/media/cdrom";
+__END_CONF1
+cat >/target/etc/apt/apt.conf.d/00NoMountCDROM <<'__END_CONF2'
+APT::CDROM::NoMount "true";
+Acquire::cdrom {
+  "/media/cdrom/" {
+    Mount  "true";
+    UMount "true";
+  };
+  AutoDetect "false";
+}
+__END_CONF2
 sed -i -E 's|^#?\s*deb cdrom:|deb [trusted=yes] cdrom:|' /target/etc/apt/sources.list
 cp /target/etc/apt/sources.list /target/etc/apt/sources.list.new
 exit 0
