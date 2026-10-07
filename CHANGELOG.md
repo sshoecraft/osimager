@@ -4,11 +4,12 @@ All notable changes to OSImager are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/), and the project aims to follow
 [Semantic Versioning](https://semver.org/).
 
-> **Note on versioning:** these version numbers are development milestones, not
-> published releases. The project has never been git-tagged or published to
-> PyPI; the version is the `OSIMAGER_VERSION` string in `osimager/core.py`,
-> bumped per change. There is no 1.6.x — the version went 1.5.0 → 1.7.0 during
-> the data-separation work.
+> **Note on versioning:** the version is the `OSIMAGER_VERSION` string in
+> `osimager/core.py`. Starting with 1.9.0, releases are git-tagged `vX.Y.Z`, and
+> pushing a tag publishes that release to PyPI. Versions before 1.9.0 were
+> development milestones that were never tagged or published. Some versions
+> were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
+> the version went 1.5.0 → 1.7.0 during the data-separation work.
 
 ## [1.9.3] — 2026-10-06
 
