@@ -55,7 +55,6 @@ domain = "home.local"
 gateway = "192.168.1.1"
 cidr = "192.168.1.0/24"
 vms_path = "/vms"
-iso_path = "/iso"
 
 [defs.dns]
 servers = ["192.168.1.1"]

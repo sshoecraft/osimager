@@ -88,7 +88,8 @@ These print information and exit. They need no target.
 | Flag | Effect |
 |------|--------|
 | `--set KEY=VALUE` | Change a setting **and save it** to `~/.config/osimager/config.json`. Repeatable. The new value applies to this run and every run after it. If `--local` is given in the same command, `local_only=true` is saved too. |
-| `-c`, `--config FILE` | Accepted but has no effect: settings are always read from `~/.config/osimager/config.json`. |
+
+To run against a different set of settings, locations and secrets, point `XDG_CONFIG_HOME` at another directory: OSImager then reads `$XDG_CONFIG_HOME/osimager/`.
 
 Settings that are saved to `config.json`:
 

@@ -1,4 +1,5 @@
 ## feedback
+- [feedback-agreement-is-not-a-go-ahead](feedback-agreement-is-not-a-go-ahead.md) — A user's design observation ("-c would have to be a directory") is not a go-ahead to implement it; wait for an explicit instruction before editing.
 - [feedback-earlier-sessions-are-claudes-work](feedback-earlier-sessions-are-claudes-work.md) — Code from earlier sessions was written by Claude; never answer "I didn't add that" — own it and address the design question.
 
 ## project

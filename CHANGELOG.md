@@ -11,6 +11,26 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.10.1] — 2026-10-09
+
+### Changed
+- **`iso_path` comes only from the global settings.** It is a directory on the
+  machine running OSImager, and every Packer field it feeds (`iso_url` for a
+  local ISO, `iso_target_path` for a download) is a path on that machine. It
+  doesn't change with the location. Locations could still override it, though,
+  even after 1.5.0 moved it to global settings. That let a build and the `-a`
+  listing disagree about what was present, made `--local` with a `-latest`
+  target check the wrong directory, and left a location pointing at a directory
+  that didn't exist. A location that still sets `iso_path` now gets a warning,
+  and its value is ignored. Set it with `mkosimage --set iso_path=...`. The
+  location examples in the docs no longer include it.
+
+### Removed
+- **`-c/--config`.** It never had any effect, because settings were always read
+  from `~/.config/osimager/config.json`. Swapping only that file wouldn't be
+  enough anyway: `locations/`, `platforms/` and `secrets` live in the same
+  directory. To use a different config set, use `XDG_CONFIG_HOME`.
+
 ## [1.10.0] — 2026-10-09
 
 ### Added

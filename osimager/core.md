@@ -25,15 +25,15 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 
 ### CLI Flags
 
-`target`, `name`, `ip`, `list`, `avail`, `list_platforms`, `list_defs`, `init_plugins`, `check_urls`, `show_config`, `dump_defs`, `dump_build`, `verbose`, `debug`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `local_only`, `dry_run`, `user_defines`, `user_temp_dir`, `config_file`
+`target`, `name`, `ip`, `list`, `avail`, `list_platforms`, `list_defs`, `init_plugins`, `check_urls`, `show_config`, `dump_defs`, `dump_build`, `verbose`, `debug`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `local_only`, `dry_run`, `user_defines`, `user_temp_dir`
 
 ## Method Groups
 
 ### Initialization
 - `init_vars()` — Zero all accumulator state
 - `init_settings(argv, which, extra_args)` — Parse CLI args, load/save settings, create user dirs, seed defs
-- `load_settings(config_path)` — Read `~/.config/osimager/config.json` via JSON
-- `save_settings(config_path)` — Write current settings to config.json
+- `load_settings()` — Read `~/.config/osimager/config.json` via JSON
+- `save_settings()` — Write current settings to config.json
 
 ### Data Resolution (Two-Layer)
 - `resolve_data_path(*parts)` — Find a data file: checks user dir (`~/.config/osimager/`) first, then the bundled `osimager/data/`. Returns first existing path, or None.
@@ -93,6 +93,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - v1.4.2: --init-plugins, --show-config, example-secrets copy command
 - v1.4.3: ISO URL fixes across all distros, file:// for unavailable ISOs
 - v1.4.4: --check-urls, --avail (ISO availability), pre-build check_iso_url(), removed save_index/index file caching, resolve_iso_url handles arch_specific + expression eval
+- v1.10.1: `make_build()` sets `defs['iso_path']` from `settings` after the location loads, so a location can no longer override it, and warns if the location file sets it.
 - v1.5.0: Config format changed from INI (configparser) to JSON (config.json), iso_path moved from location defs to global settings. Removed `provides.arches` and `version_specific[].arches` — arches now derived from ISO URL resolution at index time. Specs use `arch_specific` entries with explicit per-arch iso_url and `"iso_url": ""` to block unsupported arches.
 - v1.7.0: Two-layer data resolution. Engine separated from data. User overrides in `~/.config/osimager/` (specs, platforms, files, scripts) take precedence over `osimager-data` package baseline. XDG paths for all directories. Removed constants.py (version/exit codes now in core.py). Fixed venv hoisting from version_specific entries.
 - v1.8.0: Disk-image import builds — `resolve_disk_image_url()` (sibling of `resolve_iso_url()`, both now share `resolve_url_field()`); `make_index()` indexes a spec/version/arch when it has an ISO **or** a `disk_image_url`; `make_build()` derives `disk_image_name` and the `image_import` def. Per-spec build hooks — `run_build_hooks()` runs `pre_build`/`post_build` from the spec then the platform; `pre_build` now runs before the build JSON is written so a hook can mutate the ISO/disk image (e.g. bake an Ignition config for CoreOS/Flatcar) before Packer consumes it.

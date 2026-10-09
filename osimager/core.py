@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.10.0"
+OSIMAGER_VERSION = "1.10.1"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -78,7 +78,6 @@ class OSImager:
         parser = argparse.ArgumentParser(description="OSImager configuration and control tool")
 
         arg_base_defs = {
-            "--config": {"flags": ["-c", "--config"], "kwargs": {"default": "config.json", "help": "Path to config.json file", "dest": "config"}},
             "--list": {"flags": ["-l", "--list"], "kwargs": {"default": False, "action": "store_true", "help": "List available specs", "dest": "list"}},
             "--avail": {"flags": ["-a", "--avail"], "kwargs": {"default": False, "action": "store_true", "help": "Show ISO availability for all specs", "dest": "avail"}},
             "--list-platforms": {"flags": ["--list-platforms"], "kwargs": {"default": False, "action": "store_true", "help": "List available platforms", "dest": "list_platforms"}},
@@ -134,7 +133,6 @@ class OSImager:
             sys.exit(0)
 
         # Set the attributes on the object based on the parsed arguments
-        self.config_file = os.path.expanduser(args.config) if args.config else "config.json"
         self.list = args.list
         self.avail = args.avail
         self.latest = args.latest
@@ -187,7 +185,7 @@ class OSImager:
             self.user_defines = None
 
         # Load settings from the config file
-        self.load_settings(self.config_file)
+        self.load_settings()
 #        print("settings: "+json.dumps(self.settings,indent=4))
 
         # Apply settings overrides
@@ -218,7 +216,7 @@ class OSImager:
 
         if self.debug: print("do_save: "+str(do_save))
         if do_save:
-            self.save_settings(self.config_file)
+            self.save_settings()
         self.settings['local_only'] = to_bool(self.settings.get('local_only',False))
 
         self.base_path = self.get_path("base_dir")
@@ -240,7 +238,7 @@ class OSImager:
 
         return args
 
-    def load_settings(self, config_path):
+    def load_settings(self):
         config_file = os.path.join(self.settings['user_dir'], "config.json")
 
         if not os.path.exists(config_file):
@@ -269,7 +267,7 @@ class OSImager:
                 if self.verbose:
                     print(f"   Loaded: {key} = {self.settings[key]}")
 
-    def save_settings(self, config_path=""):
+    def save_settings(self):
         config_dir = self.settings['user_dir']
         os.makedirs(config_dir, exist_ok=True)
         config_file = os.path.join(config_dir, "config.json")
@@ -1244,6 +1242,9 @@ class OSImager:
         # Location
         self.location = self.load_data_file("locations", location_name)
         self.defs['location_name'] = location_name
+        if '"iso_path"' in json.dumps(self.location):
+            print(f"warning: location {location_name} sets iso_path, which is ignored; "
+                  f"iso_path is a global setting (mkosimage --set iso_path=...)")
 
         # Spec
         spec_path = index_entry.get('path',{})
@@ -1318,7 +1319,12 @@ class OSImager:
             "arch": arch
         })
 
-        # Normalize path defs - resolve relative paths to home directory (location may override settings)
+        # iso_path is a directory on this machine, so it comes only from the
+        # global settings; a location describes a remote environment and
+        # cannot change it.
+        self.defs['iso_path'] = self.settings.get('iso_path', '/iso')
+
+        # Normalize path defs - resolve relative paths to home directory
         for path_key in ("iso_path", "vms_path"):
             val = self.defs.get(path_key, "")
             if isinstance(val, str) and val:

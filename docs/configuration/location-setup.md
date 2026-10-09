@@ -37,7 +37,6 @@ mkosimage vsphere/lab/rhel-9.5-x86_64
     gateway = "192.168.1.1"
     cidr = "192.168.1.0/24"
     vms_path = "/vms"
-    iso_path = "/iso"
 
     [defs.dns]
     servers = ["192.168.1.1"]
@@ -56,7 +55,6 @@ mkosimage vsphere/lab/rhel-9.5-x86_64
         "gateway": "192.168.1.1",
         "cidr": "192.168.1.0/24",
         "vms_path": "/vms",
-        "iso_path": "/iso",
         "dns": {
           "servers": ["192.168.1.1"]
         },
@@ -85,7 +83,8 @@ mkosimage vsphere/lab/rhel-9.5-x86_64
 | `gateway` | string | Network gateway IP. Auto-calculated from `cidr` if not provided. |
 | `cidr` | string | Network in CIDR notation (e.g., `192.168.1.0/24`). Auto-derives `subnet`, `prefix`, and `netmask`. |
 | `vms_path` | string | Base directory for built VM output |
-| `iso_path` | string | Directory containing OS installation ISOs |
+
+`iso_path` is not a location setting. It is a directory on the machine running OSImager, the same whichever location you build into, so it is set once, globally: `mkosimage --set iso_path=/iso`. A location that sets it gets a warning and the value is ignored.
 
 ### Network Auto-Derivation
 
@@ -131,7 +130,6 @@ Locations that support multiple platforms can provide per-platform defs using `p
     gateway = "10.0.1.1"
     cidr = "10.0.1.0/24"
     vms_path = "/vms"
-    iso_path = "/iso"
 
     [defs.dns]
     servers = ["10.0.1.1"]
@@ -171,7 +169,6 @@ Locations that support multiple platforms can provide per-platform defs using `p
         "gateway": "10.0.1.1",
         "cidr": "10.0.1.0/24",
         "vms_path": "/vms",
-        "iso_path": "/iso",
         "dns": { "servers": ["10.0.1.1"] },
         "ntp": { "servers": ["pool.ntp.org"] }
       },
@@ -206,7 +203,7 @@ Each platform has different infrastructure requirements. See the [Platform Refer
 **Local ISO platforms** (virtualbox, vmware, qemu, hyperv, xenserver):
 
 - `vms_path` — where to store built VMs
-- `iso_path` — where ISO files are located
+- `iso_path` is not set here; it is a global setting (`mkosimage --set iso_path=...`)
 
 **vSphere:**
 

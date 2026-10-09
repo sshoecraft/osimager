@@ -10,7 +10,7 @@ Configuration is loaded in this fixed order. Later layers override earlier ones:
 |-------|--------|-------------|---------|
 | 1 | Configuration defaults | Hardware defaults from user config (`~/.config/osimager/config.json`) with built-in fallbacks | `cpu_sockets:1`, `cpu_cores:2`, `memory:2048`, `boot_disk_size:16385` |
 | 2 | Platform JSON | Builder type, boot commands, VM hardware, platform-specific defaults | `vsphere.json` sets `type: "vsphere-iso"`, network adapters, disk layout |
-| 3 | Location JSON/TOML | Network settings, DNS, NTP, paths, per-platform overrides | `lab.toml` sets `domain`, `cidr`, `gateway`, `iso_path`, `vms_path` |
+| 3 | Location JSON/TOML | Network settings, DNS, NTP, paths, per-platform overrides | `lab.toml` sets `domain`, `cidr`, `gateway`, `vms_path` (never `iso_path`, which is global only) |
 | 4 | Spec JSON | OS installer config, kickstart files, include chain | `alma/spec.json` sets ISO URLs, `cd_files`, `boot_command` |
 | 5 | Specific sections | 6 types of conditional overrides applied recursively | `version_specific`, `platform_specific`, `arch_specific`, etc. |
 | 6 | CLI `--define` | User overrides from the command line | `-D key=value,key2=value2` |

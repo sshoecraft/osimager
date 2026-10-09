@@ -51,7 +51,7 @@ Single class in `core.py` that orchestrates everything. Instantiated with `OSIma
 
 **CLI flags** -- set from parsed arguments:
 
-`target`, `name`, `ip`, `verbose`, `debug`, `list`, `avail`, `list_platforms`, `list_defs`, `init_plugins`, `check_urls`, `show_config`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `dump_defs`, `dump_build`, `user_temp_dir`, `local_only`, `dry_run`, `user_defines`, `config_file`
+`target`, `name`, `ip`, `verbose`, `debug`, `list`, `avail`, `list_platforms`, `list_defs`, `init_plugins`, `check_urls`, `show_config`, `on_error`, `log`, `logfile`, `force`, `keep`, `timestamp`, `dump_defs`, `dump_build`, `user_temp_dir`, `local_only`, `dry_run`, `user_defines`
 
 ### Initialization Sequence
 
@@ -248,8 +248,8 @@ Actions 5, 8, 9, 10 all call `imager.get_secret()` which dispatches to the activ
 ### Initialization
 - `init_vars()` -- zero all accumulator state (vault, secrets, platform, location, spec, defs, evars, variables, provisioners, config, files, fqdn)
 - `init_settings(argv, which, extra_args)` -- parse CLI args, load/save settings, create user dirs, seed defs
-- `load_settings(config_path)` -- read `~/.config/osimager/config.json` via JSON
-- `save_settings(config_path)` -- write current settings to config.json
+- `load_settings()` -- read `~/.config/osimager/config.json` via JSON
+- `save_settings()` -- write current settings to config.json
 
 ### Data Loading
 - `read_data(file_path)` -- load a JSON or TOML file based on extension
