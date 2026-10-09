@@ -1,97 +1,114 @@
 # CLI Reference
 
-OSImager provides three command-line tools installed as console scripts via pip.
+OSImager installs three commands: `mkosimage` builds images, `rfosimage` re-runs provisioning on an existing VM, and `mkvenv` manages the Ansible virtual environments that specs require.
 
 ---
 
 ## mkosimage
 
-The primary build command. Assembles a Packer build configuration from platform, location, and spec files, then executes it.
+Assembles a Packer build from a platform, a location and a spec, then runs it. Without a target it answers questions instead: what specs exist, what you can build, and how things are configured.
 
 ### Synopsis
 
 ```
 mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
+mkosimage [LISTING OPTIONS]
 ```
 
 ### Positional Arguments
 
-| Argument | Required | Description |
-|----------|----------|-------------|
-| `PLATFORM/LOCATION/SPEC` | Yes (for builds) | Target triple specifying the platform, location, and spec to build. Example: `vmware/lab/rhel-9.5-x86_64` |
-| `NAME` | No | Hostname for the built VM. Defaults to the spec name if omitted. |
-| `IP` | No | Static IP address for the built VM. If omitted, OSImager attempts DNS resolution of the hostname. |
+| Argument | Description |
+|----------|-------------|
+| `PLATFORM/LOCATION/SPEC` | What to build. `PLATFORM` is a file in `platforms/` (e.g. `proxmox`), `LOCATION` is a file in your `locations/` (e.g. `pve`), `SPEC` is `<dist>-<version>-<arch>` (e.g. `alma-9.8-x86_64`). Example: `proxmox/pve/alma-9.8-x86_64`. |
+| `NAME` | Hostname of the VM. Defaults to the spec name. Its FQDN is `NAME.<location domain>`, unless `NAME` already contains a dot, in which case it is the FQDN. |
+| `IP` | Static IP for the VM. If omitted, the FQDN is looked up in the location's DNS servers; if it resolves, that address is used as a static IP, otherwise the VM uses DHCP. |
 
-### Options
+#### Latest targets
 
-#### General
+In place of a version, `SPEC` can be `<dist>-latest-<arch>`, e.g. `alma-latest-x86_64`. It resolves to the highest version the specs provide for that dist and architecture, and the resolution is printed (`alma-latest-x86_64 -> alma-10.2-x86_64`). Everything after that, including the default VM name, uses the real version.
 
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-V` | `--version` | Print the OSImager version and exit. |
-| `-l` | `--list` | List all available specs. Specs with a local ISO in your `iso_path` are marked with `*`. |
-| `-a` | `--avail` | Show ISO availability for all specs, grouped by source: downloadable URLs, local ISOs present, and ISOs not available. |
-| | `--check-urls` | Check all remote ISO download URLs for accessibility. Performs HTTP HEAD requests in parallel and reports OK/FAILED/local-only counts. |
-| | `--list-platforms` | List all available platforms with their Packer builder type and supported architectures. |
-| | `--list-defs` | List all available defs (template variables) with their default values and sources. Shows base defaults, platform defs, and computed defs. |
-| | `--init-plugins` | Install all required Packer plugins for all platforms. Reads the `plugin` key from each platform JSON file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin. |
-| `-d` | `--debug` | Enable debug output. Prints internal variable resolution, file loading paths, and Packer debug flag. |
-| `-v` | `--verbose` | Enable verbose output. Prints loaded settings, file paths, and environment variables as they are set. |
-| `-c` | `--config` | Path to the config.json configuration file. Default: `config.json` (resolved in `~/.config/osimager/`). |
+With `--local`, `latest` means the newest version whose ISO is already present. If none is present, the build stops with an error.
 
-#### Build Control
+`latest` reflects the specs, not the vendor's site: a new upstream release only appears once a spec is updated for it.
 
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-n` | `--dry` | Dry run. Builds the full Packer JSON configuration but does not execute `packer build`. Prints the command that would be run. |
-| `-f` | | Force rebuild. Passes `-force` to Packer, which causes it to delete and re-create any existing output artifacts. |
-| `-k` | | Keep temp files and VMs on error. Sets Packer's `-on-error=abort` so the VM is not destroyed if the build fails, allowing inspection. |
-| `-e` | `--on_error` | Set Packer's on-error behavior explicitly. Valid values: `cleanup` (default Packer behavior), `abort`, `ask`. Overrides `-k`. |
-| `-t` | | Enable Packer's timestamp UI (`-timestamp-ui`), which prefixes each output line with a timestamp. |
-|      | `--local-only` | Restrict builds to local ISOs only. Specs without a matching local ISO will fail instead of attempting a download. This setting is persisted to `config.json`. |
-| `-m` | `--temp` | Specify a custom temp directory for build artifacts. By default, OSImager creates a temporary directory in `/tmp` and cleans it up after the build (unless `-k` is set). |
+### Listing Options
 
-#### Output and Debugging
+These print information and exit. They need no target.
 
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-x` | `--defs` | Dump the fully resolved defs dictionary and exit. Shows all merged variables from platform, location, and spec configs after template substitution. |
-| `-u` | `--dump` | Dump the complete Packer build JSON and exit. Useful for inspecting the exact configuration that would be sent to Packer. |
-| `-L` | | Enable Packer logging. Sets the `PACKER_LOG=1` environment variable. |
-| `-N` | `--logfile` | Path for Packer log output. Sets `PACKER_LOG_PATH` to this value. Only meaningful when `-L` is also set. |
+| Flag | What it prints |
+|------|----------------|
+| `-l`, `--list` | Every spec OSImager knows about, one per line in version order, whether or not you can build it. A `(*)` after a name means its ISO is present locally. |
+| `-a`, `--avail` | Only the specs you can build right now, one per line, with where the ISO comes from: a local path if the ISO is present, otherwise the download URL. Specs that are local-only and whose ISO is missing are not listed. |
+| `--local` | With no target: the same list as `-a`, but only the specs whose ISO is present (path entries only). With a target: see Build Options. |
+| `--latest` | Each `<dist>-latest-<arch>` target and the spec it resolves to. Combined with `-a` or `--local`, those lists are narrowed to the latest spec of each dist. With `--local`, latest means the newest version present locally. |
+| `--arch ARCH` | Filter any of the lists above to one architecture, e.g. `--arch aarch64`. |
+| `--check-urls` | HEAD-checks every download URL in every spec, in parallel, and prints each failure with its HTTP status, then totals of OK, failed and local-only. |
+| `--list-platforms` | Each platform with its Packer builder type and supported architectures. |
+| `--list-defs` | Every def (template variable) with its default value and where it comes from. |
+| `--show-config` | The settings in effect, as loaded from `config.json`. |
+| `--init-plugins` | Installs the Packer plugin each platform needs, plus the Ansible provisioner plugin. |
+| `-V`, `--version` | The OSImager version. |
 
-#### Customization
+"Present locally" means the file exists in `iso_path` or in `packer_cache_dir` on the machine running OSImager.
 
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-F` | `--fqdn` | Override the auto-generated FQDN. By default, OSImager constructs the FQDN from the hostname and the location's `domain` setting. |
-| `-D` | `--define` | Define custom defs as a comma-separated list of `KEY=VALUE` pairs. These override any values from platform, location, or spec configs. |
+### Build Options
 
-#### Persistent Settings
+| Flag | Effect |
+|------|--------|
+| `--local`, `--local-only` | Build only from an ISO that is already present; never download. If the ISO is missing, the build fails. Applies to this run only. |
+| `-n`, `--dry` | Do everything except run Packer: resolve the config, generate the answer files, write the build JSON and print the `packer build` command. |
+| `-f` | Pass `-force` to Packer, which replaces an existing VM or output with the same name. |
+| `-k` | Keep things around for debugging: pass `-on-error=abort` to Packer so a failed VM is not destroyed, and keep the temporary build directory. |
+| `-e`, `--on_error MODE` | Pass `-on-error=MODE` to Packer (`cleanup`, `abort` or `ask`). Takes precedence over `-k` for Packer's behavior. |
+| `--skip` | Skip post-install configuration: no Ansible run, and no Ansible venv required. |
+| `-m`, `--temp DIR` | Use `DIR` for the generated files instead of a new temporary directory. It is not deleted afterwards. |
+| `-t` | Pass `-timestamp-ui` to Packer, so each output line is timestamped. |
+| `--dispatcher` | Print machine-readable progress lines (`PROGRESS=`, `ERROR=`, `RESULT=`) for a controlling program. |
 
-| Flag | Description |
-|------|-------------|
-| `--set KEY=VALUE` | Set a persistent configuration value in `~/.config/osimager/config.json`. Can be specified multiple times. Only saves if the value actually changes. |
+### Customization Options
 
-The following keys are accepted by `--set`:
+| Flag | Effect |
+|------|--------|
+| `-D`, `--define K=V[,K=V...]` | Set defs for this build, overriding the platform, location and spec. Comma-separated, e.g. `-D memory=4096,cpu_cores=4`. |
+| `-F`, `--fqdn FQDN` | Use this FQDN instead of the one derived from `NAME`. |
 
-| Key | Default | Description |
-|-----|---------|-------------|
-| `credential_source` | `vault` | Credential backend: `vault` (HashiCorp Vault) or `config` (local secrets file). |
-| `vault_addr` | _(empty)_ | HashiCorp Vault server URL (e.g. `http://vault.example.com:8200`). |
-| `vault_token` | _(empty)_ | HashiCorp Vault access token. |
-| `packer_cmd` | `packer` | Path to the Packer binary. |
-| `packer_cache_dir` | `/tmp` | Directory for Packer's ISO download cache. |
-| `local_only` | `False` | When `True`, only use local ISOs; never attempt downloads. |
-| `data_dir` | `data` | Path to the OSImager data directory (relative to package or absolute). |
-| `ansible_playbook` | `config.yml` | Name of the Ansible playbook used during provisioning. |
-| `iso_path` | `/iso` | Directory containing OS installation ISO files. |
+### Output and Debugging Options
+
+| Flag | Effect |
+|------|--------|
+| `-x`, `--defs` | Print the fully resolved defs as JSON and exit without building. |
+| `-u`, `--dump` | Print the complete Packer build JSON and exit without building. |
+| `-v`, `--verbose` | Print what OSImager is doing: settings loaded, files read, environment variables set. |
+| `-d`, `--debug` | Print internal resolution detail, and pass `-debug` to Packer (which pauses between steps). |
+| `-L` | Set `PACKER_LOG=1` so Packer writes its detailed log. |
+| `-N`, `--logfile FILE` | Set `PACKER_LOG_PATH=FILE`, so Packer's log goes to that file. Only useful with `-L`. |
+
+### Settings
+
+| Flag | Effect |
+|------|--------|
+| `--set KEY=VALUE` | Change a setting **and save it** to `~/.config/osimager/config.json`. Repeatable. The new value applies to this run and every run after it. If `--local` is given in the same command, `local_only=true` is saved too. |
+| `-c`, `--config FILE` | Accepted but has no effect: settings are always read from `~/.config/osimager/config.json`. |
+
+Settings that are saved to `config.json`:
+
+| Key | Default | Meaning |
+|-----|---------|---------|
+| `iso_path` | `/iso` | Directory on this machine holding ISOs. Spec `file://` URLs and the "present locally" check use it. |
+| `packer_cache_dir` | `~/.cache/osimager` | Where Packer keeps downloaded ISOs; also checked for "present locally". |
+| `local_only` | `false` | When `true`, every run behaves as if `--local` was given. |
+| `packer_cmd` | `packer` | Packer binary to run. |
+| `credential_source` | `vault` | Where secrets come from: `vault` (HashiCorp Vault) or `config` (the local `secrets` file). |
+| `vault_addr` | _(empty)_ | Vault server URL, e.g. `http://vault.example.com:8200`. |
+| `vault_token` | _(empty)_ | Vault access token. |
+| `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size` | `1`, `2`, `2048`, `16384` | Default VM sizing (memory and disk in MB) when the spec doesn't set them. |
+| `ansible_playbook` | `config.yml` | Playbook run for post-install configuration. |
 
 ---
 
 ## rfosimage
 
-Re-provisions an existing VM using Ansible without rebuilding from an ISO. Replaces the Packer builder with a `null` builder, keeping only the communicator configuration and provisioners.
+Re-runs provisioning (Ansible) against a VM that already exists, without reinstalling it.
 
 ### Synopsis
 
@@ -99,61 +116,46 @@ Re-provisions an existing VM using Ansible without rebuilding from an ISO. Repla
 rfosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 ```
 
-### How It Differs from mkosimage
+### How It Works
 
-`rfosimage` runs the same configuration merge pipeline as `mkosimage` (platform + location + spec), but before executing Packer it:
+`rfosimage` resolves the same platform + location + spec configuration as `mkosimage`, then, before running Packer:
 
-1. Removes any `files` section from the spec (no file generation needed).
-2. Extracts the communicator type and settings (e.g. SSH host, user, password) from the original builder.
-3. Replaces the builder with a Packer `null` builder that only connects to the target via the communicator.
-4. Runs the provisioners (typically Ansible) against the existing VM.
+1. Drops the spec's generated files (nothing is installed, so no answer files are needed).
+2. Keeps only the communicator settings (SSH or WinRM host, user, password) from the builder.
+3. Replaces the builder with Packer's `null` builder, which just connects to the VM.
+4. Runs the provisioners against it.
 
-This means the VM must already exist and be reachable at the specified hostname/IP.
+The VM must be running and reachable at `NAME` (or `IP`) with the credentials from your secrets.
 
 ### When to Use
 
-- Re-running Ansible provisioning after changing a spec's Ansible playbook or roles.
-- Applying configuration updates to an already-built VM.
-- Testing Ansible provisioner changes without waiting for a full OS install.
+- Re-running Ansible after changing a spec's playbook or roles.
+- Applying configuration changes to a VM that's already built.
+- Iterating on provisioning without waiting for a full OS install.
 
-### Arguments and Options
+### Options
 
-`rfosimage` accepts the same positional arguments and options as `mkosimage`. The `NAME` and `IP` arguments are typically required since the target VM must be reachable.
-
-!!! note
-    The target VM must be running and accessible via the communicator (SSH or WinRM) defined in the platform config. If the VM was built with `mkosimage`, the same credentials configured in your secrets will be used.
+`rfosimage` accepts the same arguments and options as `mkosimage`.
 
 ---
 
 ## mkvenv
 
-Creates a Python virtual environment for Ansible version pinning. Some older OS distributions require specific Ansible versions that differ from what is installed system-wide.
+Creates the Python virtual environments that hold specific Ansible versions. A spec's `ansible_version` (e.g. `"2.18"`) says which Ansible its post-install configuration needs; `mkosimage` activates `<venv_dir>/<version>` before running Packer and stops with an error if that venv is missing (unless `--skip` is given).
 
 ### Synopsis
 
 ```
-mkvenv [OPTIONS]
+mkvenv                  # show which venvs the specs need and which are installed
+mkvenv VERSION          # create the venv for one Ansible version, e.g. mkvenv 2.17
+mkvenv --all            # create every missing venv the specs need
 ```
 
-### Purpose
+### Details
 
-Certain specs include a `venv` key that references a named virtual environment. When `mkosimage` encounters a spec with a `venv` value, it activates that virtual environment before running Packer, ensuring the correct Ansible version is on the `PATH`.
-
-`mkvenv` creates and configures these virtual environments in the venv directory (`~/.venv/` by default).
-
-### Options
-
-`mkvenv` accepts the base options shared with all OSImager commands:
-
-| Flag | Long Form | Description |
-|------|-----------|-------------|
-| `-V` | `--version` | Print the OSImager version and exit. |
-| `-l` | `--list` | List available specs. |
-| `-a` | `--avail` | Show ISO availability for all specs. |
-| `-d` | `--debug` | Enable debug output. |
-| `-v` | `--verbose` | Enable verbose output. |
-| `-c` | `--config` | Path to config.json. |
-|      | `--set KEY=VALUE` | Set a persistent configuration value. |
+- Venvs live in `~/.local/share/osimager/venvs/` (override with the `OSIMAGER_VENV_DIR` environment variable).
+- Which Ansible package and Python versions each Ansible version needs comes from `ansible.json`. `mkvenv` looks for a matching Python on your `PATH` and reports if none is found.
+- `mkvenv` shares the general options of `mkosimage` (`-v`, `-d`, `--set`), but the listing options do nothing here.
 
 ---
 
@@ -162,141 +164,117 @@ Certain specs include a `venv` key that references a named virtual environment. 
 ### Listing
 
 ```bash
-# List all available specs (* marks those with local ISOs)
-mkosimage --list
+# Every spec OSImager knows about ((*) = ISO present locally)
+mkosimage -l
 
-# Show ISO availability (download / local / not available)
-mkosimage --avail
+# What you can build right now, with the local path or download URL of each ISO
+mkosimage -a
 
-# Check all remote ISO download URLs
+# What you can build without downloading anything
+mkosimage --local
+
+# The latest target of each dist and what it resolves to
+mkosimage --latest
+
+# The newest locally present version of each dist
+mkosimage --latest --local
+
+# Only aarch64
+mkosimage -a --arch aarch64
+
+# Check every download URL
 mkosimage --check-urls
-
-# List all available platforms with builder type and architectures
-mkosimage --list-platforms
-
-# List all available defs with defaults and sources
-mkosimage --list-defs
-
-# Install all required Packer plugins
-mkosimage --init-plugins
 ```
 
 ### Building Images
 
 ```bash
-# Build with VirtualBox (hostname defaults to spec name, IP via DNS)
-mkosimage virtualbox/local/alma-9.5-x86_64
+# Build; the VM is named after the spec
+mkosimage proxmox/pve/alma-9.8-x86_64
 
-# Build with explicit hostname and IP
+# Build the newest Alma the specs provide
+mkosimage proxmox/pve/alma-latest-x86_64
+
+# Build the newest Alma whose ISO is already present, never downloading
+mkosimage --local proxmox/pve/alma-latest-x86_64
+
+# Explicit hostname and static IP
 mkosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 
-# Build with a custom FQDN
+# Custom FQDN
 mkosimage -F myhost.custom.domain vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 
-# Force rebuild, deleting any existing artifacts
+# Replace an existing VM of the same name
 mkosimage -f vmware/lab/rhel-9.5-x86_64 myhost
 ```
 
 ### Debugging and Inspection
 
 ```bash
-# Dry run -- show the Packer command without executing it
-mkosimage -n vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+# Generate everything and show the packer command, but don't run it
+mkosimage -n vmware/lab/rhel-9.5-x86_64 myhost
 
-# Dump the resolved defs dictionary
-mkosimage -x vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+# Show the resolved defs
+mkosimage -x vmware/lab/rhel-9.5-x86_64 myhost
 
-# Dump the Packer build JSON
-mkosimage -u vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+# Show the Packer build JSON
+mkosimage -u vmware/lab/rhel-9.5-x86_64 myhost
 
-# Enable verbose and debug output together
-mkosimage -v -d vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+# Keep the VM and temp files if the build fails
+mkosimage -k vmware/lab/rhel-9.5-x86_64 myhost
+
+# Packer's detailed log, written to a file
+mkosimage -L -N /tmp/packer.log vmware/lab/rhel-9.5-x86_64 myhost
 ```
 
 ### Overriding Defs
 
 ```bash
-# Override memory and CPU settings
-mkosimage -D memory=4096,cpu_cores=4 vmware/lab/rhel-9.5-x86_64
-
-# Override multiple values for a custom build
-mkosimage -D memory=8192,cpu_cores=8,disk_size=51200 vmware/lab/rhel-9.5-x86_64 bighost
-```
-
-### Packer Logging
-
-```bash
-# Enable Packer logging to a file
-mkosimage -L -N /tmp/packer.log vmware/lab/rhel-9.5-x86_64 myhost
-
-# Keep VM on error for inspection
-mkosimage -k vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
-
-# Explicit on-error behavior
-mkosimage -e ask vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
+mkosimage -D memory=8192,cpu_cores=8,boot_disk_size=51200 vmware/lab/rhel-9.5-x86_64 bighost
 ```
 
 ### Re-provisioning
 
 ```bash
-# Re-run Ansible provisioning on an existing VM
 rfosimage vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
-
-# Dry run re-provisioning to see what would execute
-rfosimage -n vmware/lab/rhel-9.5-x86_64 myhost 192.168.1.100
 ```
 
-### Persistent Configuration
+### Persistent Settings
 
 ```bash
-# Switch to local secrets file mode
+# Use the local secrets file instead of Vault
 mkosimage --set credential_source=config
 
 # Configure Vault
-mkosimage --set vault_addr=http://vault.example.com:8200
-mkosimage --set vault_token=hvs.your-token-here
+mkosimage --set vault_addr=http://vault.example.com:8200 --set vault_token=hvs.your-token
 
-# Use a custom Packer binary
-mkosimage --set packer_cmd=/usr/local/bin/packer
-
-# Restrict to local ISOs only
-mkosimage --set local_only=True
+# Where your ISOs live
+mkosimage --set iso_path=/iso
 ```
 
 ---
 
 ## Exit Codes
 
-| Code | Constant | Meaning |
-|------|----------|---------|
-| 0 | `EXIT_SUCCESS` | Command completed successfully. |
-| 1 | `EXIT_GENERAL_ERROR` | General error (build failure, missing spec, invalid arguments). |
-| 2 | `EXIT_MISUSE` | Command misuse (invalid argument combinations). |
-| 3 | `EXIT_CONFIG_ERROR` | Configuration error (missing or invalid config files). |
-| 4 | `EXIT_NETWORK_ERROR` | Network error (DNS resolution failure, unreachable host). |
-| 5 | `EXIT_PERMISSION_ERROR` | Permission error (insufficient access to files or directories). |
+| Code | Meaning |
+|------|---------|
+| 0 | Success. |
+| 1 | OSImager error: unknown platform or spec, missing ISO, missing credentials, invalid arguments. |
+| other | A build that reaches Packer exits with Packer's exit code. |
 
 ---
 
 ## Configuration File
 
-All three commands read settings from `~/.config/osimager/config.json`, a JSON file:
+All three commands read `~/.config/osimager/config.json` (or `$XDG_CONFIG_HOME/osimager/config.json`). `--set` writes it. Built-in defaults apply to any key it doesn't contain, and command-line flags such as `--local` override it for one run.
 
 ```json
 {
-    "credential_source": "config",
-    "packer_cmd": "packer",
-    "packer_cache_dir": "/tmp",
+    "iso_path": "/iso",
+    "packer_cache_dir": "/home/you/.cache/osimager",
     "local_only": false,
-    "data_dir": "data",
-    "ansible_playbook": "config.yml",
-    "iso_path": "/iso"
+    "packer_cmd": "packer",
+    "credential_source": "config",
+    "ansible_playbook": "config.yml"
 }
 ```
-
-Settings are loaded in this order (later overrides earlier):
-
-1. Built-in defaults in the OSImager source.
-2. Values from `~/.config/osimager/config.json`.
-3. Command-line `--set` overrides (which also persist back to the config file).
-4. Command-line flags (e.g. `--local-only`, `-d`, `-v`).

@@ -100,6 +100,12 @@ These defaults are set in `~/.config/osimager/config.json` (or built-in if not c
 
 **Builder type:** `qemu`
 
+**Platform defs:**
+
+| Variable | Value |
+|----------|-------|
+| `libvirt_uri` | `` |
+
 **Template variables referenced** (`>>var<<`):
 
 - `boot_disk_size` — config default
@@ -127,6 +133,7 @@ These defaults are set in `~/.config/osimager/config.json` (or built-in if not c
 - `'' if >>local_only<< else '>>iso_path<</>>iso_name<<'`
 - `'>>iso_checksum<<' if len('>>iso_checksum<<') else 'none'`
 - `'>>iso_path<</>>iso_name<<' if >>local_only<< else '>>iso_url<<'`
+- `'host' if os.access('/dev/kvm', os.W_OK) else 'max'`
 - `'kvm' if os.access('/dev/kvm', os.W_OK) else 'none'`
 
 ---

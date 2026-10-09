@@ -2,7 +2,8 @@
   "provides": {
     "dist": "mxlinux",
     "versions": [
-      "23.5"
+      "23.5",
+      "23.6"
     ]
   },
   "ansible_version": "2.18",
@@ -13,14 +14,6 @@
     "proxmox",
     "qemu",
     "none"
-  ],
-  "arch_specific": [
-    {
-      "arch": "x86_64",
-      "defs": {
-        "iso_url": "file://>>iso_path<</MX->>version<<_x64.iso"
-      }
-    }
   ],
   "defs": {
     "boot_disk_size": 16384
@@ -44,6 +37,25 @@
       "config": {
         "guest_os_type": "debian12-64"
       }
+    }
+  ],
+  "version_specific": [
+    {
+      "version": "23\\.5",
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "file://>>iso_path<</MX->>version<<_x64.iso"
+          }
+        }
+      ]
+    },
+    {
+      "version": "23\\.6",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://downloads.sourceforge.net/project/mx-linux/Old/MX->>version<</Xfce/MX->>version<<_x64.iso" } }
+      ]
     }
   ]
 }

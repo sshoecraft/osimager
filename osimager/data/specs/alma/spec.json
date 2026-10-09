@@ -3,8 +3,8 @@
     "dist": "alma",
     "versions": [
         "8.[3-10]",
-        "9.[0-7]",
-        "10.[0-1]"
+        "9.[0-8]",
+        "10.[0-2]"
     ]
   },
   "include": "rhel",
@@ -63,8 +63,15 @@
     {
       "version": "9.7",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/9.7/isos/x86_64/AlmaLinux-9.7-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/9.7/isos/aarch64/AlmaLinux-9.7-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "https://vault.almalinux.org/9.7/isos/x86_64/AlmaLinux-9.7-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://vault.almalinux.org/9.7/isos/aarch64/AlmaLinux-9.7-aarch64-dvd.iso" } }
+      ]
+    },
+    {
+      "version": "9.8",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/9.8/isos/x86_64/AlmaLinux-9.8-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/9.8/isos/aarch64/AlmaLinux-9.8-aarch64-dvd.iso" } }
       ]
     },
     {
@@ -90,8 +97,15 @@
     {
       "version": "10.1",
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/10.1/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/10.1/isos/aarch64/AlmaLinux-10.1-aarch64-dvd.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "https://vault.almalinux.org/10.1/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://vault.almalinux.org/10.1/isos/aarch64/AlmaLinux-10.1-aarch64-dvd.iso" } }
+      ]
+    },
+    {
+      "version": "10.2",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/10.2/isos/x86_64/AlmaLinux-10.2-x86_64-dvd.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://repo.almalinux.org/almalinux/10.2/isos/aarch64/AlmaLinux-10.2-aarch64-dvd.iso" } }
       ]
     }
   ]

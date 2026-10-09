@@ -103,6 +103,9 @@ mkosimage -n virtualbox/local/alma-9.5-x86_64
 
 # Build
 mkosimage virtualbox/local/alma-9.5-x86_64
+
+# Build the newest version a spec provides
+mkosimage virtualbox/local/alma-latest-x86_64
 ```
 
 ## How It Works
@@ -133,11 +136,11 @@ OSImager merges these three configs together, performs template substitution, ge
 |-------------|----------|----------------|
 | RHEL | 2.1, 3.0, 4.8, 5.x, 6.x, 7.x, 8.x, 9.x, 10.x | Kickstart |
 | CentOS | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.5 | Kickstart |
-| AlmaLinux | 8.3-8.10, 9.0-9.7, 10.0-10.1 | Kickstart |
-| Rocky Linux | 8.3-8.9, 9.0-9.7, 10.0-10.1 | Kickstart |
-| Oracle Linux | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.10, 9.0-9.7, 10.0-10.1 | Kickstart |
+| AlmaLinux | 8.3-8.10, 9.0-9.8, 10.0-10.2 | Kickstart |
+| Rocky Linux | 8.3-8.10, 9.0-9.8 | Kickstart |
+| Oracle Linux | 5.0-5.10, 6.0-6.10, 7.0-7.9, 8.0-8.10, 9.0-9.8, 10.0-10.2 | Kickstart |
 | Debian | 8-13 | Preseed / Cloud-Init |
-| Ubuntu | 18.04, 20.04, 22.04, 24.04 | Cloud-Init |
+| Ubuntu | 18.04, 20.04, 22.04, 24.04, 26.04 | Cloud-Init |
 | SLES | 12.1-12.5, 15.0-15.7, 16.0 | AutoYaST |
 | VMware ESXi | 5.5U3, 6.0U2, 6.5, 7.0U3n, 8.0U2 | Kickstart |
 | Windows Server | 2016, 2019, 2022, 2025 | Autounattend |
@@ -181,22 +184,36 @@ mkosimage --set packer_cache_dir=/var/cache  # ISO download cache
 ```
 mkosimage [OPTIONS] PLATFORM/LOCATION/SPEC [NAME] [IP]
 
-Options:
-  -l, --list          List all available specs
-  -a, --avail         List only specs with local ISOs present
-  -n, --dry           Dry run (show commands without executing)
-  -d, --debug         Enable debug output
-  -v, --verbose       Enable verbose output
-  -f, --force         Force rebuild
-  -k, --keep          Keep temporary files after build
-  -F, --fqdn FQDN    Set fully qualified domain name
-  -D, --define K=V    Define custom variables
-  -u, --dump          Dump build configuration as JSON
-  -x, --defs          Dump resolved definitions as JSON
-  --local-only        Use local ISO files only
-  --set KEY=VALUE     Set a persistent configuration value
-  -V, --version       Show version
+Listing (no target needed):
+  -l, --list          Every spec OSImager knows about; (*) = ISO present locally
+  -a, --avail         Specs you can build now, with local ISO path or download URL
+  --local             Like -a, but only specs whose ISO is already present
+  --latest            Each <dist>-latest-<arch> target and the spec it resolves to;
+                      with -a/--local, narrows those lists to the latest of each dist
+  --arch ARCH         Limit any listing to one architecture
+  --check-urls        HEAD-check every download URL in every spec
+
+Building:
+  --local             Build only from an ISO already present; never download
+  -n, --dry           Generate everything and print the packer command, don't run it
+  -f                  Replace an existing VM/output of the same name (packer -force)
+  -k                  On failure keep the VM (packer -on-error=abort) and temp files
+  --skip              Skip post-install configuration (Ansible)
+  -D K=V[,K=V]        Override defs for this build
+  -F FQDN             Use this FQDN instead of NAME.<location domain>
+
+Inspecting:
+  -x, --defs          Print the resolved defs and exit
+  -u, --dump          Print the Packer build JSON and exit
+  -v / -d             Verbose / debug output (-d also runs packer -debug)
+  -L, -N FILE         Packer log on, written to FILE
+
+Settings:
+  --set KEY=VALUE     Change a setting and save it to ~/.config/osimager/config.json
+  --show-config       Print the current settings
 ```
+
+Every option, with exact behavior, is in the [CLI reference](https://sshoecraft.github.io/osimager/reference/cli-reference/).
 
 ## Documentation
 

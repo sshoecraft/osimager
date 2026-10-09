@@ -14,10 +14,7 @@ Three console script entry points installed via pip. Each creates an `OSImager` 
 
 1. `--show-config` — Prints current configuration file path and all settings.
 2. `--check-urls` — Calls `check_all_urls()` to verify all remote ISO download URLs are accessible. Uses ThreadPoolExecutor for parallel HTTP HEAD checks. Reports OK/FAILED/local-only counts.
-3. `--avail` (`-a`) — Shows ISO availability for all specs, categorized as:
-   - **Download** — specs with http/https URLs (buildable with network access)
-   - **Local** — specs with file:// ISOs that exist on disk (ready to build)
-   - **Not available** — file:// ISOs not found locally (must obtain ISO)
+3. `--avail` (`-a`) — Prints one list of the available specs in index order. Each line shows the ISO's source: a local path when the ISO is present, or the download URL otherwise. Specs that can't be built (local-only `file://` ISOs or disk images that aren't present) are left out entirely. Disk-image specs use `disk_image_url`/`disk_image_local`. Under `--local` (or `local_only`) the list holds only local entries. With `--latest`, the index is first narrowed to each `<dist>-latest-<arch>` target.
 4. `--list-platforms` — Iterates `get_platforms()`, prints name/builder_type/arches.
 5. `--list-defs` — Shows configuration defaults (cpu, memory, disk from config.json), platform-specific defs, and computed defs.
 6. `--list` (`-l`) — Builds spec index via `get_index()`, prints all specs with local ISO markers.

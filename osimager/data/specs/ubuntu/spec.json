@@ -5,9 +5,10 @@
       "18.04",
       "20.04",
       "22.04",
-      "24.04.[2-3]",
+      "24.04.[2-5]",
       "25.10",
-      "26.04"
+      "26.04",
+      "26.04.1"
     ]
   },
   "include": "linux",
@@ -216,7 +217,7 @@
       }
     },
     {
-      "version": "26.04",
+      "version": "26.04.*",
       "ansible_version": "2.18",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://releases.ubuntu.com/>>version<</ubuntu->>version<<-live-server-amd64.iso" } },

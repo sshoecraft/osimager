@@ -2,7 +2,10 @@
   "provides": {
     "dist": "alpine",
     "versions": [
-      "3.21"
+      "3.21",
+      "3.22",
+      "3.23",
+      "3.24"
     ]
   },
   "ansible_version": "2.18",
@@ -49,7 +52,7 @@
   ],
   "version_specific": [
     {
-      "version": "3\\.21",
+      "version": "3\\.2[1-4]",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://dl-cdn.alpinelinux.org/alpine/v>>version<</releases/x86_64/alpine-standard->>version<<.0-x86_64.iso" } },
         { "arch": "aarch64", "defs": { "iso_url": "https://dl-cdn.alpinelinux.org/alpine/v>>version<</releases/aarch64/alpine-standard->>version<<.0-aarch64.iso" } },

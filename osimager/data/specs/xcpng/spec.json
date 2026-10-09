@@ -40,7 +40,7 @@
         {
           "arch": "x86_64",
           "defs": {
-            "iso_url": "https://mirrors.xcp-ng.org/isos/8.3/xcp-ng-8.3.0-20250606.2.iso"
+            "iso_url": "https://mirrors.xcp-ng.org/isos/8.3/xcp-ng-8.3.0-20260806.iso"
           }
         }
       ]

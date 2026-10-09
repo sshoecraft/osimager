@@ -50,6 +50,8 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 ### Index and Discovery
 - `make_index()` — Scan all specs, expand version ranges, iterate candidate arches per version, probe `resolve_iso_url()` and `resolve_disk_image_url()` to determine arch availability. An entry is indexed if it has **either** an installer ISO or a prebuilt disk image; entries with neither are skipped. Disk-image entries carry `disk_image_url`, `disk_image_local`, and `image_import: True`. Always built fresh (no file caching).
 - `get_index(name)` — Calls `make_index()`, optionally filters by name
+- `latest_aliases(index)` — Map each `<dist>-latest-<arch>` alias to the index key with the highest version for that dist and arch (`natural_key` order). Under `local_only`, only locally available entries are candidates. Used by `--latest` to print the aliases, and to narrow the `--avail`/`--local` report.
+- `resolve_latest(spec_name)` — Return the index key an alias points at, or `spec_name` unchanged if it is not an alias. `make_build()` calls it on the target's spec part first, so the rest of the build only ever sees the real version.
 - `spec_get_provides(file_name, data)` — Extract provides entries (dist+version pairs), expand version ranges. Arches are no longer part of provides — they are derived at index time by probing `resolve_iso_url()`.
 - `get_platforms(names)` — List platform configs
 - `get_locations(platform_names)` — List location configs from user dir

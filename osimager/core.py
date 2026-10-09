@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.9.3"
+OSIMAGER_VERSION = "1.10.0"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -89,6 +89,7 @@ class OSImager:
             "--debug": {"flags": ["-d", "--debug"], "kwargs": {"default": False, "action": "store_true", "help": "Enable debug mode", "dest": "debug"}},
             "--verbose": {"flags": ["-v", "--verbose"], "kwargs": {"default": False, "action": "store_true", "help": "Enable verbose output", "dest": "verbose"}},
             "--version": {"flags": ["-V", "--version"], "kwargs": {"default": False, "action": "store_true", "help": "Show version and exit", "dest": "version"}},
+            "--latest": {"flags": ["--latest"], "kwargs": {"default": False, "action": "store_true", "help": "Show the <dist>-latest-<arch> targets and the spec each resolves to; with --avail or --local, limit the report to those specs", "dest": "latest"}},
             "--arch": {"flags": ["--arch"], "kwargs": {"default": None, "help": "Filter output by architecture (e.g. x86_64, i386, aarch64)", "dest": "arch"}},
             "--set": {"flags": ["--set"], "kwargs": {"action": "append", "help": "Set a setting value (key=value)", "dest": "settings_override"}},
         }
@@ -136,6 +137,7 @@ class OSImager:
         self.config_file = os.path.expanduser(args.config) if args.config else "config.json"
         self.list = args.list
         self.avail = args.avail
+        self.latest = args.latest
         self.list_platforms = args.list_platforms
         self.list_defs = args.list_defs
         self.init_plugins = args.init_plugins
@@ -1053,6 +1055,29 @@ class OSImager:
             index = {k: v for k, v in index.items() if v.get('provides', {}).get('arch') == self.arch}
         return index.get(name,None) if name else index
 
+    def latest_aliases(self, index):
+        """Map each <dist>-latest-<arch> alias to the index key of the highest
+        version that dist provides for that arch. Under local_only, only
+        versions whose ISO or disk image is already local are candidates."""
+        local_only = self.settings.get('local_only', False)
+        best = {}
+        for key, entry in index.items():
+            if local_only and not (entry.get('iso_local') or entry.get('disk_image_local')):
+                continue
+            provides = entry.get('provides', {})
+            alias = provides.get('dist', "") + "-latest-" + provides.get('arch', "")
+            version = provides.get('version', "")
+            if alias not in best or natural_key(version) > natural_key(best[alias][0]):
+                best[alias] = (version, key)
+        return {alias: best[alias][1] for alias in sorted(best, key=natural_key)}
+
+    def resolve_latest(self, spec_name):
+        """Return the index key a <dist>-latest-<arch> alias points at, or
+        spec_name unchanged when it is not an alias."""
+        if "-latest-" not in spec_name:
+            return spec_name
+        return self.latest_aliases(self.make_index()).get(spec_name, spec_name)
+
     def get_iso_file(self,urls):
         debug = False
         if debug: print("get_iso_file: urls: "+str(urls))
@@ -1149,7 +1174,12 @@ class OSImager:
         self.defs['platform'] = platform_name
         location_name = tuple[1]
         self.defs['location'] = location_name
-        spec_name = tuple[2]
+        spec_name = self.resolve_latest(tuple[2])
+        if spec_name != tuple[2]:
+            print(f"{tuple[2]} -> {spec_name}")
+        elif "-latest-" in spec_name and self.settings.get('local_only', False):
+            print(f"no local ISO found for any version of {spec_name}")
+            sys.exit(1)
 
         # This has to be done early
         index_entry = self.get_index(spec_name)

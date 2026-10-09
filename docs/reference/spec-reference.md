@@ -730,7 +730,7 @@ Provides:
 | Distribution | Versions | Arches | Installer | Include Chain | Cloud |
 |-------------|----------|--------|-----------|---------------|-------|
 | rhel | 2.1 -- 10.1 | i386, x86_64, aarch64 | Kickstart | linux -> ssh | 7+ |
-| alma | 8.3 -- 10.1 | x86_64, aarch64 | Kickstart | rhel -> linux -> ssh | 8+ |
+| alma | 8.3 -- 10.2 | x86_64, aarch64 | Kickstart | rhel -> linux -> ssh | 8+ |
 | rocky | 8.3 -- 10.1 | x86_64, aarch64 | Kickstart | rhel -> linux -> ssh | 8+ |
 | centos | 5.0 -- 8.5 | i386, x86_64, aarch64 | Kickstart | rhel -> linux -> ssh | 7+ |
 | oel | 5.0 -- 10.1 | i386, x86_64, aarch64 | Kickstart | rhel -> linux -> ssh | 7+ |

@@ -2,7 +2,7 @@
   "provides": {
     "dist": "mint",
     "versions": [
-      "22.2"
+      "22.[2-3]"
     ]
   },
   "ansible_version": "2.18",
@@ -47,7 +47,7 @@
   ],
   "version_specific": [
     {
-      "version": "22\\.2",
+      "version": "22\\.[2-3]",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://mirrors.edge.kernel.org/linuxmint/stable/>>version<</linuxmint->>version<<-cinnamon-64bit.iso" } }
       ],

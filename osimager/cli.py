@@ -45,51 +45,38 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 print(f"No specs found in {osimager.system_data_dir}/specs/ (incomplete install?)")
                 print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
                 return EXIT_SUCCESS
-
-            download = []
-            local = []
-            missing = []
-
-            for spec_key in sorted(index.keys()):
-                entry = index[spec_key]
-                iso_url = entry.get('iso_url', '')
-                iso_local = entry.get('iso_local', False)
-
-                if not iso_url:
-                    missing.append((spec_key, '(no iso_url defined)'))
-                elif iso_url.startswith('file://'):
-                    path = iso_url[7:]
-                    if iso_local:
-                        local.append((spec_key, path))
-                    else:
-                        missing.append((spec_key, path))
-                else:
-                    if iso_local:
-                        iso_name = get_filename_from_url(iso_url)
-                        iso_path = osimager.settings.get('iso_path', '/iso')
-                        local.append((spec_key, os.path.join(iso_path, iso_name)))
-                    else:
-                        download.append((spec_key, iso_url))
+            if osimager.latest:
+                index = {k: index[k] for k in osimager.latest_aliases(index).values()}
 
             local_only = osimager.settings.get('local_only', False)
 
-            if local:
-                print(f"Local ({len(local)}):")
-                for spec_key, path in local:
-                    print(f"  {spec_key:<30} {path}")
-                print()
+            # One list: the source column is a path when the ISO is local and
+            # a URL when it would be downloaded.
+            for spec_key, entry in index.items():
+                # Image-import specs build from disk_image_url instead of an ISO
+                iso_url = entry.get('iso_url', '') or entry.get('disk_image_url', '')
+                if not iso_url:
+                    continue
+                if entry.get('iso_local', False) or entry.get('disk_image_local', False):
+                    if iso_url.startswith('file://'):
+                        source = iso_url[7:]
+                    else:
+                        source = os.path.join(osimager.settings.get('iso_path', '/iso'), get_filename_from_url(iso_url))
+                elif not local_only and not iso_url.startswith('file://'):
+                    source = iso_url
+                else:
+                    continue
+                print(f"  {spec_key:<30} {source}")
+            return EXIT_SUCCESS
 
-            if not local_only and download:
-                print(f"Download ({len(download)}):")
-                for spec_key, url in download:
-                    print(f"  {spec_key:<30} {url}")
-                print()
-
-            if local_only:
-                print(f"{len(local)} local ISOs ({len(index)} total specs)")
+        if osimager.latest:
+            aliases = osimager.latest_aliases(osimager.get_index())
+            if aliases:
+                print("Latest specs:")
+                for alias, spec_key in aliases.items():
+                    print(f"  {alias:<34} {spec_key}")
             else:
-                avail = len(download) + len(local)
-                print(f"{avail} available, {len(missing)} not available ({len(index)} total)")
+                print("No specs found")
             return EXIT_SUCCESS
 
         if osimager.list_platforms:
@@ -214,8 +201,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             index = osimager.get_index()
             if index:
                 print("Available specs:")
-                for spec_key in sorted(index.keys()):
-                    entry = index[spec_key]
+                for spec_key, entry in index.items():
                     iso_flag = " (*)" if entry.get('iso_local', False) else ""
                     print(f"  {spec_key}{iso_flag}")
             else:

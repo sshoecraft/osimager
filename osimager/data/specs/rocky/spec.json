@@ -2,8 +2,8 @@
   "provides": {
     "dist": "rocky",
     "versions": [
-        "8.[3-9]",
-        "9.[0-7]"
+        "8.[3-10]",
+        "9.[0-8]"
     ]
   },
   "include": "rhel",
@@ -31,6 +31,13 @@
       }
     },
     {
+      "version": "8.10",
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://dl.rockylinux.org/pub/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd1.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://dl.rockylinux.org/pub/rocky/>>version<</isos/aarch64/Rocky->>version<<-aarch64-dvd1.iso" } }
+      ]
+    },
+    {
       "version": "9.*",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://dl.rockylinux.org/vault/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd.iso" } },
@@ -48,7 +55,7 @@
       }
     },
     {
-      "version": "9.7",
+      "version": "9.8",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://dl.rockylinux.org/pub/rocky/>>version<</isos/x86_64/Rocky->>version<<-x86_64-dvd.iso" } },
         { "arch": "aarch64", "defs": { "iso_url": "https://dl.rockylinux.org/pub/rocky/>>version<</isos/aarch64/Rocky->>version<<-aarch64-dvd.iso" } }

@@ -2,7 +2,7 @@
   "provides": {
     "dist": "openbsd",
     "versions": [
-      "7.6"
+      "7.[6-9]"
     ]
   },
   "ansible_version": "2.18",
@@ -20,7 +20,8 @@
     "boot_disk_size": 16384,
     "memory": 1024,
     "obsd_arch": "E>'amd64' if '>>arch<<' == 'x86_64' else ('arm64' if '>>arch<<' == 'aarch64' else 'i386')<E",
-    "http_host": "10.0.2.2"
+    "http_host": "10.0.2.2",
+    "obsd_mirror": "cdn.openbsd.org"
   },
   "variables": {
     "ssh-username": "ansible",
@@ -45,6 +46,15 @@
   "version_specific": [
     {
       "version": "7\\.6",
+      "defs": { "obsd_mirror": "ftp.eu.openbsd.org" },
+      "arch_specific": [
+        { "arch": "x86_64", "defs": { "iso_url": "https://ftp.eu.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://ftp.eu.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },
+        { "arch": "i386", "defs": { "iso_url": "https://ftp.eu.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } }
+      ]
+    },
+    {
+      "version": "7\\.[7-9]",
       "arch_specific": [
         { "arch": "x86_64", "defs": { "iso_url": "https://cdn.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },
         { "arch": "aarch64", "defs": { "iso_url": "https://cdn.openbsd.org/pub/OpenBSD/>>version<</>>obsd_arch<</installE>'>>version<<'.replace('.','')<E.iso" } },

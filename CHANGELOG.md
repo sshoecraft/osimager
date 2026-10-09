@@ -11,6 +11,85 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.10.0] — 2026-10-09
+
+### Added
+- **`<dist>-latest-<arch>` targets.** For example,
+  `mkosimage proxmox/pve/alma-latest-x86_64` builds the highest version the
+  alma spec provides for x86_64, currently 10.2, so you don't need to know the
+  current release number. The alias is resolved to the real version before the
+  build starts. The build config, the default instance name and the logs carry
+  `alma-10.2-x86_64`, and the resolution is printed. With `--local`, the alias
+  resolves to the newest version whose ISO is already local. The alias reflects
+  what the specs provide, not what the vendor ships, so a new upstream release
+  still needs a spec update.
+- **`--latest`** lists only the `<dist>-latest-<arch>` targets and the spec each
+  resolves to. Combined with `--avail` or `--local`, it limits the availability
+  report to those specs. `--list` itself is unchanged.
+- **AlmaLinux 9.8 and 10.2** (x86_64, aarch64), downloading from
+  `repo.almalinux.org`.
+- **Newer releases across the specs.** Every new URL was checked and returns 200.
+  - **Rocky:** 8.10, 9.8
+  - **Oracle Linux:** 9.8, 10.2
+  - **RHEL:** 9.8
+  - **Fedora:** 44
+  - **Debian:** 12.14, 12.15, 13.6, 13.7
+  - **Ubuntu:** 24.04.4, 24.04.5, 26.04.1
+  - **Linux Mint:** 22.3
+  - **MX Linux:** 23.6
+  - **Alpine:** 3.22, 3.23, 3.24
+  - **FreeBSD:** 14.5, 15.1
+  - **NetBSD:** 10.2
+  - **OpenBSD:** 7.7, 7.8, 7.9
+  - **DragonFly:** 6.4.2
+  - **Proxmox VE:** 9.2
+
+### Changed
+- **`--avail` and `--local` print one list.** The separate Local and Download
+  sections are gone. Each line's source column already says where the ISO is:
+  a path means it's present, a URL means it would be downloaded. Specs are
+  listed in version order. Specs that can't be built are not listed or counted,
+  and there is no summary line. Disk-image specs are now listed when their
+  image is present; before, they never appeared.
+- **`--list` is in version order**, the same as `--avail`, so `alma-8.10` comes
+  before `alma-10.0`.
+- **The CLI reference is rewritten from the code.** Every option now says
+  exactly what it does. The reference had several errors: exit codes 2–5,
+  which don't exist; `--local-only` described as persisted, when it applies to
+  one run; `-k` described as keeping only temp files; the wrong
+  `packer_cache_dir` default; a non-existent `disk_size` def. It now notes that
+  `-c/--config` is accepted but has no effect, and that `--set` saves to
+  `config.json`. The README's option list is grouped by purpose and links to
+  the full reference, and the getting-started examples show real output.
+- **XCP-ng 8.3** downloads the refreshed 2026-08-06 installer ISO.
+- **Releases that no longer exist upstream are now local-only** (`file://` in
+  `iso_path`). They build if the ISO is placed there and otherwise show as not
+  available, instead of failing `--check-urls`. This covers DragonFly 6.4 (only
+  a `.bz2` of the ISO is left) and Proxmox VE 5.4, 6.4 and 9.0 (removed from
+  every Proxmox mirror).
+
+### Removed
+- **Flatcar stable aarch64.** Flatcar has never published an arm64 installer
+  ISO, so the entry pointed at a URL that never existed.
+
+### Fixed
+- **AlmaLinux 9.7 and 10.1 ISO downloads returned 404.** When AlmaLinux ships a
+  new point release, it moves the previous one off `repo.almalinux.org` and into
+  `vault.almalinux.org`. 9.8 and 10.2 replaced 9.7 and 10.1 this way. Those two
+  versions now download from the vault.
+- **Other ISO downloads that returned 404 now point at the vendor's archive:**
+  - **Rocky 9.7:** `dl.rockylinux.org/vault`
+  - **Debian 13.5:** `cdimage.debian.org/cdimage/archive`
+  - **NetBSD 10.1:** `archive.netbsd.org`
+  - **OpenBSD 7.6:** `ftp.eu.openbsd.org`
+  - **openSUSE Leap 16.0:** now uses the `offline/` installer ISO, since the old
+    DVD path and the `ports/` aarch64 path no longer exist.
+- **OpenBSD installs fetched their sets from `cdn.openbsd.org` regardless of
+  version.** The CDN keeps only recent releases, so a 7.6 install failed at the
+  sets step even with a working ISO. `install.conf` now uses the spec's
+  `obsd_mirror`, which is the archive mirror for 7.6 and the CDN for newer
+  releases.
+
 ## [1.9.3] — 2026-10-06
 
 ### Fixed

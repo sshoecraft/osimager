@@ -209,6 +209,8 @@ Actions are applied in order. For each action, `extract_all()` finds all tokens 
 - Values contain `provides` dict, spec `path`, resolved `iso_url`, and `iso_local` flag
 - Built fresh on every invocation (no file caching)
 
+`latest_aliases(index)` derives a `<dist>-latest-<arch>` alias for each dist and arch in an index, pointing at the key with the highest version by `natural_key` (so `8.0U2` sorts above `7.0U3n`, and a dist with one named version such as `rolling` resolves to it). Under `local_only`, only entries whose ISO or disk image is local are candidates, so `--local` resolves to the newest cached version. `make_build()` calls `resolve_latest()` on the target's spec part before anything else, so every later step, including the default instance name, sees the real version. The alias reflects what the specs provide, never what a vendor mirror currently ships: a version without spec data has no kickstart or boot settings to build with, and resolving against the specs keeps a build reproducible.
+
 ## Credential System
 
 Two modes, selected by `credential_source` setting:

@@ -92,8 +92,8 @@
         ]
       },
       "arch_specific": [
-        { "arch": "x86_64", "defs": { "iso_url": "https://download.opensuse.org/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-x86_64-Media.iso" } },
-        { "arch": "aarch64", "defs": { "iso_url": "https://download.opensuse.org/ports/aarch64/distribution/leap/>>version<</iso/openSUSE-Leap->>version<<-DVD-aarch64-Media.iso" } }
+        { "arch": "x86_64", "defs": { "iso_url": "https://download.opensuse.org/distribution/leap/>>version<</offline/Leap->>version<<-offline-installer-x86_64.install.iso" } },
+        { "arch": "aarch64", "defs": { "iso_url": "https://download.opensuse.org/distribution/leap/>>version<</offline/Leap->>version<<-offline-installer-aarch64.install.iso" } }
       ]
     }
   ]

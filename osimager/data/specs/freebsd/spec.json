@@ -2,8 +2,8 @@
   "provides": {
     "dist": "freebsd",
     "versions": [
-      "14.4",
-      "15.0"
+      "14.[4-5]",
+      "15.[0-1]"
     ],
     "arches": [
       "x86_64"

@@ -89,15 +89,31 @@ This installs the Ansible provisioner plugin and all platform builder plugins (V
 mkosimage --list
 ```
 
-Output shows every spec OSImager knows about. Specs with a `*` suffix have a matching ISO found in your `iso_path`:
+This prints every spec OSImager knows about, in version order. A `(*)` means the ISO is already in your `iso_path`:
 
 ```
 Available specs:
-  alma-8.10-x86_64 (alma 8.10 x86_64)
-  alma-9.5-x86_64 (alma 9.5 x86_64) *
-  centos-7.9-x86_64 (centos 7.9 x86_64)
-  debian-12-amd64 (debian 12 amd64) *
-  rocky-9.5-x86_64 (rocky 9.5 x86_64)
+  alma-9.6-x86_64
+  alma-9.7-x86_64 (*)
+  alma-9.8-x86_64
+  alma-10.2-x86_64
+  ...
+```
+
+To see only what you can build right now, use `-a`. Each line shows where the ISO comes from: a local path if it's present, otherwise the URL it would be downloaded from. `--local` shows just the ones already present.
+
+```
+  alma-9.7-x86_64                /iso/AlmaLinux-9.7-x86_64-dvd.iso
+  alma-9.8-x86_64                https://repo.almalinux.org/almalinux/9.8/isos/x86_64/AlmaLinux-9.8-x86_64-dvd.iso
+  ...
+```
+
+To see only the newest version of each dist, use `--latest`. It lists each `<dist>-latest-<arch>` target and the spec it currently resolves to:
+
+```
+Latest specs:
+  alma-latest-x86_64                 alma-10.2-x86_64
+  debian-latest-x86_64               debian-13.7-x86_64
   ...
 ```
 
@@ -119,6 +135,14 @@ The target format is `platform/location/spec`. OSImager:
 4. Merges all three into a unified defs dictionary.
 5. Generates a kickstart file from the spec template with the merged values.
 6. Produces a Packer build JSON and executes `packer build`.
+
+To build the newest version of a dist without looking up its number, use the `latest` alias in place of the version:
+
+```bash
+mkosimage virtualbox/local/alma-latest-x86_64
+```
+
+The alias resolves to the highest version the spec provides for that architecture, and it does so before anything else runs. The build, the default instance name and the logs all use the real version (`alma-10.2-x86_64`). The alias is only as current as the spec, so a new upstream release needs a spec update before `latest` picks it up. With `--local` (or `local_only` set), `latest` means the newest version whose ISO is already in `iso_path`. If no version is local, the build stops with an error.
 
 To assign a hostname and static IP:
 

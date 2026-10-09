@@ -2,7 +2,7 @@
   "provides": {
     "dist": "fedora",
     "versions": [
-      "[7-43]"
+      "[7-44]"
     ]
   },
   "include": "linux",
@@ -104,7 +104,7 @@
       ]
     },
     {
-      "version": "43",
+      "version": "4[34]",
       "ansible_version": "2.18",
       "files": [
         {
@@ -197,6 +197,28 @@
           "platform": "vsphere",
           "config": {
             "guest_os_type": "fedora64Guest"
+          }
+        }
+      ]
+    },
+    {
+      "version": "44",
+      "defs": {
+        "gcp_source_image_family": "fedora-cloud-44",
+        "gcp_image_family": "fedora-44",
+        "aws_ami_filter_name": "Fedora-Cloud-Base-AmazonEC2.x86_64-44-*"
+      },
+      "arch_specific": [
+        {
+          "arch": "x86_64",
+          "defs": {
+            "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/44/Server/x86_64/iso/Fedora-Server-dvd-x86_64-44-1.7.iso"
+          }
+        },
+        {
+          "arch": "aarch64",
+          "defs": {
+            "iso_url": "https://download.fedoraproject.org/pub/fedora/linux/releases/44/Server/aarch64/iso/Fedora-Server-dvd-aarch64-44-1.7.iso"
           }
         }
       ]
