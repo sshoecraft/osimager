@@ -1,0 +1,1859 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/walkthroughs/gcp/">
+      
+      
+        <link rel="prev" href="../azure/">
+      
+      
+        <link rel="next" href="../../configuration/location-setup/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>GCP - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#google-cloud-walkthrough" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GCP
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthroughs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Walkthroughs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU/KVM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../virtualbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VirtualBox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VMware Workstation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxmox VE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vsphere/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vSphere/ESXi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../azure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GCP
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/lab-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Network Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/qemu-libvirt-uri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU libvirt URI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/photon-kickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Photon OS Kickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="google-cloud-walkthrough">Google Cloud walkthrough<a class="headerlink" href="#google-cloud-walkthrough" title="Permanent link">&para;</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Not yet verified against a live account</p>
+<p>This walkthrough was checked by generating the Packer configuration (<code>mkosimage -u</code>), not by running a build in Google Cloud. If a step doesn't match what you see, please open an issue.</p>
+</div>
+<p>By the end of this page you will have a Compute Engine image in your Google Cloud project, built from AlmaLinux 10, configured by OSImager's Ansible post-install, and placed in the image family <code>alma-10</code>. A Google Cloud build works differently from a hypervisor build. Nothing is installed from an ISO. Packer's <code>googlecompute</code> builder starts a VM from the public AlmaLinux image family, configures it over SSH, and saves its disk as a new image. You don't need <code>iso_path</code>, nothing is downloaded, and the image never exists on your machine.</p>
+<h2 id="1-prerequisites">1. Prerequisites<a class="headerlink" href="#1-prerequisites" title="Permanent link">&para;</a></h2>
+<p><strong>On the machine running OSImager</strong></p>
+<ul>
+<li>Packer, installed and on your <code>PATH</code> (<a href="https://developer.hashicorp.com/packer/install">install instructions</a>).</li>
+<li>
+<p>The Packer plugins. <code>mkosimage --init-plugins</code> installs the plugin for every platform, including <code>github.com/hashicorp/googlecompute</code>, plus <code>github.com/hashicorp/ansible</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkosimage<span class="w"> </span>--init-plugins
+</code></pre></div>
+</li>
+<li>
+<p>No <code>mkisofs</code>. OSImager requires it only for builds that put an answer file on a CD (<code>cd_files</code>), and a cloud build has none.</p>
+</li>
+<li>
+<p>The Ansible venv the spec needs. AlmaLinux 10 needs Ansible 2.18:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkvenv<span class="w"> </span><span class="m">2</span>.18<span class="w">        </span><span class="c1"># or: mkvenv --all</span>
+</code></pre></div>
+<p>If you build with <code>--skip</code> (no post-install configuration), you don't need it.
+- Google Cloud credentials that Packer can find. Step 3 explains why these come from Application Default Credentials and not from the secrets file.</p>
+</li>
+</ul>
+<p><strong>In Google Cloud</strong></p>
+<ul>
+<li>A project with the Compute Engine API enabled.</li>
+<li>An identity for Packer with at least the <strong>Compute Instance Admin (v1)</strong> and <strong>Service Account User</strong> roles. That is either your own user account (through Application Default Credentials) or a service account with a JSON key. The plugin's documentation names these roles.</li>
+<li>
+<p>A firewall rule that lets your machine reach the build VM on port 22. <code>gcp.json</code> names no network, so the VM uses the plugin's default network, <code>default</code>, and gets the network tag <code>packer</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>gcloud<span class="w"> </span>compute<span class="w"> </span>firewall-rules<span class="w"> </span>create<span class="w"> </span>allow-packer-ssh<span class="w"> </span>--project<span class="w"> </span>&lt;project-id&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--network<span class="w"> </span>default<span class="w"> </span>--allow<span class="w"> </span>tcp:22<span class="w"> </span>--target-tags<span class="w"> </span>packer<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">  </span>--source-ranges<span class="w"> </span>&lt;your-public-ip&gt;/32
+</code></pre></div>
+</li>
+</ul>
+<h2 id="2-global-settings">2. Global settings<a class="headerlink" href="#2-global-settings" title="Permanent link">&para;</a></h2>
+<p>Use the local secrets file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">credential_source</span><span class="o">=</span>config
+</code></pre></div>
+<p><code>iso_path</code> plays no part in a cloud build. Leave it at whatever it is.</p>
+<h2 id="3-credentials">3. Credentials<a class="headerlink" href="#3-credentials" title="Permanent link">&para;</a></h2>
+<p>A Google Cloud build reads these secret paths:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Key</th>
+<th>Used for</th>
+<th>Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>project_id</code></td>
+<td><code>project_id</code>: the project the VM and image are created in</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>credentials_json</code></td>
+<td><code>credentials_json</code>: the contents of a service-account key</td>
+<td>No, see below</td>
+</tr>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>service_account_email</code></td>
+<td><code>service_account_email</code>: the service account attached to the build VM</td>
+<td>No. Without it, the project's default compute service account is used</td>
+</tr>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>bastion_hostname</code></td>
+<td><code>ssh_bastion_host</code></td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>bastion_username</code></td>
+<td><code>ssh_bastion_username</code></td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>gcp/&lt;location&gt;</code></td>
+<td><code>bastion_password</code></td>
+<td><code>ssh_bastion_password</code></td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>images/linux</code></td>
+<td><code>username</code></td>
+<td><code>ssh_username</code>: the user Packer and Ansible log in as</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>images/linux</code></td>
+<td><code>password</code></td>
+<td><code>ssh_password</code></td>
+<td>No, leave it out</td>
+</tr>
+</tbody>
+</table>
+<p><code>&lt;location&gt;</code> is the location name in your build target. For <code>gcp/gcp-central/...</code> the path is <code>gcp/gcp-central</code>.</p>
+<p>Create <code>~/.config/osimager/secrets</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>images/linux username=packer
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>gcp/gcp-central project_id=&lt;project-id&gt;
+</code></pre></div>
+<p><strong>Credentials come from Application Default Credentials.</strong> The secrets file splits each line on whitespace and splits each value at the first <code>=</code>. A service-account key file is multi-line JSON with spaces in it, so it can't be stored as <code>credentials_json</code> there. Leave <code>credentials_json</code> out. OSImager prints <code>warning: secret not found: gcp/gcp-central/credentials_json</code> and passes an empty value, and the plugin then falls back to Application Default Credentials. Set those up one of two ways:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="c1"># your own user account</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>gcloud<span class="w"> </span>auth<span class="w"> </span>application-default<span class="w"> </span>login
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="c1"># or a service-account key file</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nb">export</span><span class="w"> </span><span class="nv">GOOGLE_APPLICATION_CREDENTIALS</span><span class="o">=</span>/path/to/key.json
+</code></pre></div>
+<p>About <code>images/linux</code>:</p>
+<ul>
+<li><strong>Don't use <code>root</code>.</strong> Root SSH access is disabled on many public images. The plugin creates the user named in <code>ssh_username</code>, with sudo access, through instance metadata. The example uses <code>packer</code>.</li>
+<li><strong>Leave the password out.</strong> With no credentials given, the plugin generates a temporary SSH key pair. OSImager prints <code>warning: secret not found: images/linux/password</code>, which is expected.</li>
+</ul>
+<p>Each optional key you leave out produces a similar <code>secret not found</code> warning and is passed as an empty value. An empty <code>bastion_hostname</code> means no bastion.</p>
+<div class="admonition note">
+<p class="admonition-title">If you also build hypervisor images</p>
+<p><code>images/linux</code> is shared by every Linux build. Hypervisor builds need <code>username=root</code> and a password, because the password goes into the kickstart. Keep the cloud setup in its own config directory and point <code>XDG_CONFIG_HOME</code> at it for cloud builds. OSImager then reads <code>$XDG_CONFIG_HOME/osimager/</code> (its <code>config.json</code>, <code>secrets</code> and <code>locations/</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/osimager-cloud/osimager/locations
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">'{"credential_source": "config"}'</span><span class="w"> </span>&gt;<span class="w"> </span>~/osimager-cloud/osimager/config.json
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="c1"># put the secrets file and the location file from this page under ~/osimager-cloud/osimager/</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nv">XDG_CONFIG_HOME</span><span class="o">=</span>~/osimager-cloud<span class="w"> </span>mkosimage<span class="w"> </span>-u<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+</div>
+<p><strong>Vault instead of the secrets file.</strong> Store the same keys under the same paths, as described in <a href="../../configuration/credential-setup/">Credential Setup</a>. A Vault value can hold the whole key file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vault<span class="w"> </span>secrets<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>-path<span class="o">=</span>gcp<span class="w"> </span>-version<span class="o">=</span><span class="m">2</span><span class="w"> </span>kv
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>gcp/gcp-central<span class="w"> </span><span class="nv">project_id</span><span class="o">=</span>&lt;project-id&gt;<span class="w"> </span><span class="nv">credentials_json</span><span class="o">=</span>@/path/to/key.json
+</code></pre></div>
+<p>OSImager resolves the <code>{{vault ...}}</code> references in the platform file itself, in Vault mode just as with the secrets file, and passes Packer only the values. Both modes read the same paths and keys, and a key you leave out produces the same <code>secret not found</code> warning and an empty value. This walkthrough was checked only with the secrets file.</p>
+<h2 id="4-location-file">4. Location file<a class="headerlink" href="#4-location-file" title="Permanent link">&para;</a></h2>
+<p>Create <code>~/.config/osimager/locations/gcp-central.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">"platforms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"gcp"</span><span class="p">],</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">"gcp_region"</span><span class="p">:</span><span class="w"> </span><span class="s2">"us-central1"</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">"gcp_zone"</span><span class="p">:</span><span class="w"> </span><span class="s2">"us-central1-a"</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Goes to</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platforms</code></td>
+<td></td>
+<td>Must include <code>gcp</code>. A target whose platform isn't listed fails with <code>location gcp-central does not support platform ...</code>.</td>
+</tr>
+<tr>
+<td><code>defs.gcp_region</code></td>
+<td><code>region</code>, <code>image_labels.img-region</code></td>
+<td>Region of the build. It is also recorded on the image as the label <code>img-region</code>.</td>
+</tr>
+<tr>
+<td><code>defs.gcp_zone</code></td>
+<td><code>zone</code></td>
+<td>Zone the build VM runs in. It must be in <code>gcp_region</code>.</td>
+</tr>
+<tr>
+<td><code>defs.machine_type</code></td>
+<td><code>machine_type</code></td>
+<td>Optional. Build VM type. Defaults to <code>n1-standard-2</code> (from <code>gcp.json</code>).</td>
+</tr>
+<tr>
+<td><code>defs.disk_type</code></td>
+<td><code>disk_type</code></td>
+<td>Optional. Build disk type. Defaults to <code>pd-ssd</code>.</td>
+</tr>
+<tr>
+<td><code>defs.state_timeout</code></td>
+<td><code>state_timeout</code></td>
+<td>Optional. How long Packer waits for the VM to change state. Defaults to <code>15m</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>You don't set the source image here. <code>gcp_source_image_family</code>, <code>gcp_source_image_project_id</code> and <code>gcp_image_family</code> come from the spec, which is loaded after the location, so a location value would be overwritten. To change one for a build, use <code>-D</code> (for example <code>-D gcp_source_image_project_id=almalinux-cloud</code>).</p>
+<p>Check the location before building:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>mkosimage<span class="w"> </span>-x<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<h2 id="5-build">5. Build<a class="headerlink" href="#5-build" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>mkosimage<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p><code>alma10-base</code> is the image name, and on Google Cloud you have to give one. Resource names there may contain only lowercase letters, digits and hyphens. The default name is the spec name, <code>alma-10.2-x86_64</code>, which has a dot and an underscore. It would end up in both <code>instance_name</code> (<code>build-&lt;name&gt;</code>) and <code>image_name</code> (<code>&lt;name&gt;-&lt;timestamp&gt;</code>), and Google Cloud rejects both.</p>
+<p>What happens:</p>
+<ol>
+<li>OSImager merges <code>gcp.json</code>, your location and the AlmaLinux spec into a Packer build, fills in the secrets, and runs <code>packer build</code>. It prints <code>warning: removing empty value for: source_image_project_id</code> and <code>warning: removing empty value for: ssh_host</code>, plus the <code>secret not found</code> warnings for keys you left out. These are expected.</li>
+<li>Packer finds the newest image in the family <code>almalinux-10</code>. The spec gives no source project, so the plugin searches your project first and then its built-in list of public image projects, which includes <code>almalinux-cloud</code>.</li>
+<li>It creates the VM <code>build-alma10-base</code> (<code>n1-standard-2</code>, <code>pd-ssd</code>, tag <code>packer</code>) in <code>us-central1-a</code>, adds a temporary SSH key for <code>packer</code> through instance metadata, and connects over SSH (through the bastion if you configured one).</li>
+<li>It runs the Ansible playbook (<code>config.yml</code>, with the spec's <code>specs/rhel/config_9.yml</code>) using <code>become</code>. On Google Cloud the playbook also runs <code>tasks/gcp_post.yml</code>. That file tries to install <code>google-compute-engine</code> and the Google Cloud Ops Agent, removes <code>google-osconfig-agent</code>, stops and disables <code>google-guest-agent</code>, and installs OSImager's <code>instance_configs.cfg.template</code>.</li>
+<li>It removes the temporary SSH key (<code>ssh_clear_authorized_keys</code>), stops the VM, and creates the image <code>alma10-base-&lt;timestamp&gt;</code> in family <code>alma-10</code>, with the description <code>alma10-base Image</code> and the label <code>img-region=us-central1</code>.</li>
+<li>It deletes the VM and its disk.</li>
+</ol>
+<p><strong>Which base image each version uses</strong> (from the AlmaLinux spec):</p>
+<table>
+<thead>
+<tr>
+<th>Spec versions</th>
+<th><code>source_image_family</code></th>
+<th>Output <code>image_family</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alma-8.*</code></td>
+<td><code>almalinux-8</code></td>
+<td><code>alma-8</code></td>
+</tr>
+<tr>
+<td><code>alma-9.*</code></td>
+<td><code>almalinux-9</code></td>
+<td><code>alma-9</code></td>
+</tr>
+<tr>
+<td><code>alma-10.*</code></td>
+<td><code>almalinux-10</code></td>
+<td><code>alma-10</code></td>
+</tr>
+</tbody>
+</table>
+<p>An image family always resolves to its newest non-deprecated image. <code>alma-10.0-x86_64</code>, <code>alma-10.1-x86_64</code> and <code>alma-10.2-x86_64</code> all start from the same image, so the minor version in the target doesn't pin an AlmaLinux point release. Build <code>x86_64</code> targets only. <code>gcp.json</code> lists <code>aarch64</code>, but these families and the default <code>n1-standard-2</code> machine type are x86.</p>
+<p>To name the source project explicitly instead of relying on the plugin's search list:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mkosimage<span class="w"> </span>-D<span class="w"> </span><span class="nv">gcp_source_image_project_id</span><span class="o">=</span>almalinux-cloud<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p><strong>Picking the target.</strong> <code>mkosimage -l</code> lists every spec, and cloud builds use the same names (<code>alma-10.2-x86_64</code>). <code>alma-latest-x86_64</code> works too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>mkosimage<span class="w"> </span>--latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>alma
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1">#   alma-latest-x86_64                 alma-10.2-x86_64</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>mkosimage<span class="w"> </span>gcp/gcp-central/alma-latest-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p>Ignore the ISO column of <code>mkosimage -a</code>. A cloud build never downloads the ISO, and OSImager checks the ISO only for builders that use one, so a version whose <code>-a</code> entry is a local <code>file://</code> path works too. Don't use <code>--local</code> for cloud builds. It limits <code>-latest</code> to versions whose ISO is on disk.</p>
+<p>Other specs with Google Cloud base-image defs for at least some versions: <code>rhel</code>, <code>rocky</code>, <code>oel</code>, <code>centos</code>, <code>debian</code>, <code>ubuntu</code>, <code>sles</code> and <code>fedora</code>.</p>
+<p><strong>Preview without building:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>mkosimage<span class="w"> </span>-u<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base<span class="w">   </span><span class="c1"># the Packer JSON</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>mkosimage<span class="w"> </span>-n<span class="w"> </span>gcp/gcp-central/alma-10.2-x86_64<span class="w"> </span>alma10-base<span class="w">   </span><span class="c1"># everything except running packer</span>
+</code></pre></div>
+<p>In the <code>-u</code> output, check <code>zone</code>, <code>source_image_family</code>, <code>image_family</code>, <code>instance_name</code> and <code>image_name</code>. Also check that <code>variables</code> shows your <code>project-id</code>, <code>ssh-username</code> set to <code>packer</code>, and <code>gcp-creds</code> empty.</p>
+<h2 id="6-check-it-worked">6. Check it worked<a class="headerlink" href="#6-check-it-worked" title="Permanent link">&para;</a></h2>
+<p>At the end, Packer prints the new image's name. In the console, open <strong>Compute Engine → Images</strong> and filter on family <code>alma-10</code>. From the CLI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>gcloud<span class="w"> </span>compute<span class="w"> </span>images<span class="w"> </span>list<span class="w"> </span>--project<span class="w"> </span>&lt;project-id&gt;<span class="w"> </span>--no-standard-images<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span>--filter<span class="o">=</span><span class="s2">"family=alma-10"</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>gcloud<span class="w"> </span>compute<span class="w"> </span>images<span class="w"> </span>describe-from-family<span class="w"> </span>alma-10<span class="w"> </span>--project<span class="w"> </span>&lt;project-id&gt;
+</code></pre></div>
+<p>To create a VM from the newest build, use the family: <code>--image-family alma-10 --image-project &lt;project-id&gt;</code>.</p>
+<h2 id="7-troubleshooting">7. Troubleshooting<a class="headerlink" href="#7-troubleshooting" title="Permanent link">&para;</a></h2>
+<p><strong><code>error: Secrets file not found!</code></strong> followed by <code>error: Your configuration uses secret references but credential_source 'config' is not configured.</code> The file <code>~/.config/osimager/secrets</code> (or <code>$XDG_CONFIG_HOME/osimager/secrets</code>) doesn't exist. Create it as shown in step 3.</p>
+<p><strong><code>error: Vault credentials not configured!</code></strong> <code>credential_source</code> is still <code>vault</code> (the default). Run <code>mkosimage --set credential_source=config</code>, or set <code>vault_addr</code> and <code>vault_token</code>.</p>
+<p><strong><code>warning: secret not found: gcp/gcp-central/project_id</code></strong> The project is missing, or the path doesn't match the location name in your target. Warnings for <code>credentials_json</code>, <code>service_account_email</code> and the bastion keys are expected if you don't use them.</p>
+<p><strong>Packer can't find credentials.</strong> <code>credentials_json</code> is empty, so the plugin uses Application Default Credentials. Run <code>gcloud auth application-default login</code>, or export <code>GOOGLE_APPLICATION_CREDENTIALS</code> in the shell you run <code>mkosimage</code> from.</p>
+<p><strong>Packer rejects the instance or image name.</strong> Pass an image name made of lowercase letters, digits and hyphens (step 5).</p>
+<p><strong><code>Error: location gcp-central does not support platform aws</code></strong> The target's platform isn't in the location's <code>platforms</code> list.</p>
+<p><strong><code>Error loading file '.../locations/gcp-central.toml': [Errno 2] No such file or directory</code></strong> No location file with that name exists. OSImager looks for <code>gcp-central.json</code> first, then <code>gcp-central.toml</code>.</p>
+<p><strong><code>spec alma-10.9-x86_64 not found</code></strong> No such version. List the valid names with <code>mkosimage -l</code>.</p>
+<p><strong>The source image is not found.</strong> Pass the project explicitly with <code>-D gcp_source_image_project_id=almalinux-cloud</code>, and check that the family exists: <code>gcloud compute images describe-from-family almalinux-10 --project almalinux-cloud</code>.</p>
+<p><strong><code>error: post-install requires Ansible 2.18</code></strong> Run <code>mkvenv 2.18</code>, or build with <code>--skip</code>.</p>
+<p><strong><code>error: 'packer' not found in PATH</code></strong> Install Packer (step 1).</p>
+<p><strong>SSH times out.</strong> Check the firewall rule from step 1: the VM carries the tag <code>packer</code> on the <code>default</code> network. In the <code>-u</code> dump, check that <code>ssh-username</code> is not <code>root</code>. The SSH timeout is 45 minutes (<code>ssh_timeout</code> in the ssh spec).</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>googlecompute plugin, authentication and required roles: <a href="https://developer.hashicorp.com/packer/integrations/hashicorp/googlecompute">https://developer.hashicorp.com/packer/integrations/hashicorp/googlecompute</a></li>
+<li><code>googlecompute</code> builder options (<code>source_image_family</code>, <code>source_image_project_id</code>, <code>service_account_email</code>, <code>network</code>, gotchas): <a href="https://developer.hashicorp.com/packer/integrations/hashicorp/googlecompute/latest/components/builder/googlecompute">https://developer.hashicorp.com/packer/integrations/hashicorp/googlecompute/latest/components/builder/googlecompute</a></li>
+<li>Default public image projects searched for the source image: <a href="https://github.com/hashicorp/packer-plugin-googlecompute/blob/main/lib/common/driver_gce.go">https://github.com/hashicorp/packer-plugin-googlecompute/blob/main/lib/common/driver_gce.go</a></li>
+<li>Compute Engine resource naming: <a href="https://cloud.google.com/compute/docs/naming-resources">https://cloud.google.com/compute/docs/naming-resources</a></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
