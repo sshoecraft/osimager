@@ -16,17 +16,19 @@ Proxmox's `proxmox_url` / vSphere's `vcenter_server`.
 2. `LIBVIRT_DEFAULT_URI` env var (fallback when unconfigured)
 3. uid default: root → `qemu:///system`, else `qemu:///session`
 
-Empty everywhere collapses to "env, else root?system:session" — an unprivileged
-build lands under `qemu:///session`, a root / `libvirt`-group build under
-`qemu:///system`, unless you pin it. The hook passes the resolved URI to both
+Empty everywhere collapses to "env, else root?system:session". The hook checks
+only the effective uid, not group membership: a build run as root lands under
+`qemu:///system`, and every other build, including one by a member of the
+`libvirt` group, lands under `qemu:///session`, unless you pin it. The hook passes the resolved URI to both
 `virsh --connect … undefine` and `… define`, and echoes it:
 `libvirt: VM '<name>' defined (qemu:///system)`.
 
 ## Notes
 - It lives in a plain `defs` block (NOT `platform_defs`) on purpose, so
-  location/spec/`-D` can override it. `platform_defs` would make it un-overridable.
+  location/spec/`-D` can override it. In `platform_defs` only `-D` could override it.
 - `qemu:///system` does **not** require root — membership in the `libvirt` group is
-  enough (no sudo).
+  enough to connect (no sudo). The hook won't pick it for a non-root user, though:
+  set `libvirt_uri=qemu:///system` (or `LIBVIRT_DEFAULT_URI`) to use it.
 - Under `qemu:///system`, libvirt-qemu/root must be able to read the qcow2 under
   `vms_path`; may need a group/ACL or AppArmor allowance.
 - A remote `qemu+ssh://` URI defines a domain whose XML references a **local** disk

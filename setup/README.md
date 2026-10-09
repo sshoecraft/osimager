@@ -78,7 +78,6 @@ dnsmasq also automatically registers hostnames from DHCP leases in its DNS, so a
 
 ```
 192.168.120.1   vmgate.vm.localdomain vmgate
-192.168.120.2   adserver.vm.localdomain adserver
 192.168.120.3   esxhost.vm.localdomain esxhost
 192.168.120.4   vcenter.vm.localdomain vcenter
 
@@ -226,12 +225,14 @@ Then enable it:
 IMPORTANT:  The core infra runs on a VMware Workstation instance installed on the local (debian/ubuntu) host
             I'm running workstation 17.6.2 ... but really any version which supports 2022 and ESXi 8.02 should work
 
-To build the adserver:
+AD server (optional -- osimager does not need it; any DNS server reachable from the lab network works):
+
+If you want an AD domain in the lab, build the adserver:
 
 	make adserver
 
-Once the adserver is up, you'll need to enable the AD feature and create your domain (TODO: automate lab domain)
-Note: The "lab" location in locations uses the adserver as DNS (for domain join) it needs to be running for the other builds to work
+Once it's up, enable the AD role, create your domain, and point the location's DNS at the adserver.
+osimager does not join builds to the domain automatically; that would have to be added to the post-install tasks.
 
 To build the esxhost (if you want a vsphere env):
 

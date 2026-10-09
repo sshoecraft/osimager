@@ -46,10 +46,10 @@ These print information and exit. They need no target.
 | `--list-platforms` | Each platform with its Packer builder type and supported architectures. |
 | `--list-defs` | Every def (template variable) with its default value and where it comes from. |
 | `--show-config` | The settings in effect, as loaded from `config.json`. |
-| `--init-plugins` | Installs the Packer plugin each platform needs, plus the Ansible provisioner plugin. |
+| `--init-plugins` | Runs `packer plugins install` for the plugin each platform needs, plus the Ansible provisioner plugin, every time (installed plugins are not skipped). |
 | `-V`, `--version` | The OSImager version. |
 
-"Present locally" means the file exists in `iso_path` or in `packer_cache_dir` on the machine running OSImager.
+"Present locally" means the file exists on the machine running OSImager: at the spec's `file://` path, or as `<iso_path>/<ISO file name>` for a download URL.
 
 ### Build Options
 
@@ -95,8 +95,8 @@ Settings that are saved to `config.json`:
 
 | Key | Default | Meaning |
 |-----|---------|---------|
-| `iso_path` | `/iso` | Directory on this machine holding ISOs. Spec `file://` URLs and the "present locally" check use it. |
-| `packer_cache_dir` | `~/.cache/osimager` | Where Packer keeps downloaded ISOs; also checked for "present locally". |
+| `iso_path` | `/iso` | Directory on this machine holding ISOs. Downloaded ISOs are saved here, and spec `file://` URLs and the "present locally" check use it. |
+| `packer_cache_dir` | `~/.cache/osimager` | Used only for a spec that lists its ISOs in a `urls` def, which no shipped spec does. It is not passed to Packer and not checked for "present locally". |
 | `local_only` | `false` | When `true`, every run behaves as if `--local` was given. |
 | `packer_cmd` | `packer` | Packer binary to run. |
 | `credential_source` | `vault` | Where secrets come from: `vault` (HashiCorp Vault) or `config` (the local `secrets` file). |

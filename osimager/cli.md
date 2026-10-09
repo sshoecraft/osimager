@@ -18,7 +18,7 @@ Three console script entry points installed via pip. Each creates an `OSImager` 
 4. `--list-platforms` — Iterates `get_platforms()`, prints name/builder_type/arches.
 5. `--list-defs` — Shows configuration defaults (cpu, memory, disk from config.json), platform-specific defs, and computed defs.
 6. `--list` (`-l`) — Builds spec index via `get_index()`, prints all specs with local ISO markers.
-7. `--init-plugins` — Installs all required Packer plugins. Always installs `github.com/hashicorp/ansible`, then walks platform JSON files and installs each platform's `plugin` value (deduplicating).
+7. `--init-plugins` — Installs all required Packer plugins. Always installs `github.com/hashicorp/ansible`, then walks platform JSON files and adds each platform's `plugin` value (deduplicating). Runs `packer plugins install` for every one, whether or not it is already installed, and lists any that fail (exit code 1).
 
 ## No-Target Help
 

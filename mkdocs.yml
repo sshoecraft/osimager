@@ -45,6 +45,16 @@ nav:
   - Home: index.md
   - Installation: installation.md
   - Getting Started: getting-started.md
+  - Walkthroughs:
+    - Overview: walkthroughs/index.md
+    - QEMU/KVM: walkthroughs/qemu.md
+    - VirtualBox: walkthroughs/virtualbox.md
+    - VMware Workstation: walkthroughs/vmware.md
+    - Proxmox VE: walkthroughs/proxmox.md
+    - vSphere/ESXi: walkthroughs/vsphere.md
+    - AWS: walkthroughs/aws.md
+    - Azure: walkthroughs/azure.md
+    - GCP: walkthroughs/gcp.md
   - Configuration:
     - Location Setup: configuration/location-setup.md
     - Credential Setup: configuration/credential-setup.md

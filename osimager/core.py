@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.10.1"
+OSIMAGER_VERSION = "1.10.2"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -712,8 +712,11 @@ class OSImager:
         return ""
 
     def resolve_packer_vault_refs(self, data):
-        """Replace Packer {{vault `path` `key`}} references with values from secrets."""
-        if not self.secrets:
+        """Replace Packer {{vault `path` `key`}} references with their values,
+        from the secrets file or from Vault. Packer's own vault function needs
+        the KV v2 "data/" path segment, which the platform files don't carry,
+        so the references are always resolved here and never reach Packer."""
+        if not self.secrets and not self.vault:
             return data
 
         pattern = re.compile(r'\{\{vault\s+`([^`]+)`\s+`([^`]+)`\}\}')
@@ -726,8 +729,7 @@ class OSImager:
             def replacer(match):
                 path = match.group(1)
                 key = match.group(2)
-                entry = self.secrets.get(path, {})
-                val = entry.get(key, "")
+                val = self.get_secret(f"{path}:{key}")
                 if not val:
                     print(f"warning: secret not found: {path}/{key}")
                 return val
@@ -949,7 +951,10 @@ class OSImager:
         return self.resolve_url_field(data, version, arch, "disk_image_url")
 
     def check_iso_local(self, iso_url):
-        """Check if an ISO file exists locally (file:// path, iso_path setting, or packer cache)."""
+        """Check if an ISO file exists locally: the file:// path, or the
+        file in iso_path. packer_cache_dir is not checked, because every
+        platform's local ISO path is <iso_path>/<iso_name>; an ISO that is
+        only in the cache would send the build to a file that isn't there."""
         if not iso_url:
             return False
         if iso_url.startswith("file://"):
@@ -961,13 +966,7 @@ class OSImager:
             return False
         # check iso_path from settings (already resolved to absolute in __init__)
         iso_path = self.defs.get('iso_path', '/iso')
-        if iso_path and os.path.isfile(os.path.join(iso_path, iso_name)):
-            return True
-        # check packer cache
-        cache_dir = self.settings.get('packer_cache_dir', '/tmp')
-        if os.path.isfile(os.path.join(cache_dir, iso_name)):
-            return True
-        return False
+        return bool(iso_path) and os.path.isfile(os.path.join(iso_path, iso_name))
 
     def make_index(self):
         debug = False
@@ -1453,9 +1452,8 @@ class OSImager:
         # do def substitutions
         self.defs = do_sub(self.defs,self) # lol
 
-        # Auto-detect a locally-cached ISO: if the resolved iso_url already
-        # exists on disk (iso_path or packer_cache_dir), build from the local
-        # copy instead of forcing platforms to download it again.
+        # Auto-detect a local ISO: if the resolved iso_url's file is already
+        # in iso_path, build from it instead of downloading it again.
         if not self.defs.get('local_only') and self.check_iso_local(self.defs.get('iso_url', '')):
             self.defs['local_only'] = True
 
@@ -1512,16 +1510,15 @@ class OSImager:
             "builders": [ self.config ]
         }
 
-        # When using config-based secrets, resolve Packer {{vault ...}} references
-        if self.secrets:
-            self.build = self.resolve_packer_vault_refs(self.build)
+        # Resolve Packer {{vault ...}} references from the secrets file or Vault
+        self.build = self.resolve_packer_vault_refs(self.build)
 
-        if self.dump_defs:
-            print(json.dumps(self.defs,indent=4))
-            sys.exit(0)
-
-        if self.dump_build:
-            print(json.dumps(self.build,indent=4))
+        if self.dump_defs or self.dump_build:
+            # Nothing is generated for a dump, so the temp dir made above is
+            # empty; remove it like a finished build would.
+            if not self.user_temp_dir and not self.keep:
+                shutil.rmtree(self.temp_dir, ignore_errors=True)
+            print(json.dumps(self.defs if self.dump_defs else self.build, indent=4))
             sys.exit(0)
 
         return self.build
@@ -1786,7 +1783,13 @@ class OSImager:
             print("    mkosimage --init-plugins")
             sys.exit(1)
 
-        if not shutil.which('mkisofs'):
+        # Cloud builders start from a marketplace image: no installer ISO and
+        # no answer-file CD, so neither check applies to them.
+        builder = json.dumps(self.build.get("builders", []))
+        uses_cd = '"cd_files"' in builder
+        uses_iso = any(f'"{key}"' in builder for key in ("iso_url", "iso_urls", "iso_file"))
+
+        if uses_cd and not shutil.which('mkisofs'):
             print("error: 'mkisofs' not found in PATH")
             print("")
             print("  mkisofs is required by Packer to create CD/ISO images.")
@@ -1805,7 +1808,8 @@ class OSImager:
         if self.dispatcher: print("PROGRESS=5", flush=True)
 
         # Check ISO URL accessibility
-        self.check_iso_url()
+        if uses_iso:
+            self.check_iso_url()
 
         # generate files
         self.gen_files()

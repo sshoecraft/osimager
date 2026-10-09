@@ -61,8 +61,8 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `resolve_url_field(data, version, arch, field)` — Shared resolver for URL-valued spec fields. Uses key-presence checks (not truthiness) so `"<field>": ""` can explicitly clear. Handles basic `>>var<<` substitution, `arch_specific` overrides (both top-level and within `version_specific`, version_specific arch_specific winning last), remaining `>>var<<` markers from spec defs (e.g., `deb_arch`), and `E>...<E` expression evaluation. Returns None when the field resolves to empty — this is how arch restriction works (empty URL blocks an arch).
 - `resolve_iso_url(data, version, arch)` — Thin wrapper: `resolve_url_field(..., "iso_url")`.
 - `resolve_disk_image_url(data, version, arch)` — Thin wrapper: `resolve_url_field(..., "disk_image_url")`. For appliances that ship a prebuilt qcow2/vmdk/ova instead of an installer ISO. The import builder consumes it as input rather than booting an installer. `make_build()` derives `disk_image_name` and sets the `image_import` def when present.
-- `check_iso_local(iso_url)` — Check if ISO exists locally (file:// path or packer cache)
-- `check_iso_url()` — Pre-build validation called from `run_packer()`. For file:// URLs, verifies file exists with helpful error message. For http(s):// URLs, does HEAD request and aborts on 404.
+- `check_iso_local(iso_url)` — Check if ISO exists locally: the file:// path, or `<iso_path>/<iso name>` for a remote URL. `packer_cache_dir` is not checked, since every platform's local ISO path is `<iso_path>/<iso_name>`.
+- `check_iso_url()` — Pre-build validation called from `run_packer()`. For file:// URLs, verifies file exists with helpful error message. For http(s):// URLs, returns early if `check_iso_local()` finds the ISO, otherwise does HEAD request and aborts on 404.
 - `check_all_urls()` — Maintenance tool invoked by `--check-urls`. Creates a dummy location, resolves all spec URLs via `make_index()`, checks each unique URL in parallel (ThreadPoolExecutor, 10 workers). Reports OK/FAILED/local-only counts. Cleans up dummy location on exit.
 - `check_iso_urls(urls)` — Validate remote ISO URLs during build, download checksums, set defs
 - `get_iso_file(urls)` — Resolve local ISO file path, set defs for local-only mode
@@ -71,12 +71,13 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - `load_credentials()` — Dispatch to vault or config mode
 - `load_secrets()` — Parse `~/.config/osimager/secrets` file
 - `get_secret(string)` — Retrieve secret from vault or local secrets
-- `resolve_packer_vault_refs(data)` — Replace `{{vault ...}}` in Packer JSON with local secret values
+- `resolve_packer_vault_refs(data)` — Replace every `{{vault `path` `key`}}` in the Packer JSON with `get_secret("path:key")`: the secrets file in config mode, an hvac KV v2 read in vault mode. The references never reach Packer, whose own vault function would need the KV v2 `data/` segment. A missing value becomes empty with `warning: secret not found`.
 
 ### Build Assembly
-- `make_build(target, name, ip)` — Full build pipeline: parse target, load platform/location/spec, resolve ISO, load credentials, perform substitutions, assemble Packer JSON.- `gen_files()` — Assemble installer files from template fragments, write to temp dir
+- `make_build(target, name, ip)` — Full build pipeline: parse target, load platform/location/spec, resolve ISO, load credentials, perform substitutions, assemble Packer JSON. With `-u`/`-x` it prints the build or defs and exits, removing the temp dir unless `-m` or `-k` was given.
+- `gen_files()` — Assemble installer files from template fragments, write to temp dir
 - `check_required_files()` — Verify spec's required_files exist on disk
-- `run_packer()` — Validate prereqs, `check_required_files()`, `check_iso_url()`, `gen_files()`, run **pre_build** hooks, write build JSON, set environment, execute packer command, then run **post_build** hooks on success.
+- `run_packer()` — Validate prereqs (`packer` always; `mkisofs` only when the builder uses `cd_files`), `check_required_files()`, `check_iso_url()` (only when the builder uses `iso_url`/`iso_urls`/`iso_file`, so cloud builds skip it), `gen_files()`, run **pre_build** hooks, write build JSON, set environment, execute packer command, then run **post_build** hooks on success.
 
 ### Build Hooks
 - `run_build_script(path)` — Load a Python script from the data dir (`resolve_data_path`) and call its `run(osimager)` function.
@@ -93,6 +94,7 @@ Single-class module containing the `OSImager` class. Orchestrates the entire bui
 - v1.4.2: --init-plugins, --show-config, example-secrets copy command
 - v1.4.3: ISO URL fixes across all distros, file:// for unavailable ISOs
 - v1.4.4: --check-urls, --avail (ISO availability), pre-build check_iso_url(), removed save_index/index file caching, resolve_iso_url handles arch_specific + expression eval
+- v1.10.2: `check_iso_local()` checks only `iso_path`; `run_packer()` requires `mkisofs` only when the builder has `cd_files` and calls `check_iso_url()` only when it has `iso_url`/`iso_urls`/`iso_file`; `-u`/`-x` remove their temp dir; `resolve_packer_vault_refs()` resolves `{{vault}}` references through `get_secret()` in both credential modes.
 - v1.10.1: `make_build()` sets `defs['iso_path']` from `settings` after the location loads, so a location can no longer override it, and warns if the location file sets it.
 - v1.5.0: Config format changed from INI (configparser) to JSON (config.json), iso_path moved from location defs to global settings. Removed `provides.arches` and `version_specific[].arches` — arches now derived from ISO URL resolution at index time. Specs use `arch_specific` entries with explicit per-arch iso_url and `"iso_url": ""` to block unsupported arches.
 - v1.7.0: Two-layer data resolution. Engine separated from data. User overrides in `~/.config/osimager/` (specs, platforms, files, scripts) take precedence over `osimager-data` package baseline. XDG paths for all directories. Removed constants.py (version/exit codes now in core.py). Fixed venv hoisting from version_specific entries.

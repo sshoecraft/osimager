@@ -11,6 +11,49 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.10.2] — 2026-10-09
+
+### Fixed
+- **vSphere builds whose location didn't set `thin_disk` sent the literal
+  `%>thin_disk<%` to Packer.** The substitution engine skipped any value that
+  was boolean `false`, which is exactly the platform's default. `false` values
+  now substitute like any other, so `disk_thin_provisioned` is `false`. Builds
+  on six platforms were otherwise byte-identical before and after.
+- **An ISO that was only in `packer_cache_dir` counted as present.** That
+  switched the build to local mode, but every platform's local ISO path is
+  `<iso_path>/<iso>`, or `<pool>:iso/<iso>` on Proxmox, so the build was sent
+  to a file that wasn't there. "Present" now means present in `iso_path`; a
+  cache-only ISO is downloaded as normal.
+- **Cloud builds (AWS, Azure, GCP) required `mkisofs` and a working installer
+  ISO URL**, though they use neither. `mkisofs` is now required only when the
+  build uses an answer-file CD, and the ISO URL is checked only when the build
+  uses an ISO.
+- **`-u` and `-x` left an empty temporary directory in `/tmp` on every run.**
+  They now remove it, unless `-m` or `-k` is given.
+- **Vault mode passed `{{vault ...}}` references to Packer**, whose own Vault
+  lookup needs the KV v2 `data/` path segment that the platform files don't
+  have. OSImager now resolves those references itself in both modes, from the
+  secrets file or through its KV v2 reader, so Packer never sees them. Checked
+  against a real Vault dev server set up as `credential-setup.md` describes.
+
+### Documentation
+- **Walkthroughs** for QEMU/KVM, VirtualBox, VMware Workstation, Proxmox VE,
+  vSphere/ESXi, AWS, Azure and GCP. Each one covers prerequisites, the exact
+  credential keys, a complete location file with every field explained, the
+  build and what happens during it, how to check the result, and
+  troubleshooting quoting the real error messages. Every example location file
+  was checked by generating its Packer build in an isolated config directory.
+  The cloud pages are marked as not yet run against a live account.
+- **Reference pages corrected against the code:**
+  - **Platform reference:** fixed architectures, QEMU/VirtualBox/Proxmox/vSphere fields, the vSphere ISO upload rule, and where cloud base-image settings come from.
+  - **Installation:** `mkvenv` and `ansible_version` replace the old `venv` field, and the patched Proxmox plugin is no longer described as required.
+  - **Getting started:** the first build is `alma-10.2`, which downloads, instead of a local-only spec.
+  - **Credential setup:** updated for the Vault change above.
+  - **QEMU libvirt URI:** only root builds default to `qemu:///system`.
+- **The lab-setup docs no longer present the AD server as required.** It is an
+  optional part of the author's lab, and OSImager does not join builds to a
+  domain.
+
 ## [1.10.1] — 2026-10-09
 
 ### Changed

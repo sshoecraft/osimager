@@ -8,7 +8,7 @@ A quickstart walkthrough for building your first OS image with OSImager and Virt
 
 ## Step 1: Create a Location
 
-A location defines your build environment: network settings, DNS, NTP, and where ISOs and VMs live on disk.
+A location defines your build environment: network settings, DNS, NTP, and where VMs live on disk. (Where ISOs live is the global `iso_path` setting, see Step 4.)
 
 Copy the quickstart template into your user config directory:
 
@@ -117,21 +117,27 @@ Latest specs:
   ...
 ```
 
-Download the ISO for the spec you want to build and place it in your `iso_path` directory.
+You don't need to download ISOs by hand. When a spec's ISO entry is a URL, the build downloads the ISO into `iso_path` and reuses it from there on later builds. `iso_path` defaults to `/iso`; point it at a directory you can write to:
+
+```bash
+mkosimage --set iso_path=$HOME/iso
+```
+
+A few specs have no public download: their ISO entry is a local `file://` path, and `-a` lists them only once the ISO is present. For those, obtain the ISO and place it in `iso_path` yourself.
 
 ---
 
 ## Step 5: Build an Image
 
 ```bash
-mkosimage virtualbox/local/alma-9.5-x86_64
+mkosimage virtualbox/local/alma-10.2-x86_64
 ```
 
 The target format is `platform/location/spec`. OSImager:
 
 1. Loads the `virtualbox` platform config (builder type, VM settings).
 2. Loads the `local` location config (network, paths, DNS, NTP).
-3. Loads the `alma-9.5-x86_64` spec (ISO, kickstart template, provisioners).
+3. Loads the `alma-10.2-x86_64` spec (ISO, kickstart template, provisioners).
 4. Merges all three into a unified defs dictionary.
 5. Generates a kickstart file from the spec template with the merged values.
 6. Produces a Packer build JSON and executes `packer build`.
@@ -144,11 +150,13 @@ mkosimage virtualbox/local/alma-latest-x86_64
 
 The alias resolves to the highest version the spec provides for that architecture, and it does so before anything else runs. The build, the default instance name and the logs all use the real version (`alma-10.2-x86_64`). The alias is only as current as the spec, so a new upstream release needs a spec update before `latest` picks it up. With `--local` (or `local_only` set), `latest` means the newest version whose ISO is already in `iso_path`. If no version is local, the build stops with an error.
 
-To assign a hostname and static IP:
+To give the VM a name:
 
 ```bash
-mkosimage virtualbox/local/alma-9.5-x86_64 myvm 192.168.1.100
+mkosimage virtualbox/local/alma-10.2-x86_64 myvm
 ```
+
+A third argument sets a static IP (`mkosimage virtualbox/local/alma-10.2-x86_64 myvm 192.168.1.100`), and a name whose FQDN resolves through `dns.servers` gets its DNS address the same way. With the VirtualBox NAT networking this quickstart uses, Packer then tries to reach that LAN address and can't, so leave the IP out and use a name with no DNS record. For a VM on your LAN, use the bridged setup in the [VirtualBox walkthrough](walkthroughs/virtualbox.md).
 
 ---
 
@@ -158,13 +166,13 @@ Inspect what OSImager will do before committing to a full build:
 
 ```bash
 # Dry run -- shows the Packer command without executing it
-mkosimage -n virtualbox/local/alma-9.5-x86_64
+mkosimage -n virtualbox/local/alma-10.2-x86_64
 
 # Dump the resolved defs dictionary -- see all merged variables
-mkosimage -x virtualbox/local/alma-9.5-x86_64
+mkosimage -x virtualbox/local/alma-10.2-x86_64
 
 # Dump the Packer build JSON -- see exactly what gets sent to Packer
-mkosimage -u virtualbox/local/alma-9.5-x86_64
+mkosimage -u virtualbox/local/alma-10.2-x86_64
 ```
 
 These are useful for debugging location or spec issues, and for understanding how platform + location + spec configs merge together.
@@ -173,8 +181,9 @@ These are useful for debugging location or spec issues, and for understanding ho
 
 ## Next Steps
 
+- [Walkthroughs](walkthroughs/index.md) -- complete setups for QEMU, VirtualBox, VMware, Proxmox, vSphere, AWS, Azure and GCP
 - [Location Setup](configuration/location-setup.md) -- multi-platform locations, vSphere/Proxmox network configs
 - [Credential Setup](configuration/credential-setup.md) -- HashiCorp Vault integration
-- [Platform Reference](reference/platform-reference.md) -- all 13 supported platforms and their options
+- [Platform Reference](reference/platform-reference.md) -- all 11 supported platforms and their options
 - [Spec Reference](reference/spec-reference.md) -- spec file format, version ranges, template substitution
 - [Supported Operating Systems](reference/supported-os.md) -- full list of distributions and versions

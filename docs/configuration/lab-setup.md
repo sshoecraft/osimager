@@ -196,19 +196,21 @@ systemctl enable vmnet-permissions.service
 
 ---
 
-## Infrastructure Servers
+## Optional: Infrastructure Servers
 
-The core infra runs on a VMware Workstation instance installed on the local (Debian/Ubuntu) host. Any version of Workstation that supports Windows Server 2022 and ESXi 8.0U2 should work.
+OSImager needs neither of the servers below. A location only needs a DNS server reachable from the build network; dnsmasq on the bridge, as set up above, or your router is enough.
 
-To build the adserver:
+The author's lab adds two servers, run on VMware Workstation on the same host. Any Workstation version that supports Windows Server 2022 and ESXi 8.0U2 works.
+
+An AD server provides DNS and a domain for builds that should join one:
 
 ```bash
 make adserver
 ```
 
-Once the adserver is up, you'll need to enable the AD feature and create your domain. The "lab" location in osimager uses the adserver as DNS (for domain join) -- it needs to be running for the other builds to work.
+Once it's up, enable the AD role and create the domain, then point a location's DNS at it. OSImager does not join builds to the domain automatically; that would have to be added to the post-install tasks.
 
-To build the esxhost (if you want a vSphere env):
+A nested ESXi host provides a vSphere target:
 
 ```bash
 make esxhost

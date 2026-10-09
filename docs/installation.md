@@ -10,9 +10,9 @@ pip install osimager
 
 - **Python 3.8+**
 - **HashiCorp Packer** -- [install instructions](https://developer.hashicorp.com/packer/install)
-- **mkisofs** -- used by Packer to create CD/ISO images containing answer files
+- **mkisofs** -- used by Packer to create the CD that carries the answer file. OSImager requires it only for builds whose builder uses `cd_files` (the ISO platforms); cloud builds don't need it
 
-Ansible is installed automatically as a dependency of the osimager pip package.
+Ansible is installed automatically as a dependency of the osimager pip package. Specs that set an `ansible_version` run post-install configuration from a dedicated virtual environment instead; see [Ansible Versions](#ansible-versions).
 
 ## Packer Plugins
 
@@ -22,11 +22,23 @@ OSImager requires Packer plugins for both the Ansible provisioner and each platf
 mkosimage --init-plugins
 ```
 
-This reads the `plugin` key from each platform configuration file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin. Plugins that are already installed will be skipped.
+This reads the `plugin` key from each platform configuration file and runs `packer plugins install` for each one, plus the Ansible provisioner plugin (`github.com/hashicorp/ansible`). It runs the install for every plugin each time, whether or not it is already installed, and reports any that fail.
 
-## Legacy Ansible for Older OSes
+## Ansible Versions
 
-Some older OS specs (e.g. RHEL 2.x-6.x, CentOS 5.x-6.x) require legacy versions of Ansible that only run under Python 2.7. These specs have a `venv` field pointing to a Python virtual environment containing the correct Ansible version.
+A spec's `ansible_version` (e.g. `"2.18"`) names the Ansible its post-install configuration needs. `mkosimage` activates `<venv_dir>/<version>` before running Packer (default `~/.local/share/osimager/venvs/`, override with the `OSIMAGER_VENV_DIR` environment variable), and stops with `error: post-install requires Ansible <version>` if that venv is missing, unless `--skip` is given. Create the venvs with `mkvenv`:
+
+```bash
+mkvenv              # show which venvs the specs need and which are installed
+mkvenv 2.18         # create one
+mkvenv --all        # create every missing venv the specs need
+```
+
+For each Ansible version, `ansible.json` gives the package name, the Python version range and any prerequisite packages. `mkvenv` looks for a matching interpreter on your `PATH`, creates the venv (with `virtualenv` for Python 2, installing it with that interpreter's pip if needed), and installs the package.
+
+### Legacy Ansible for Older OSes
+
+Some older OS specs (e.g. RHEL 5 and 6, Fedora 7-20) need Ansible 2.3 or 2.9, which only run under Python 2. `mkvenv` looks for `python2.7`, `python2.6` or `python2` on your `PATH` for these.
 
 ### Building Python 2.7
 
@@ -51,69 +63,6 @@ If pip2 is not installed:
 curl https://bootstrap.pypa.io/pip/2.7/get-pip.py -o get-pip.py
 python2.7 get-pip.py
 ```
-
-### Creating Ansible Virtualenvs
-
-Install virtualenv with pip2:
-
-```bash
-pip2 install virtualenv
-```
-
-Create a virtualenv for the ansible version you need (e.g. ansible 2.10):
-
-```bash
-python2.7 -m virtualenv ~/venvs/ansible-2.10
-source ~/venvs/ansible-2.10/bin/activate
-pip install 'pyyaml<5.4'
-pip install ansible==2.10.7
-deactivate
-```
-
-For RHEL 5 support, ansible 2.3 is needed:
-
-```bash
-python2.7 -m virtualenv ~/venvs/ansible-2.3
-source ~/venvs/ansible-2.3/bin/activate
-pip install 'pyyaml<5.4'
-pip install ansible==2.3
-deactivate
-```
-
-In your OS spec file, set `"venv": "~/venvs/ansible-2.10"` and osimager will switch to it for the build.
-
-## Proxmox Plugin
-
-The official `packer-plugin-proxmox` always converts built VMs into Proxmox templates, which renames disk files and sets immutable attributes that cannot be reversed through the API. OSImager requires a patched version of the plugin that adds a `skip_convert_to_template` option (defaulting to true).
-
-Build and install the patched plugin:
-
-```bash
-# Prerequisites: Go 1.21+
-git clone https://github.com/sshoecraft/packer-plugin-proxmox.git
-cd packer-plugin-proxmox
-go build -o packer-plugin-proxmox .
-```
-
-Install the built binary:
-
-```bash
-packer plugins install --path packer-plugin-proxmox github.com/hashicorp/proxmox
-```
-
-Verify it is installed:
-
-```bash
-packer plugins installed
-```
-
-You should see a line like:
-
-```
-~/.config/packer/plugins/github.com/hashicorp/proxmox/packer-plugin-proxmox_v1.2.3_x5.0_linux_amd64
-```
-
-If you had the official plugin installed previously, `--init-plugins` will not overwrite the patched version as long as the version numbers match.
 
 ---
 

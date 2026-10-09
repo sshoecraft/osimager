@@ -826,8 +826,6 @@ def do_substr(text: str, imager) -> str:
             # Handle None values by converting to empty string for proper substitution
             if repl is None:
                 repl = ""
-            elif repl is False:
-                continue
 
             full = f"{start}{tok}{end}"
             if debug: print(f"full: {full}")

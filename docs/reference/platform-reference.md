@@ -17,7 +17,7 @@ Platforms fall into four categories based on how they build images:
 
 **Enterprise ISO** platforms boot a VM from an ISO on a remote hypervisor (vCenter/ESXi or Proxmox VE), run the same installer flow, and store the resulting VM or template on the remote infrastructure. They require platform credentials (server, username, password) stored in your secrets or Vault.
 
-**Cloud** platforms do not use ISOs or boot commands. They launch a marketplace base image, provision it over SSH through a bastion host, then capture the result as a managed image or AMI. They require cloud provider credentials (service principal, access keys, etc.).
+**Cloud** platforms do not use ISOs or boot commands. They launch a marketplace base image, provision it over SSH (optionally through a bastion host on Azure and GCP), then capture the result as a managed image or AMI. They require cloud provider credentials (service principal, access keys, etc.).
 
 **Special** -- the `none` platform uses Packer's null builder. It does not create a VM at all. It exists for running provisioners against an existing host.
 
@@ -32,7 +32,7 @@ Every platform (except `none`) inherits baseline hardware defaults from the user
 | `cpu_sockets` | `1` | Number of CPU sockets |
 | `cpu_cores` | `2` | Number of cores per socket |
 | `memory` | `2048` | Memory in MB |
-| `boot_disk_size` | `16385` | Boot disk size in MB (~16 GB) |
+| `boot_disk_size` | `16384` | Boot disk size in MB (16 GB) |
 
 These can be overridden at any layer: platform JSON, location defs, spec defs, or CLI `--define`.
 
@@ -86,7 +86,7 @@ This evaluates to the local ISO path when `local_only` is true, or the remote do
 | **Packer builder type** | `virtualbox-iso` |
 | **Packer plugin** | `github.com/hashicorp/virtualbox` |
 | **Platform type** | Local ISO |
-| **Architectures** | i386, x86_64 |
+| **Architectures** | i386, x86_64, aarch64 |
 
 #### Defs
 
@@ -123,15 +123,15 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 | `hard_drive_nonrotational` | `true` | Advertise as SSD |
 | `hard_drive_interface` | `virtio` | Disk bus type |
 | `disk_size` | `#>boot_disk_size<#` | Disk size in MB |
-| `skip_nat_mapping` | `true` | Do not set up NAT port forwarding |
 
 #### VBoxManage Commands
 
 VirtualBox uses post-create `vboxmanage` commands to configure VM settings that cannot be set through the builder directly:
 
 1. **movevm** -- Moves the VM to `>>vms_path<</vbox`
-2. **modifyvm** (networking) -- Sets NIC 1 to virtio type, bridged mode on `vbnet`
-3. **modifyvm** (CPU/hardware) -- Enables IOAPIC, UTC RTC, hardware virtualization (VT-x), VPID, and nested paging
+2. **modifyvm** (CPU/hardware) -- Enables IOAPIC, UTC RTC, hardware virtualization (VT-x), VPID, and nested paging
+
+`virtualbox.json` sets no network options, so the VM gets Packer's default NAT networking with an SSH port forward. For a bridged VM, a location `platform_specific` block can add `skip_nat_mapping` and a `modifyvm` that bridges NIC 1; see the [VirtualBox walkthrough](../walkthroughs/virtualbox.md).
 
 #### Location Defs Needed
 
@@ -149,7 +149,7 @@ VirtualBox uses post-create `vboxmanage` commands to configure VM settings that 
 | **Packer builder type** | `vmware-iso` |
 | **Packer plugin** | `github.com/hashicorp/vmware` |
 | **Platform type** | Local ISO |
-| **Architectures** | i386, x86_64 |
+| **Architectures** | i386, x86_64, aarch64 |
 
 #### Defs
 
@@ -207,14 +207,24 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 | **Packer builder type** | `qemu` |
 | **Packer plugin** | `github.com/hashicorp/qemu` |
 | **Platform type** | Local ISO |
-| **Architectures** | x86_64 only |
+| **Architectures** | x86_64, aarch64 |
 
 #### Defs
 
-Inherits from configuration defaults only: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+| Def | Value | Description |
+|-----|-------|-------------|
+| `libvirt_uri` | `""` | libvirt connection the post-build hook registers the VM in (empty: see below) |
+
+Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+
+**Platform defs** (cannot be overridden by a location or spec, only by `-D`):
+
+| Def | Value | Description |
+|-----|-------|-------------|
+| `firmware` | `bios` | Selects `firmware_specific` sections for BIOS, whatever the spec asks for |
 
 !!! note
-    QEMU does not define `local: true` in its defs. It also does not include `cd_files` or `cd_label` in its config, unlike most other ISO-based platforms.
+    QEMU does not define `local: true` in its defs.
 
 #### Config Keys
 
@@ -227,25 +237,33 @@ Inherits from configuration defaults only: `cpu_sockets`, `cpu_cores`, `memory`,
 | `sockets` | `#>cpu_sockets<#` | CPU sockets |
 | `cores` | `#>cpu_cores<#` | Cores per socket |
 | `memory` | `#>memory<#` | Memory in MB |
-| `firmware` | `>>firmware<<` | BIOS or EFI firmware path |
+| `firmware` | `""` | Empty, so it is dropped from the builder and Packer boots BIOS |
 | `disk_size` | `>>boot_disk_size<<M` | Disk size with M suffix |
 | `format` | `qcow2` | Disk image format |
-| `accelerator` | `kvm` | Hardware acceleration |
-| `http_directory` | `path/to/httpdir` | HTTP directory for kickstart |
+| `accelerator` | (conditional expression) | `kvm` if `/dev/kvm` is writable, otherwise `none` |
+| `cpu_model` | (conditional expression) | `host` if `/dev/kvm` is writable, otherwise `max` |
 | `iso_url` | (conditional expression) | ISO source path or URL |
 | `iso_checksum` | (conditional expression) | ISO checksum or `none` |
 | `iso_target_path` | (conditional expression) | Local download target |
+| `cd_files` | `%>cd_files<%` | Files to include on CD |
+| `cd_label` | `>>cd_label<<` | CD volume label |
+| `headless` | `true` | Run without a display |
 | `net_device` | `virtio-net` | Network device type |
 | `disk_interface` | `virtio` | Disk bus type |
 
 !!! info
     QEMU uses string-based disk size (`>>boot_disk_size<<M`) rather than a numeric expression, since the QEMU builder expects a string with unit suffix.
 
+#### Post-Build Hook
+
+After a successful build, `scripts/qemu_post_build.py` writes `<output_directory>/<name>.xml` and registers the VM with `virsh define`, if `virsh` is on `PATH`. The libvirt connection is `libvirt_uri` if set, else the `LIBVIRT_DEFAULT_URI` environment variable, else `qemu:///system` when running as root and `qemu:///session` otherwise. See [QEMU libvirt URI](../data/qemu-libvirt-uri.md).
+
 #### Location Defs Needed
 
 | Def | Description |
 |-----|-------------|
 | `vms_path` | Base path for VM output (VMs stored under `vms_path/qemu/`) |
+| `libvirt_uri` | Optional. libvirt connection for the post-build registration |
 
 ---
 
@@ -364,7 +382,7 @@ Enterprise platforms boot VMs from ISOs on remote hypervisors. They require plat
 | **Packer builder type** | `vsphere-iso` |
 | **Packer plugin** | `github.com/hashicorp/vsphere` |
 | **Platform type** | Enterprise ISO |
-| **Architectures** | i386, x86_64 |
+| **Architectures** | i386, x86_64, aarch64 |
 
 #### Defs
 
@@ -412,7 +430,7 @@ The `>>location_name<<` is substituted with the location name from the build tar
 | `firmware` | `>>firmware<<` | BIOS or EFI |
 | `iso_url` | (conditional expression) | ISO source path or URL |
 | `iso_checksum` | (conditional expression) | ISO checksum or `none` |
-| `iso_target_path` | `>>iso_path<</>>iso_name<<` | Datastore path for ISO |
+| `iso_target_path` | `>>iso_path<</>>iso_name<<` | Download path on the build machine |
 | `cd_files` | `%>cd_files<%` | Files to include on CD |
 | `cd_label` | `>>cd_label<<` | CD volume label |
 | `usb_controller` | `usb` | USB controller type |
@@ -462,12 +480,14 @@ This dynamically selects the Windows or Linux VMware Tools ISO based on the spec
 | Def | Required | Description |
 |-----|----------|-------------|
 | `datacenter` | Yes | vSphere datacenter name |
-| `esxi_host` | Yes | Target ESXi host FQDN or IP |
-| `cluster` | Yes | vSphere cluster name |
+| `esxi_host` | Host or cluster | Target ESXi host FQDN or IP |
+| `cluster` | No | vSphere cluster name (vCenter only) |
 | `datastore` | Yes | Datastore for VM storage |
-| `folder` | Yes | vCenter folder path |
+| `folder` | No | vCenter folder path |
 | `vm_network` | No | Port group name (default: `VM Network`) |
-| `thin_disk` | No | Thin provisioning (default: `false`) |
+| `thin_disk` | No | Thin provisioning (default: `false`, thick) |
+
+A def left out or set to `""` leaves its builder key empty, and OSImager drops it with `warning: removing empty value for: <key>`. A standalone ESXi host sets `esxi_host` and leaves out `cluster` and `folder`.
 
 #### Credential Requirements
 
@@ -481,11 +501,9 @@ Secret path: `vsphere/<location>`
 
 #### ISO Caching
 
-vSphere builds require the ISO to be accessible on an ESXi datastore. By default, if Packer cannot find the ISO in its cache, it downloads it locally and then uploads it to the ESXi host — doubling the time and bandwidth.
+The ESXi host never downloads the installer ISO. Packer uses `<iso_path>/<iso_name>` on the build machine if it is already there (or with `--local`), and otherwise downloads it there from the spec's URL. It then uploads the file to `[<remote_cache_datastore>] <remote_cache_path>/<iso_name>`, where `remote_cache_path` defaults to `packer_cache/`. The upload is skipped only if a file already exists at that exact datastore path, so only the first build of a version pays for it.
 
-To avoid this, NFS mount the same storage as both your local `iso_path` directory and an ESXi datastore (configured via `remote_cache_datastore` in your location's `platform_specific` config). This way the ISO only needs to be downloaded once — the local path and the datastore point to the same physical storage.
-
-Example location config with `remote_cache_datastore`:
+Both are builder keys, set in the location's `platform_specific` `config`:
 
 ```json
 "platform_specific": [
@@ -503,7 +521,7 @@ Example location config with `remote_cache_datastore`:
 ]
 ```
 
-In this example, the `iso` datastore on ESXi is an NFS mount of the same directory as `iso_path` in the location defs. When Packer downloads an ISO to `iso_path`, it is immediately available on the `iso` datastore without an upload step.
+If the `iso` datastore is an NFS export that the build machine also mounts, the uploaded file appears on the build machine at `<mount>/<remote_cache_path>/<iso_name>`. That only avoids a download if it is the same path as `<iso_path>/<iso_name>`. See the [vSphere walkthrough](../walkthroughs/vsphere.md).
 
 ---
 
@@ -515,7 +533,7 @@ In this example, the `iso` datastore on ESXi is an NFS mount of the same directo
 | **Packer builder type** | `proxmox-iso` |
 | **Packer plugin** | `github.com/hashicorp/proxmox` |
 | **Platform type** | Enterprise ISO |
-| **Architectures** | i386, x86_64 |
+| **Architectures** | i386, x86_64, aarch64 |
 
 #### Defs
 
@@ -524,6 +542,12 @@ In this example, the `iso` datastore on ESXi is an NFS mount of the same directo
 | `shutcmd` | `false` | Disables the default shutdown command (Proxmox handles shutdown via QEMU agent) |
 
 Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`.
+
+**Platform defs** (cannot be overridden by a location or spec, only by `-D`):
+
+| Def | Value | Description |
+|-----|-------|-------------|
+| `firmware` | `bios` | Pins the VM to SeaBIOS (`bios`) and leaves out `efi_config` |
 
 #### Variables (Credential References)
 
@@ -545,16 +569,19 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 | `password` | `{{user "proxmox-password"}}` | Login password from variable |
 | `qemu_agent` | `true` | Enable QEMU guest agent |
 | `insecure_skip_tls_verify` | `true` | Skip TLS verification |
-| `vm_name` | `>>name<<` | VM name |
+| `vm_name` | `>>build_id<<` | Temporary unique name `packer-<12 hex digits>`; the post-build hook renames the VM to `>>name<<` |
 | `sockets` | `#>cpu_sockets<#` | CPU sockets |
 | `cores` | `#>cpu_cores<#` | Cores per socket |
 | `cpu_type` | `host` | CPU type passthrough |
 | `memory` | `#>memory<#` | Memory in MB |
 | `numa` | `true` | Enable NUMA |
 | `task_timeout` | `1h` | Proxmox task timeout |
+| `boot` | `order=virtio0;ide2;net0` | Boot order |
 | `boot_iso` | (see below) | Boot ISO configuration |
 | `additional_iso_files` | (see below) | Additional CD with kickstart files |
 | `network_adapters` | (see below) | Network configuration |
+| `bios` | (conditional expression) | `ovmf` if `firmware` is `efi`, otherwise `seabios` |
+| `efi_config` | (conditional expression) | EFI disk in `>>vm_storage_pool<<` when `firmware` is `efi`; empty and dropped otherwise |
 | `scsi_controller` | `virtio-scsi-single` | SCSI controller type |
 | `disks` | (see below) | Disk layout |
 
@@ -563,6 +590,7 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 ```json
 "boot_iso": {
   "type": "ide",
+  "index": 2,
   "iso_file|iso_url": "(conditional based on local_only)",
   "iso_download_pve": "(conditional based on local_only)",
   "iso_checksum": "(conditional expression)",
@@ -572,7 +600,7 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 }
 ```
 
-When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwise, `iso_url` is used and `iso_download_pve` is enabled so Proxmox downloads the ISO directly.
+When `local_only` is true, `iso_file` is used with an `>>iso_storage_pool<<:iso/>>iso_name<<` path. Otherwise, `iso_url` is used and `iso_download_pve` is enabled so Proxmox downloads the ISO directly.
 
 **Additional ISO files (kickstart CD):**
 
@@ -580,6 +608,7 @@ When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwis
 "additional_iso_files": [
   {
     "type": "ide",
+    "index": 3,
     "cd_files": "%>cd_files<%",
     "cd_label": ">>cd_label<<",
     "unmount": true,
@@ -607,7 +636,8 @@ When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwis
   {
     "type": "virtio",
     "disk_size": ">>boot_disk_size<<M",
-    "storage_pool": ">>vm_storage_pool<<"
+    "storage_pool": ">>vm_storage_pool<<",
+    "cache_mode": "none"
   }
 ]
 ```
@@ -615,8 +645,9 @@ When `local_only` is true, `iso_file` is used with a `local:iso/` path. Otherwis
 !!! note
     Proxmox sets `shutcmd: false`, which disables the spec-provided shutdown command. Proxmox VE handles VM shutdown through the QEMU guest agent instead.
 
-!!! important "Patched Packer Plugin Required"
-    The Proxmox platform requires a patched version of `packer-plugin-proxmox` that skips template conversion after build. The official plugin always converts VMs to templates, which renames disk files from `vm-*` to `base-*` and sets immutable attributes that cannot be reversed through the Proxmox API. See [Installation](../installation.md#proxmox-plugin) for build and install instructions.
+#### Post-Build Hook
+
+After a successful build, `scripts/proxmox_post_build.py` logs in to the Proxmox API with the `proxmox/<location>` secrets, finds the VM named `>>build_id<<` on `proxmox_node`, and renames it to `>>name<<`.
 
 #### Location Defs Needed
 
@@ -640,15 +671,18 @@ Secret path: `proxmox/<location>`
 
 ## Cloud Platforms
 
-Cloud platforms do not use ISOs or boot commands. They launch a base image from the cloud marketplace, provision it over SSH (typically through a bastion host), and capture the result as a managed image. All cloud platforms set `boot: false` and `shutcmd: false` in their defs.
+Cloud platforms do not use ISOs or boot commands. They launch a base image from the cloud marketplace, provision it over SSH (directly, or through an optional bastion host on Azure and GCP), and capture the result as a managed image. All cloud platforms set `boot: false` and `shutcmd: false` in their defs.
 
 ### Common Traits
 
 - **No ISO**: No `iso_url`, `cd_files`, or `boot_command`
 - **Defs**: `boot: false`, `shutcmd: false`
 - **Authentication**: Cloud provider credentials via Vault/secrets
-- **SSH access**: Through a bastion host (Azure, GCP) or direct (AWS)
+- **SSH access**: Direct, or through an optional bastion host (Azure, GCP)
 - **Output**: Managed image, AMI, or compute image
+- **Base image**: The `azure_image_*`, `gcp_*` image and `aws_ami_*` defs come from the spec's version entries. The spec is loaded after the location, so a location value for them is overwritten; override one for a build with `-D`.
+- **Architectures**: The platform files list `x86_64` and `aarch64`, but the specs' base-image defs and the default instance sizes are x86, so `x86_64` is what works in practice.
+- **Optional secrets**: A key missing from the secret path resolves to an empty value, with `warning: secret not found: <path>/<key>`.
 
 ---
 
@@ -660,7 +694,7 @@ Cloud platforms do not use ISOs or boot commands. They launch a base image from 
 | **Packer builder type** | `azure-arm` |
 | **Packer plugin** | `github.com/hashicorp/azure` |
 | **Platform type** | Cloud |
-| **Architectures** | x86_64 only |
+| **Architectures** | x86_64, aarch64 (x86_64 in practice) |
 
 #### Defs
 
@@ -740,12 +774,11 @@ The image version uses Packer's `isotime` function with Go date format to produc
 |-----|----------|-------------|
 | `azure_location` | Yes | Azure region (e.g., `eastus`) |
 | `azure_resource_group` | Yes | Resource group for managed images |
-| `azure_image_publisher` | Yes | Marketplace image publisher |
-| `azure_image_offer` | Yes | Marketplace image offer |
-| `azure_image_sku` | Yes | Marketplace image SKU |
 | `azure_replication_regions` | Yes | List of regions for gallery replication |
 | `vm_size` | No | Build VM size (default: `Standard_D2s_v3`) |
 | `image_version` | No | Marketplace image version (default: `latest`) |
+
+`azure_image_publisher`, `azure_image_offer` and `azure_image_sku` come from the spec, not the location (see Common Traits).
 
 #### Credential Requirements
 
@@ -757,12 +790,12 @@ Secret path: `azure/<location>`
 | `client_secret` | Azure service principal secret |
 | `tenant_id` | Azure AD tenant ID |
 | `subscription_id` | Azure subscription ID |
-| `gallery_subscription_id` | Shared Image Gallery subscription |
-| `gallery_resource_group` | Gallery resource group name |
-| `gallery_name` | Shared Image Gallery name |
-| `bastion_hostname` | SSH bastion host |
-| `bastion_username` | Bastion SSH username |
-| `bastion_keyfile` | Bastion SSH private key file path |
+| `gallery_subscription_id` | Optional. Shared Image Gallery subscription |
+| `gallery_resource_group` | Optional. Gallery resource group name |
+| `gallery_name` | Optional. Shared Image Gallery name |
+| `bastion_hostname` | Optional. SSH bastion host |
+| `bastion_username` | Optional. Bastion SSH username |
+| `bastion_keyfile` | Optional. Bastion SSH private key file path |
 
 ---
 
@@ -774,7 +807,7 @@ Secret path: `azure/<location>`
 | **Packer builder type** | `googlecompute` |
 | **Packer plugin** | `github.com/hashicorp/googlecompute` |
 | **Platform type** | Cloud |
-| **Architectures** | x86_64 only |
+| **Architectures** | x86_64, aarch64 (x86_64 in practice) |
 
 #### Defs
 
@@ -834,12 +867,11 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 |-----|----------|-------------|
 | `gcp_region` | Yes | GCP region (e.g., `us-central1`) |
 | `gcp_zone` | Yes | GCP zone (e.g., `us-central1-a`) |
-| `gcp_image_family` | Yes | Output image family name |
-| `gcp_source_image_family` | Yes | Source image family (e.g., `rhel-9`) |
-| `gcp_source_image_project_id` | Yes | Project hosting the source image (e.g., `rhel-cloud`) |
 | `machine_type` | No | Build machine type (default: `n1-standard-2`) |
 | `disk_type` | No | Persistent disk type (default: `pd-ssd`) |
 | `state_timeout` | No | State timeout (default: `15m`) |
+
+`gcp_image_family`, `gcp_source_image_family` and `gcp_source_image_project_id` come from the spec, not the location (see Common Traits). Some specs set `gcp_source_image_project_id` to `""`; the empty `source_image_project_id` is then dropped from the builder and the plugin searches its default public image projects.
 
 #### Credential Requirements
 
@@ -847,12 +879,12 @@ Secret path: `gcp/<location>`
 
 | Key | Description |
 |-----|-------------|
-| `credentials_json` | Service account JSON key content |
+| `credentials_json` | Optional. Service account JSON key content; empty means Application Default Credentials |
 | `project_id` | GCP project ID |
-| `service_account_email` | Service account email address |
-| `bastion_hostname` | SSH bastion host |
-| `bastion_username` | Bastion SSH username |
-| `bastion_password` | Bastion SSH password |
+| `service_account_email` | Optional. Service account email address |
+| `bastion_hostname` | Optional. SSH bastion host |
+| `bastion_username` | Optional. Bastion SSH username |
+| `bastion_password` | Optional. Bastion SSH password |
 
 ---
 
@@ -864,7 +896,7 @@ Secret path: `gcp/<location>`
 | **Packer builder type** | `amazon-ebs` |
 | **Packer plugin** | `github.com/hashicorp/amazon` |
 | **Platform type** | Cloud |
-| **Architectures** | x86_64 only |
+| **Architectures** | x86_64, aarch64 (x86_64 in practice) |
 
 #### Defs
 
@@ -918,18 +950,18 @@ Plus inherited from configuration defaults: `cpu_sockets`, `cpu_cores`, `memory`
 The source AMI is selected dynamically using a name filter pattern and owner list rather than a hardcoded AMI ID. This ensures builds always use the latest base AMI matching the criteria.
 
 !!! note
-    AWS is the only cloud platform that does not use a bastion host for SSH. It assigns a public IP directly to the build instance via `associate_public_ip_address: true`.
+    `aws.json` has no bastion settings. It assigns a public IP directly to the build instance via `associate_public_ip_address: true`.
 
 #### Location Defs Needed
 
 | Def | Required | Description |
 |-----|----------|-------------|
 | `aws_region` | Yes | AWS region (e.g., `us-east-1`) |
-| `aws_vpc_id` | Yes | VPC ID for the build instance |
-| `aws_subnet_id` | Yes | Subnet ID for the build instance |
-| `aws_ami_filter_name` | Yes | AMI name filter pattern (e.g., `RHEL-9.*_HVM-*-x86_64-*`) |
-| `aws_ami_owners` | Yes | List of AMI owner account IDs |
+| `aws_vpc_id` | No | VPC ID for the build instance (empty: dropped, region's default VPC) |
+| `aws_subnet_id` | No | Subnet ID for the build instance (empty: dropped) |
 | `instance_type` | No | EC2 instance type (default: `t3.medium`) |
+
+`aws_ami_filter_name` and `aws_ami_owners` come from the spec, not the location (see Common Traits).
 
 #### Credential Requirements
 
@@ -952,7 +984,7 @@ Secret path: `aws/<location>`
 | **Packer builder type** | `null` |
 | **Packer plugin** | Built-in (no plugin required) |
 | **Platform type** | Special |
-| **Architectures** | N/A |
+| **Architectures** | i386, x86_64, aarch64 |
 
 The `none` platform uses Packer's built-in null builder. It does not create a VM, boot from an ISO, or interact with any hypervisor. It exists solely for running provisioners against an existing host over SSH.
 
@@ -963,8 +995,8 @@ The `none` platform uses Packer's built-in null builder. It does not create a VM
 | `boot` | `false` | No boot command |
 | `shutcmd` | `false` | No shutdown command |
 
-!!! warning
-    The `none` platform does **not** inherit configuration defaults. It has no hardware defaults (`cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size` are not set) since no VM is created.
+!!! note
+    The configuration defaults (`cpu_sockets`, `cpu_cores`, `memory`, `boot_disk_size`) are still present in the defs, but the null builder has no keys that use them, since no VM is created.
 
 #### Config
 
@@ -999,26 +1031,28 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 | xenserver | `xenserver-iso` | Yes | None | No | VHD in `vms_path/xen/` |
 | vsphere | `vsphere-iso` | Yes | `vsphere/<loc>` | No | VM on vSphere datastore |
 | proxmox | `proxmox-iso` | Yes | `proxmox/<loc>` | No | VM on Proxmox storage |
-| azure | `azure-arm` | No | `azure/<loc>` | Yes | Managed Image + Gallery |
-| gcp | `googlecompute` | No | `gcp/<loc>` | Yes | Compute Engine Image |
+| azure | `azure-arm` | No | `azure/<loc>` | Optional | Managed Image (+ Gallery, optional) |
+| gcp | `googlecompute` | No | `gcp/<loc>` | Optional | Compute Engine Image |
 | aws | `amazon-ebs` | No | `aws/<loc>` | No | AMI |
 | none | `null` | No | None | No | N/A |
 
 ### Architecture Support
 
-| Platform | i386 | x86_64 |
-|----------|------|--------|
-| virtualbox | Yes | Yes |
-| vmware | Yes | Yes |
-| vsphere | Yes | Yes |
-| proxmox | Yes | Yes |
-| qemu | No | Yes |
-| hyperv | No | Yes |
-| xenserver | No | Yes |
-| azure | No | Yes |
-| gcp | No | Yes |
-| aws | No | Yes |
-| none | N/A | N/A |
+From each platform file's `arches` list:
+
+| Platform | i386 | x86_64 | aarch64 |
+|----------|------|--------|---------|
+| virtualbox | Yes | Yes | Yes |
+| vmware | Yes | Yes | Yes |
+| vsphere | Yes | Yes | Yes |
+| proxmox | Yes | Yes | Yes |
+| qemu | No | Yes | Yes |
+| hyperv | No | Yes | No |
+| xenserver | No | Yes | No |
+| azure | No | Yes | Listed, but the specs' base images are x86 |
+| gcp | No | Yes | Listed, but the specs' base images are x86 |
+| aws | No | Yes | Listed, but the specs' base images are x86 |
+| none | Yes | Yes | Yes |
 
 ### Disk Configuration
 
@@ -1039,7 +1073,7 @@ No platform credentials are needed. SSH/WinRM credentials for the target host mu
 
 | Platform | Adapter Type | Mode |
 |----------|-------------|------|
-| virtualbox | virtio | Bridged on `vbnet` |
+| virtualbox | Builder default | NAT with SSH port forward |
 | vmware | vmxnet3 | Default |
 | qemu | virtio-net | Default |
 | hyperv | default | Virtual switch (`>>switch_name<<`) |

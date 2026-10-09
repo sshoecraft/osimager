@@ -78,7 +78,7 @@ In spec and platform JSON files, secrets are referenced two ways:
 "ssh-password": "{{vault `images/linux` `password`}}"
 ```
 
-When using config mode, `resolve_packer_vault_refs()` automatically replaces `{{vault ...}}` references with values from the secrets file before passing the JSON to Packer.
+In both modes, `resolve_packer_vault_refs()` replaces every `{{vault ...}}` reference with its value, through `get_secret()`, before the JSON is passed to Packer: from the secrets file in config mode, and from a KV v2 read in vault mode. Both modes read the same paths and keys, and Packer never resolves a `{{vault ...}}` reference itself. A key that isn't found becomes an empty value, with `warning: secret not found: <path>/<key>`.
 
 ## Vault Mode (HashiCorp Vault)
 
@@ -119,7 +119,7 @@ vault kv put proxmox/pnet server=proxmox.example.com username=root@pam password=
 - OSImager connects using `hvac.Client(url=vault_addr, token=vault_token)`
 - Verifies authentication with `vault.is_authenticated()`
 - Reads secrets via `vault.secrets.kv.v2.read_secret_version()`
-- Packer also accesses Vault directly using the `{{vault ...}}` template function (VAULT_ADDR and VAULT_TOKEN are passed as environment variables)
+- Resolves the `{{vault ...}}` references in platform and spec files itself (see [How Secrets Are Referenced](#how-secrets-are-referenced)). Packer's own `vault` function would need the KV v2 `data/` path segment, which these references don't carry, so they never reach Packer. `VAULT_ADDR` and `VAULT_TOKEN` are still set in Packer's environment.
 
 ## Per-Platform Credential Requirements
 
