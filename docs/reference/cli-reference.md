@@ -27,6 +27,8 @@ mkosimage [LISTING OPTIONS]
 
 In place of a version, `SPEC` can be `<dist>-latest-<arch>`, e.g. `alma-latest-x86_64`. It resolves to the highest version the specs provide for that dist and architecture, and the resolution is printed (`alma-latest-x86_64 -> alma-10.2-x86_64`). Everything after that, including the default VM name, uses the real version.
 
+`SPEC` can also be `<dist>-<version>-latest-<arch>`, e.g. `rhel-9-latest-x86_64`, for the highest version within one version line. A version is in the line when it equals `<version>` or continues it after a `.`: `rhel-9` takes 9.8 but not 90, and `ubuntu-24` takes 24.04.5.
+
 With `--local`, `latest` means the newest version whose ISO is already present. If none is present, the build stops with an error.
 
 `latest` reflects the specs, not the vendor's site: a new upstream release only appears once a spec is updated for it.
@@ -40,7 +42,7 @@ These print information and exit. They need no target.
 | `-l`, `--list` | Every spec OSImager knows about, one per line in version order, whether or not you can build it. A `(*)` after a name means its ISO is present locally. |
 | `-a`, `--avail` | Only the specs you can build right now, one per line, with where the ISO comes from: a local path if the ISO is present, otherwise the download URL. Specs that are local-only and whose ISO is missing are not listed. |
 | `--local` | With no target: the same list as `-a`, but only the specs whose ISO is present (path entries only). With a target: see Build Options. |
-| `--latest` | Each `<dist>-latest-<arch>` target and the spec it resolves to. Combined with `-a` or `--local`, those lists are narrowed to the latest spec of each dist. With `--local`, latest means the newest version present locally. |
+| `--latest [DIST[-VERSION]]` | Each `<dist>-latest-<arch>` target and the spec it resolves to. `--latest debian` limits it to one dist; `--latest rhel-9` shows the `rhel-9-latest-<arch>` targets, the newest 9.x of each architecture. Combined with `-a` or `--local`, those lists are narrowed to the latest spec of each dist. With `--local`, latest means the newest version present locally. |
 | `--arch ARCH` | Filter any of the lists above to one architecture, e.g. `--arch aarch64`. |
 | `--check-urls` | HEAD-checks every download URL in every spec, in parallel, and prints each failure with its HTTP status, then totals of OK, failed and local-only. |
 | `--list-platforms` | Each platform with its Packer builder type and supported architectures. |
@@ -177,6 +179,10 @@ mkosimage --local
 # The latest target of each dist and what it resolves to
 mkosimage --latest
 
+# The newest RHEL 9 and Debian 11 releases the specs provide
+mkosimage --latest rhel-9
+mkosimage --latest debian-11
+
 # The newest locally present version of each dist
 mkosimage --latest --local
 
@@ -195,6 +201,9 @@ mkosimage proxmox/pve/alma-9.8-x86_64
 
 # Build the newest Alma the specs provide
 mkosimage proxmox/pve/alma-latest-x86_64
+
+# Build the newest RHEL 9
+mkosimage proxmox/pve/rhel-9-latest-x86_64
 
 # Build the newest Alma whose ISO is already present, never downloading
 mkosimage --local proxmox/pve/alma-latest-x86_64

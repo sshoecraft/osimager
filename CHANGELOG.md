@@ -11,6 +11,20 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.11.0] — 2026-10-12
+
+### Added
+- **`--latest` takes an optional dist or dist-version filter.**
+  `mkosimage --latest rhel-9` shows the newest 9.x RHEL spec for each
+  architecture (`rhel-9-latest-x86_64  rhel-9.8-x86_64`), and
+  `mkosimage --latest debian` limits the report to Debian. A version matches
+  the filter when it equals it or continues it at a `.` boundary, so `rhel-9`
+  matches 9.8 but not 90. With no filter, `--latest` behaves as before.
+- **`<dist>-<version>-latest-<arch>` build targets**, the same aliases the
+  filtered report prints: `mkosimage qemu/lab/rhel-9-latest-x86_64` builds the
+  newest RHEL 9 spec. `--local` narrows them to versions present locally, as
+  it does for `<dist>-latest-<arch>`.
+
 ## [1.10.2] — 2026-10-09
 
 ### Fixed

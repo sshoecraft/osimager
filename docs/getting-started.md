@@ -117,6 +117,8 @@ Latest specs:
   ...
 ```
 
+To see the newest release of one version line, name it: `mkosimage --latest rhel-9` lists `rhel-9-latest-x86_64  rhel-9.8-x86_64` and the same for each other architecture. `mkosimage --latest debian` limits the list to one dist.
+
 You don't need to download ISOs by hand. When a spec's ISO entry is a URL, the build downloads the ISO into `iso_path` and reuses it from there on later builds. `iso_path` defaults to `/iso`; point it at a directory you can write to:
 
 ```bash
@@ -149,6 +151,8 @@ mkosimage virtualbox/local/alma-latest-x86_64
 ```
 
 The alias resolves to the highest version the spec provides for that architecture, and it does so before anything else runs. The build, the default instance name and the logs all use the real version (`alma-10.2-x86_64`). The alias is only as current as the spec, so a new upstream release needs a spec update before `latest` picks it up. With `--local` (or `local_only` set), `latest` means the newest version whose ISO is already in `iso_path`. If no version is local, the build stops with an error.
+
+`rhel-9-latest-x86_64` works the same way within one version line: the highest 9.x RHEL the specs provide.
 
 To give the VM a name:
 

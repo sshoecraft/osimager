@@ -187,7 +187,10 @@ Listing (no target needed):
   -l, --list          Every spec OSImager knows about; (*) = ISO present locally
   -a, --avail         Specs you can build now, with local ISO path or download URL
   --local             Like -a, but only specs whose ISO is already present
-  --latest            Each <dist>-latest-<arch> target and the spec it resolves to;
+  --latest [DIST[-VERSION]]
+                      Each <dist>-latest-<arch> target and the spec it resolves to;
+                      DIST limits it to one dist, DIST-VERSION (e.g. rhel-9) shows
+                      the newest of that version line (rhel-9-latest-<arch>);
                       with -a/--local, narrows those lists to the latest of each dist
   --arch ARCH         Limit any listing to one architecture
   --check-urls        HEAD-check every download URL in every spec

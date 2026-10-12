@@ -46,7 +46,7 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
                 print(f"  Or create your own: {osimager.settings['user_dir']}/specs/")
                 return EXIT_SUCCESS
             if osimager.latest:
-                index = {k: index[k] for k in osimager.latest_aliases(index).values()}
+                index = {k: index[k] for k in osimager.latest_aliases(index, osimager.latest_wanted).values()}
 
             local_only = osimager.settings.get('local_only', False)
 
@@ -70,11 +70,13 @@ def main_mkosimage(argv: Optional[List[str]] = None) -> int:
             return EXIT_SUCCESS
 
         if osimager.latest:
-            aliases = osimager.latest_aliases(osimager.get_index())
+            aliases = osimager.latest_aliases(osimager.get_index(), osimager.latest_wanted)
             if aliases:
                 print("Latest specs:")
                 for alias, spec_key in aliases.items():
                     print(f"  {alias:<34} {spec_key}")
+            elif osimager.latest_wanted:
+                print(f"No specs match {osimager.latest_wanted}")
             else:
                 print("No specs found")
             return EXIT_SUCCESS

@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.10.2"
+OSIMAGER_VERSION = "1.11.0"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
@@ -88,7 +88,7 @@ class OSImager:
             "--debug": {"flags": ["-d", "--debug"], "kwargs": {"default": False, "action": "store_true", "help": "Enable debug mode", "dest": "debug"}},
             "--verbose": {"flags": ["-v", "--verbose"], "kwargs": {"default": False, "action": "store_true", "help": "Enable verbose output", "dest": "verbose"}},
             "--version": {"flags": ["-V", "--version"], "kwargs": {"default": False, "action": "store_true", "help": "Show version and exit", "dest": "version"}},
-            "--latest": {"flags": ["--latest"], "kwargs": {"default": False, "action": "store_true", "help": "Show the <dist>-latest-<arch> targets and the spec each resolves to; with --avail or --local, limit the report to those specs", "dest": "latest"}},
+            "--latest": {"flags": ["--latest"], "kwargs": {"default": False, "nargs": "?", "const": True, "metavar": "DIST[-VERSION]", "help": "Show the <dist>-latest-<arch> targets and the spec each resolves to; DIST limits it to one dist, DIST-VERSION (e.g. rhel-9) to the newest of that version line; with --avail or --local, limit the report to those specs", "dest": "latest"}},
             "--arch": {"flags": ["--arch"], "kwargs": {"default": None, "help": "Filter output by architecture (e.g. x86_64, i386, aarch64)", "dest": "arch"}},
             "--set": {"flags": ["--set"], "kwargs": {"action": "append", "help": "Set a setting value (key=value)", "dest": "settings_override"}},
         }
@@ -135,7 +135,8 @@ class OSImager:
         # Set the attributes on the object based on the parsed arguments
         self.list = args.list
         self.avail = args.avail
-        self.latest = args.latest
+        self.latest = bool(args.latest)
+        self.latest_wanted = args.latest if isinstance(args.latest, str) else None
         self.list_platforms = args.list_platforms
         self.list_defs = args.list_defs
         self.init_plugins = args.init_plugins
@@ -1052,28 +1053,55 @@ class OSImager:
             index = {k: v for k, v in index.items() if v.get('provides', {}).get('arch') == self.arch}
         return index.get(name,None) if name else index
 
-    def latest_aliases(self, index):
+    def latest_aliases(self, index, wanted=None):
         """Map each <dist>-latest-<arch> alias to the index key of the highest
         version that dist provides for that arch. Under local_only, only
-        versions whose ISO or disk image is already local are candidates."""
+        versions whose ISO or disk image is already local are candidates.
+
+        wanted narrows the map to one dist ("rhel") or to one dist's versions
+        under a prefix ("rhel-9"), keyed <dist>-<prefix>-latest-<arch>. A
+        version is under the prefix when it equals it or continues it at a
+        '.', so rhel-9 takes 9.8 but not 90. A wanted that names no dist in
+        the index gives an empty map."""
+        dist_wanted = None
+        prefix = ""
+        if wanted:
+            # Dist names contain '-' (fedora-coreos, proxmox-ve), so take the
+            # longest dist that wanted starts with rather than splitting it.
+            dists = {e.get('provides', {}).get('dist', "") for e in index.values()}
+            for dist in sorted(dists, key=len, reverse=True):
+                if dist and (wanted == dist or wanted.startswith(dist + "-")):
+                    dist_wanted = dist
+                    prefix = wanted[len(dist) + 1:]
+                    break
+            if dist_wanted is None:
+                return {}
         local_only = self.settings.get('local_only', False)
         best = {}
         for key, entry in index.items():
             if local_only and not (entry.get('iso_local') or entry.get('disk_image_local')):
                 continue
             provides = entry.get('provides', {})
-            alias = provides.get('dist', "") + "-latest-" + provides.get('arch', "")
+            dist = provides.get('dist', "")
             version = provides.get('version', "")
+            if dist_wanted is not None and dist != dist_wanted:
+                continue
+            if prefix and version != prefix and not version.startswith(prefix + "."):
+                continue
+            stem = dist + "-" + prefix if prefix else dist
+            alias = stem + "-latest-" + provides.get('arch', "")
             if alias not in best or natural_key(version) > natural_key(best[alias][0]):
                 best[alias] = (version, key)
         return {alias: best[alias][1] for alias in sorted(best, key=natural_key)}
 
     def resolve_latest(self, spec_name):
-        """Return the index key a <dist>-latest-<arch> alias points at, or
-        spec_name unchanged when it is not an alias."""
+        """Return the index key a <dist>-latest-<arch> or
+        <dist>-<version>-latest-<arch> alias points at, or spec_name unchanged
+        when it is not an alias."""
         if "-latest-" not in spec_name:
             return spec_name
-        return self.latest_aliases(self.make_index()).get(spec_name, spec_name)
+        wanted = spec_name.rsplit("-latest-", 1)[0]
+        return self.latest_aliases(self.make_index(), wanted).get(spec_name, spec_name)
 
     def get_iso_file(self,urls):
         debug = False
