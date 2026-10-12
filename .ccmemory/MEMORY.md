@@ -1,5 +1,6 @@
 ## project
 - [compiled-osimager-config-persistence-and-local-only](compiled-osimager-config-persistence-and-local-only.md) — osimager: --set/--local persist to user config (test via XDG_CONFIG_HOME), local_only auto-detect from cached ISO, v1.7.0 two-layer data/XDG layout
 - [compiled-osimager-data-layout-and-spec-traps](compiled-osimager-data-layout-and-spec-traps.md) — osimager data packaging history (separate pkg to in-engine data/), ansible.json/mkvenv, build hooks, Proxmox VE unattended install, qemu firmware trap
+- [compiled-osimager-iso-sources-and-installer-traps](compiled-osimager-iso-sources-and-installer-traps.md) — Assorted osimager traps: Alma vault URLs, ISO URL check vs cache, flat symlinked /iso, Debian seed CD, qemu64 CPU panic, Proxmox/FreeBSD fixes.
 - [compiled-osimager-mirror-iso-and-proxmox-platform-traps](compiled-osimager-mirror-iso-and-proxmox-platform-traps.md) — Assorted osimager traps: AlmaLinux slow mirrorlist, FreeBSD old-release 404s and NIC naming, Proxmox forced SeaBIOS and platform quirks.
 - [compiled-proxmox-qemu-build-networking-and-iteration](compiled-proxmox-qemu-build-networking-and-iteration.md) — Proxmox/qemu build networking: ssh_host no-value trap, DNS static->dhcp flip, per-build MAC rationale, libvirt_uri knob, rfosimage ansible loop.
