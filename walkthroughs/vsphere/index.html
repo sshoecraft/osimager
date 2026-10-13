@@ -1,0 +1,2127 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/walkthroughs/vsphere/">
+      
+      
+        <link rel="prev" href="../proxmox/">
+      
+      
+        <link rel="next" href="../aws/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>vSphere/ESXi - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#vsphere-esxi-walkthrough" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              vSphere/ESXi
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthroughs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Walkthroughs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU/KVM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../virtualbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VirtualBox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VMware Workstation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxmox VE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vSphere/ESXi
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vSphere/ESXi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-the-build-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the build machine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-the-vsphere-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the vSphere side
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Location file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standalone-esxi-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone ESXi host
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#host-managed-by-vcenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Host managed by vCenter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Build">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What happens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picking-a-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picking a version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-only-from-isos-you-already-have" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building only from ISOs you already have
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previewing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Previewing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../azure/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/lab-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Network Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/qemu-libvirt-uri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU libvirt URI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/photon-kickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Photon OS Kickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Prerequisites">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#on-the-build-machine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the build machine
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#on-the-vsphere-side" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        On the vSphere side
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Location file">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#standalone-esxi-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Standalone ESXi host
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#host-managed-by-vcenter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Host managed by vCenter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fields
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Build">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-happens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What happens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#picking-a-version" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Picking a version
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#building-only-from-isos-you-already-have" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building only from ISOs you already have
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#previewing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Previewing
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="vsphere-esxi-walkthrough">vSphere / ESXi walkthrough<a class="headerlink" href="#vsphere-esxi-walkthrough" title="Permanent link">&para;</a></h1>
+<p>This page takes you from a fresh <code>pip install osimager</code> to an AlmaLinux 10.2 VM installed on VMware ESXi, either a standalone host or a host managed by vCenter. OSImager drives Packer's <code>vsphere-iso</code> builder through the vSphere API: the VM is created on the host or cluster you name, its disk lives on a datastore, the installer runs unattended from a kickstart, Ansible configures the result, and the VM is left powered off under the name you gave it. It is not converted to a template.</p>
+<h2 id="1-prerequisites">1. Prerequisites<a class="headerlink" href="#1-prerequisites" title="Permanent link">&para;</a></h2>
+<h3 id="on-the-build-machine">On the build machine<a class="headerlink" href="#on-the-build-machine" title="Permanent link">&para;</a></h3>
+<p>The build machine is wherever you run <code>mkosimage</code>. It needs:</p>
+<ul>
+<li>
+<p><strong>Packer</strong> on <code>PATH</code> (or wherever the <code>packer_cmd</code> setting points). Without it a build stops with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>error: 'packer' not found in PATH
+</code></pre></div>
+</li>
+<li>
+<p><strong><code>mkisofs</code></strong> on <code>PATH</code>. Packer uses it to build the small CD that carries the kickstart. OSImager checks for a command with exactly that name; without it a build stops with:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>error: 'mkisofs' not found in PATH
+</code></pre></div>
+</li>
+<li>
+<p><strong>The Packer plugins.</strong> This installs the Ansible provisioner plugin plus the plugin each platform file names (for vSphere, <code>github.com/hashicorp/vsphere</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>mkosimage<span class="w"> </span>--init-plugins
+</code></pre></div>
+</li>
+<li>
+<p><strong>The Ansible venv the spec needs.</strong> The AlmaLinux 10 specs inherit <code>ansible_version: 2.18</code> from the RHEL 10 spec. Create it (or every venv the specs need):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>mkvenv<span class="w"> </span><span class="m">2</span>.18
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># or</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>mkvenv<span class="w"> </span>--all
+</code></pre></div>
+<p>If you don't want post-install configuration at all, skip this and add <code>--skip</code> to the build command.</p>
+</li>
+<li>
+<p><strong>Disk space in <code>iso_path</code></strong> for the installer ISO (about the size of a DVD), because on vSphere the build machine downloads it (step 5).</p>
+</li>
+<li><strong>Network access</strong> to the vCenter or ESXi API (HTTPS), to the ESXi host for the datastore upload, and to the VM network over SSH.</li>
+</ul>
+<h3 id="on-the-vsphere-side">On the vSphere side<a class="headerlink" href="#on-the-vsphere-side" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>A login</strong> for vCenter (e.g. <code>administrator@vsphere.local</code>) or for the ESXi host directly (e.g. <code>root</code>). It must be able to create and configure VMs, upload files to the datastores, and power VMs on and off. TLS verification is off (<code>insecure_connection: true</code>), so self-signed certificates are fine.</li>
+<li><strong>A datastore for the VM</strong> (<code>datastore</code>).</li>
+<li><strong>A datastore for ISOs</strong> (<code>remote_cache_datastore</code>, optional). Packer uploads the installer ISO here. Without it the plugin uses its own default.</li>
+<li><strong>A port group</strong> for the VM (<code>vm_network</code>, default <code>VM Network</code>). The VM gets one <code>vmxnet3</code> NIC on it.</li>
+<li><strong>DHCP and DNS on that network.</strong> The kickstart uses DHCP unless the VM's name resolves (see step 5).</li>
+<li><strong>The VMware Tools ISO on the host.</strong> <code>vsphere.json</code> attaches <code>[] /vmimages/tools-isoimages/linux.iso</code> from the ESXi host's own filesystem as a second CD.</li>
+</ul>
+<h2 id="2-global-settings">2. Global settings<a class="headerlink" href="#2-global-settings" title="Permanent link">&para;</a></h2>
+<p>Two settings matter here. Both are global, saved in <code>~/.config/osimager/config.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">credential_source</span><span class="o">=</span>config<span class="w"> </span>--set<span class="w"> </span><span class="nv">iso_path</span><span class="o">=</span>/iso
+</code></pre></div>
+<ul>
+<li><code>credential_source=config</code> reads secrets from the local file <code>~/.config/osimager/secrets</code>. Use <code>vault</code> instead if you keep them in HashiCorp Vault (step 3).</li>
+<li>
+<p><code>iso_path</code> is the directory <strong>on the build machine</strong> where ISOs live. Packer downloads the installer ISO to <code>&lt;iso_path&gt;/&lt;file&gt;</code>, and an ISO already there is used without downloading. <code>iso_path</code> is global only: a location that sets it gets this warning and the value is ignored:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>warning: location esx sets iso_path, which is ignored; iso_path is a global setting (mkosimage --set iso_path=...)
+</code></pre></div>
+</li>
+</ul>
+<p><code>--set</code> writes the file permanently. Run <code>mkosimage --show-config</code> to see what is in effect.</p>
+<h2 id="3-credentials">3. Credentials<a class="headerlink" href="#3-credentials" title="Permanent link">&para;</a></h2>
+<p>A vSphere build needs two secret entries:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Keys</th>
+<th>Used for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>images/linux</code></td>
+<td><code>username</code>, <code>password</code></td>
+<td>SSH login during the build, and the root password written into the kickstart (<code>rootpw --iscrypted</code>, hashed from <code>password</code>)</td>
+</tr>
+<tr>
+<td><code>vsphere/&lt;location&gt;</code></td>
+<td><code>server</code>, <code>username</code>, <code>password</code></td>
+<td>The vSphere API: <code>server</code> is the vCenter or ESXi host name</td>
+</tr>
+</tbody>
+</table>
+<p><code>&lt;location&gt;</code> is the location name from the build target, so <code>vsphere/esx/...</code> reads <code>vsphere/esx</code>.</p>
+<p>With <code>credential_source=config</code>, add them to <code>~/.config/osimager/secrets</code>, one path per line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>images/linux username=root password=&lt;password&gt;
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a># standalone ESXi host
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>vsphere/esx server=esx1.example.com username=root password=&lt;password&gt;
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a># vCenter
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>vsphere/vc server=vcenter.example.com username=administrator@vsphere.local password=&lt;password&gt;
+</code></pre></div>
+<p>Values are split on whitespace, so a password cannot contain spaces.</p>
+<p>With <code>credential_source=vault</code>, store the same keys in KV v2 mounts named <code>images</code> and <code>vsphere</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>images/linux<span class="w"> </span><span class="nv">username</span><span class="o">=</span>root<span class="w"> </span><span class="nv">password</span><span class="o">=</span>&lt;password&gt;
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>vsphere/esx<span class="w"> </span><span class="nv">server</span><span class="o">=</span>esx1.example.com<span class="w"> </span><span class="nv">username</span><span class="o">=</span>root<span class="w"> </span><span class="nv">password</span><span class="o">=</span>&lt;password&gt;
+</code></pre></div>
+<p>See <a href="../../configuration/credential-setup/">Credential Setup</a> for the Vault settings.</p>
+<h2 id="4-location-file">4. Location file<a class="headerlink" href="#4-location-file" title="Permanent link">&para;</a></h2>
+<h3 id="standalone-esxi-host">Standalone ESXi host<a class="headerlink" href="#standalone-esxi-host" title="Permanent link">&para;</a></h3>
+<p>Create <code>~/.config/osimager/locations/esx.json</code>. The file name is the location name used in the build target.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="p">{</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="w">  </span><span class="nt">"platforms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"vsphere"</span><span class="p">],</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">    </span><span class="nt">"domain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab.example.com"</span><span class="p">,</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">    </span><span class="nt">"cidr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.20.0/24"</span><span class="p">,</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">    </span><span class="nt">"gateway"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.20.1"</span><span class="p">,</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">    </span><span class="nt">"dns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">      </span><span class="nt">"servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.20.1"</span><span class="p">],</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">      </span><span class="nt">"search"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lab.example.com"</span><span class="p">]</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="w">    </span><span class="nt">"ntp"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a><span class="w">      </span><span class="nt">"servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.20.1"</span><span class="p">]</span>
+<a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-14" name="__codelineno-8-14" href="#__codelineno-8-14"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-8-15" name="__codelineno-8-15" href="#__codelineno-8-15"></a><span class="w">  </span><span class="nt">"platform_specific"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-8-16" name="__codelineno-8-16" href="#__codelineno-8-16"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-8-17" name="__codelineno-8-17" href="#__codelineno-8-17"></a><span class="w">      </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vsphere"</span><span class="p">,</span>
+<a id="__codelineno-8-18" name="__codelineno-8-18" href="#__codelineno-8-18"></a><span class="w">      </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-19" name="__codelineno-8-19" href="#__codelineno-8-19"></a><span class="w">        </span><span class="nt">"datacenter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"ha-datacenter"</span><span class="p">,</span>
+<a id="__codelineno-8-20" name="__codelineno-8-20" href="#__codelineno-8-20"></a><span class="w">        </span><span class="nt">"esxi_host"</span><span class="p">:</span><span class="w"> </span><span class="s2">"esx1.example.com"</span><span class="p">,</span>
+<a id="__codelineno-8-21" name="__codelineno-8-21" href="#__codelineno-8-21"></a><span class="w">        </span><span class="nt">"datastore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datastore1"</span><span class="p">,</span>
+<a id="__codelineno-8-22" name="__codelineno-8-22" href="#__codelineno-8-22"></a><span class="w">        </span><span class="nt">"folder"</span><span class="p">:</span><span class="w"> </span><span class="s2">""</span><span class="p">,</span>
+<a id="__codelineno-8-23" name="__codelineno-8-23" href="#__codelineno-8-23"></a><span class="w">        </span><span class="nt">"vm_network"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VM Network"</span><span class="p">,</span>
+<a id="__codelineno-8-24" name="__codelineno-8-24" href="#__codelineno-8-24"></a><span class="w">        </span><span class="nt">"thin_disk"</span><span class="p">:</span><span class="w"> </span><span class="s2">"true"</span>
+<a id="__codelineno-8-25" name="__codelineno-8-25" href="#__codelineno-8-25"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-8-26" name="__codelineno-8-26" href="#__codelineno-8-26"></a><span class="w">      </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-8-27" name="__codelineno-8-27" href="#__codelineno-8-27"></a><span class="w">        </span><span class="nt">"remote_cache_datastore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"iso"</span>
+<a id="__codelineno-8-28" name="__codelineno-8-28" href="#__codelineno-8-28"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-8-29" name="__codelineno-8-29" href="#__codelineno-8-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-8-30" name="__codelineno-8-30" href="#__codelineno-8-30"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-8-31" name="__codelineno-8-31" href="#__codelineno-8-31"></a><span class="p">}</span>
+</code></pre></div>
+<p>A standalone host has a single datacenter, <code>ha-datacenter</code>, and no cluster or folders.</p>
+<h3 id="host-managed-by-vcenter">Host managed by vCenter<a class="headerlink" href="#host-managed-by-vcenter" title="Permanent link">&para;</a></h3>
+<p>Create <code>~/.config/osimager/locations/vc.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">"platforms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"vsphere"</span><span class="p">],</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">"domain"</span><span class="p">:</span><span class="w"> </span><span class="s2">"lab.example.com"</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nt">"cidr"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.20.0/24"</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">"gateway"</span><span class="p">:</span><span class="w"> </span><span class="s2">"192.168.20.1"</span><span class="p">,</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">    </span><span class="nt">"dns"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">      </span><span class="nt">"servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.20.1"</span><span class="p">],</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="w">      </span><span class="nt">"search"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"lab.example.com"</span><span class="p">]</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="w">    </span><span class="p">},</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="w">    </span><span class="nt">"ntp"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a><span class="w">      </span><span class="nt">"servers"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"192.168.20.1"</span><span class="p">]</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="w">  </span><span class="p">},</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="w">  </span><span class="nt">"platform_specific"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="w">    </span><span class="p">{</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a><span class="w">      </span><span class="nt">"platform"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vsphere"</span><span class="p">,</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a><span class="w">      </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a><span class="w">        </span><span class="nt">"datacenter"</span><span class="p">:</span><span class="w"> </span><span class="s2">"dc1"</span><span class="p">,</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="w">        </span><span class="nt">"cluster"</span><span class="p">:</span><span class="w"> </span><span class="s2">"cluster1"</span><span class="p">,</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a><span class="w">        </span><span class="nt">"datastore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"datastore1"</span><span class="p">,</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a><span class="w">        </span><span class="nt">"folder"</span><span class="p">:</span><span class="w"> </span><span class="s2">"osimager"</span><span class="p">,</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="w">        </span><span class="nt">"vm_network"</span><span class="p">:</span><span class="w"> </span><span class="s2">"VM Network"</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a><span class="w">      </span><span class="p">},</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="w">      </span><span class="nt">"config"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="w">        </span><span class="nt">"remote_cache_datastore"</span><span class="p">:</span><span class="w"> </span><span class="s2">"iso"</span><span class="p">,</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="w">        </span><span class="nt">"remote_cache_path"</span><span class="p">:</span><span class="w"> </span><span class="s2">"isos"</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a><span class="w">      </span><span class="p">}</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a><span class="w">    </span><span class="p">}</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a><span class="w">  </span><span class="p">]</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">}</span>
+</code></pre></div>
+<p>Add <code>esxi_host</code> as well to pin the VM to one host in the cluster.</p>
+<h3 id="fields">Fields<a class="headerlink" href="#fields" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Where</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platforms</code></td>
+<td>top level</td>
+<td>Platforms this location may be used with. A target whose platform is not listed fails with <code>Error: location esx does not support platform &lt;name&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>domain</code></td>
+<td><code>defs</code></td>
+<td>Appended to the VM name to form its FQDN (<code>myvm.lab.example.com</code>), which is set as the hostname in the kickstart.</td>
+</tr>
+<tr>
+<td><code>cidr</code></td>
+<td><code>defs</code></td>
+<td>The VM network. OSImager derives <code>subnet</code>, <code>prefix</code> and <code>netmask</code> from it; the netmask is used when the VM gets a static IP.</td>
+</tr>
+<tr>
+<td><code>gateway</code></td>
+<td><code>defs</code></td>
+<td>Gateway for a static IP. If omitted, it is computed as the second-to-last address of <code>cidr</code>.</td>
+</tr>
+<tr>
+<td><code>dns.servers</code></td>
+<td><code>defs</code></td>
+<td>Used to look up the VM's FQDN before the build (step 5). The first server is also the static-IP nameserver in the kickstart.</td>
+</tr>
+<tr>
+<td><code>dns.search</code>, <code>ntp.servers</code></td>
+<td><code>defs</code></td>
+<td>Become the <code>dns_search</code> and <code>ntp1</code>, <code>ntp2</code>, ... defs for the installer and Ansible.</td>
+</tr>
+<tr>
+<td><code>datacenter</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>The builder's <code>datacenter</code>.</td>
+</tr>
+<tr>
+<td><code>esxi_host</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>The builder's <code>host</code>: the ESXi host the VM is created on.</td>
+</tr>
+<tr>
+<td><code>cluster</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>The builder's <code>cluster</code>. Leave it out for a standalone host.</td>
+</tr>
+<tr>
+<td><code>datastore</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>Datastore for the VM's files and disk.</td>
+</tr>
+<tr>
+<td><code>folder</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>VM folder in vCenter. Empty or absent for a standalone host.</td>
+</tr>
+<tr>
+<td><code>vm_network</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>Port group for the NIC. Defaults to <code>VM Network</code>.</td>
+</tr>
+<tr>
+<td><code>thin_disk</code></td>
+<td><code>platform_specific</code> defs</td>
+<td>Optional. <code>"true"</code> for a thin-provisioned disk. Defaults to <code>false</code> (thick), from <code>vsphere.json</code>.</td>
+</tr>
+<tr>
+<td><code>remote_cache_datastore</code></td>
+<td><code>platform_specific</code> config</td>
+<td>Datastore the installer ISO is uploaded to.</td>
+</tr>
+<tr>
+<td><code>remote_cache_path</code></td>
+<td><code>platform_specific</code> config</td>
+<td>Directory on that datastore. Defaults to <code>packer_cache/</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Keys under <code>defs</code> feed the <code>&gt;&gt;name&lt;&lt;</code> references in <code>vsphere.json</code>. Keys under <code>config</code> are copied into the Packer builder as they are. A def you leave out or set to <code>""</code> (here <code>cluster</code> and <code>folder</code> for the standalone host) is dropped from the builder with a harmless warning such as <code>warning: removing empty value for: cluster</code>.</p>
+<h2 id="5-build">5. Build<a class="headerlink" href="#5-build" title="Permanent link">&para;</a></h2>
+<p>Check what will be built before running anything. <code>-u</code> prints the complete Packer JSON with the secrets filled in and exits:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>mkosimage<span class="w"> </span>-u<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm
+</code></pre></div>
+<p>Then build:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mkosimage<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm
+</code></pre></div>
+<p><code>myvm</code> is the VM name. Leave it out and the VM is named after the spec (<code>alma-10.2-x86_64</code>). You can add a third argument, a static IP: <code>mkosimage vsphere/esx/alma-10.2-x86_64 myvm 192.168.20.50</code>.</p>
+<h3 id="what-happens">What happens<a class="headerlink" href="#what-happens" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Resolve.</strong> OSImager merges the platform, the location and the spec chain (<code>alma</code> → <code>rhel</code> → <code>linux</code> → <code>ssh</code>) into one Packer build. The <code>rhel</code> spec lists <code>vsphere</code> among its platforms and sets the guest OS type to <code>rhel9_64Guest</code>. The VM gets 4 vCPUs, 4096 MB of memory, EFI firmware, a <code>pvscsi</code> controller and a 16384 MB disk.</li>
+<li><strong>Look up the VM's address.</strong> OSImager resolves <code>myvm.lab.example.com</code> against the location's DNS servers. If it resolves, or you passed an IP, the kickstart configures that address statically and Packer connects to it. Otherwise the kickstart uses DHCP.</li>
+<li><strong>Check the ISO URL.</strong> A HEAD request to the AlmaLinux download URL; a 404 stops the build here. Skipped when the ISO is already in <code>iso_path</code>.</li>
+<li><strong>Generate the answer file.</strong> The kickstart is written to a temporary directory as <code>ks.cfg</code>.</li>
+<li><strong>Get the installer ISO onto a datastore.</strong> The ESXi host never downloads anything.<ul>
+<li>If <code>AlmaLinux-10.2-x86_64-dvd.iso</code> is already in <code>iso_path</code>, or you passed <code>--local</code>, Packer uses that file. Otherwise Packer downloads it from the URL to <code>&lt;iso_path&gt;/AlmaLinux-10.2-x86_64-dvd.iso</code> on the build machine.</li>
+<li>Packer then uploads it to <code>[&lt;remote_cache_datastore&gt;] &lt;remote_cache_path&gt;/AlmaLinux-10.2-x86_64-dvd.iso</code> (<code>[iso] packer_cache/AlmaLinux-10.2-x86_64-dvd.iso</code> with the standalone example). If a file is already at that datastore path, the upload is skipped, so only the first build of a version pays for it.</li>
+</ul>
+</li>
+<li><strong>Build the kickstart CD.</strong> Packer runs <code>mkisofs</code> to make a CD labelled <code>OEMDRV</code> containing <code>ks.cfg</code> and attaches it to the VM.</li>
+<li><strong>Create the VM</strong> named <code>myvm</code> on the host or cluster, in <code>datastore</code>, with a <code>vmxnet3</code> NIC on <code>vm_network</code>. Attached CDs: the installer ISO, the kickstart CD, and <code>[] /vmimages/tools-isoimages/linux.iso</code>.</li>
+<li><strong>Type the boot command.</strong> After 45 seconds Packer edits the installer's GRUB entry, appends <code>inst.ks=hd:LABEL=OEMDRV:/ks.cfg inst.stage2=cdrom inst.geoloc=0 net.ifnames=0 biosdevname=0</code> and boots it with Ctrl-X.</li>
+<li><strong>Install.</strong> Anaconda reads the kickstart from the CD, installs the system, sets the root password from <code>images/linux</code>, enables root SSH login with a password, and reboots.</li>
+<li><strong>SSH.</strong> With a static IP Packer connects to that IP. Without one, no <code>ssh_host</code> is set and the builder uses the IP address the guest reports to vSphere through VMware Tools. Packer waits up to 45 minutes for SSH.</li>
+<li><strong>Ansible.</strong> Packer runs <code>config.yml</code> with the spec's <code>specs/rhel/config_9.yml</code>, from the Ansible 2.18 venv. <code>--skip</code> leaves this out.</li>
+<li><strong>Shut down.</strong> Packer runs <code>/sbin/shutdown -P now</code> over SSH, waits for the VM to power off, and removes the CD-ROM drives (<code>remove_cdrom: true</code>). <code>convert_to_template</code> is <code>false</code>, so the result stays a VM. There is no post-build hook for vSphere.</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Avoiding the download and the upload</p>
+<p>The two copies in step 5 are both skipped when the ISO is already where each step looks. If the ISO datastore is an NFS export that the build machine also mounts, the file Packer uploads lands on the build machine's side of that export as well, at <code>&lt;mount&gt;/&lt;remote_cache_path&gt;/&lt;file&gt;</code>. What matters is the exact path: the upload is skipped only when the file exists at <code>[&lt;remote_cache_datastore&gt;] &lt;remote_cache_path&gt;/&lt;file&gt;</code>, and the download only when it exists at <code>&lt;iso_path&gt;/&lt;file&gt;</code>.</p>
+</div>
+<h3 id="picking-a-version">Picking a version<a class="headerlink" href="#picking-a-version" title="Permanent link">&para;</a></h3>
+<p>List what you can build and where each ISO comes from:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>mkosimage<span class="w"> </span>-a<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>alma
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>  ...
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  alma-10.1-x86_64               https://vault.almalinux.org/10.1/isos/x86_64/AlmaLinux-10.1-x86_64-dvd.iso
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>  alma-10.2-aarch64              https://repo.almalinux.org/almalinux/10.2/isos/aarch64/AlmaLinux-10.2-aarch64-dvd.iso
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>  alma-10.2-x86_64               https://repo.almalinux.org/almalinux/10.2/isos/x86_64/AlmaLinux-10.2-x86_64-dvd.iso
+</code></pre></div>
+<p>A local path in place of a URL means the ISO is already in <code>iso_path</code>.</p>
+<p>To always build the newest AlmaLinux the specs know about, use the <code>latest</code> target. The resolution is printed first:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>mkosimage<span class="w"> </span>vsphere/esx/alma-latest-x86_64<span class="w"> </span>myvm
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>alma-latest-x86_64 -&gt; alma-10.2-x86_64
+</code></pre></div>
+<h3 id="building-only-from-isos-you-already-have">Building only from ISOs you already have<a class="headerlink" href="#building-only-from-isos-you-already-have" title="Permanent link">&para;</a></h3>
+<p><code>--local</code> never downloads. Packer's <code>iso_url</code> becomes the local file, <code>&lt;iso_path&gt;/&lt;file&gt;</code>, which it still uploads to the datastore unless it is already there.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>mkosimage<span class="w"> </span>--local<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>mkosimage<span class="w"> </span>--local<span class="w"> </span>vsphere/esx/alma-latest-x86_64<span class="w"> </span>myvm
+</code></pre></div>
+<p>With <code>alma-latest-x86_64</code>, <code>--local</code> picks the newest version whose ISO is present on the build machine.</p>
+<h3 id="previewing">Previewing<a class="headerlink" href="#previewing" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>mkosimage<span class="w"> </span>-u<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm<span class="w">   </span><span class="c1"># Packer build JSON</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>mkosimage<span class="w"> </span>-x<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm<span class="w">   </span><span class="c1"># every resolved def</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>mkosimage<span class="w"> </span>-n<span class="w"> </span>vsphere/esx/alma-10.2-x86_64<span class="w"> </span>myvm<span class="w">   </span><span class="c1"># generate everything, print the packer command, don't run it</span>
+</code></pre></div>
+<p>In the <code>-u</code> output, check <code>datacenter</code>, <code>host</code> or <code>cluster</code>, <code>datastore</code>, <code>remote_cache_datastore</code>, <code>iso_url</code> and <code>iso_target_path</code>, <code>disk_thin_provisioned</code> (<code>false</code> unless the location sets <code>thin_disk</code>), and that the three <code>vsphere-*</code> variables hold your server and login. <code>warning: removing empty value for: ssh_host</code> is expected when the VM has no static IP, as are the same warnings for <code>cluster</code>/<code>folder</code> (standalone host) or <code>host</code> (vCenter without <code>esxi_host</code>).</p>
+<h2 id="6-check-it-worked">6. Check it worked<a class="headerlink" href="#6-check-it-worked" title="Permanent link">&para;</a></h2>
+<p>In the vSphere Client (or the ESXi host client) the VM <code>myvm</code> is in datacenter <code>ha-datacenter</code> (or your vCenter datacenter and <code>folder</code>), stored on <code>datastore1</code>, powered off. The installer ISO stays on the ISO datastore for the next build.</p>
+<h2 id="7-troubleshooting">7. Troubleshooting<a class="headerlink" href="#7-troubleshooting" title="Permanent link">&para;</a></h2>
+<p><strong><code>warning: secret not found: vsphere/esx/server</code></strong> (and <code>username</code>, <code>password</code>)</p>
+<p>There is no <code>vsphere/esx</code> entry in the secrets file, or its key names differ. The path must be <code>vsphere/&lt;location name&gt;</code>.</p>
+<p><strong><code>error: Secrets file not found!</code></strong></p>
+<p><code>credential_source</code> is <code>config</code> but <code>~/.config/osimager/secrets</code> doesn't exist.</p>
+<p><strong><code>Error: location esx does not support platform vsphere</code></strong></p>
+<p>The location's <code>platforms</code> list doesn't include <code>vsphere</code>.</p>
+<p><strong><code>Error loading file '.../locations/esx.toml': [Errno 2] No such file or directory</code></strong></p>
+<p>No <code>esx.json</code> or <code>esx.toml</code> in <code>~/.config/osimager/locations/</code>. The location part of the target must match the file name.</p>
+<p><strong><code>error: ISO URL returned 404 (not found): &lt;url&gt;</code></strong></p>
+<p>The download URL in the spec no longer exists. Pick another version from <code>mkosimage -a</code>.</p>
+<p><strong><code>error: post-install requires Ansible 2.18</code></strong></p>
+<p>Run <code>mkvenv 2.18</code>, or build with <code>--skip</code>.</p>
+<p><strong>The build hangs waiting for the VM's IP address or for SSH</strong></p>
+<p>Without a static IP, the builder learns the VM's address only from VMware Tools running in the guest. Give the VM a DNS record in the location's DNS server, or pass an IP as the third argument, so the kickstart sets that address and Packer connects to it directly.</p>
+<p><strong>Every build uploads the ISO again</strong></p>
+<p>The upload is skipped only when the file already exists at <code>[&lt;remote_cache_datastore&gt;] &lt;remote_cache_path&gt;/&lt;file&gt;</code>. If <code>remote_cache_datastore</code> is not set, the plugin's default datastore is used; set it to a datastore that keeps the ISOs between builds.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>

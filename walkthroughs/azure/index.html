@@ -1,0 +1,1899 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Multi-platform OS image builder using HashiCorp Packer">
+      
+      
+      
+        <link rel="canonical" href="https://sshoecraft.github.io/osimager/walkthroughs/azure/">
+      
+      
+        <link rel="prev" href="../aws/">
+      
+      
+        <link rel="next" href="../gcp/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
+    
+    
+      
+        <title>Azure - OSImager</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#azure-walkthrough" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="OSImager" class="md-header__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            OSImager
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Azure
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="OSImager" class="md-nav__button md-logo" aria-label="OSImager" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    OSImager
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sshoecraft/osimager" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sshoecraft/osimager
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Walkthroughs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Walkthroughs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../qemu/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU/KVM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../virtualbox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VirtualBox
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vmware/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    VMware Workstation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../proxmox/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Proxmox VE
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../vsphere/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    vSphere/ESXi
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../aws/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AWS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Azure
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Azure
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gcp/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GCP
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Configuration
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/location-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Location Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/credential-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Credential Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../configuration/lab-setup/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Lab Network Setup
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Architecture
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/build-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Build Pipeline
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/configuration-merging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration Merging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/template-engine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Template Engine
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture/file-generation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    File Generation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/qemu-libvirt-uri/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    QEMU libvirt URI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../data/photon-kickstart/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Photon OS Kickstart
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/cli-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CLI Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/platform-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Platform Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/spec-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Spec Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/defs-reference/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Defs Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/supported-os/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Supported OS
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-global-settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Global settings
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-credentials" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Credentials
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-location-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Location file
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Build
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-check-it-worked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Check it worked
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        References
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="azure-walkthrough">Azure walkthrough<a class="headerlink" href="#azure-walkthrough" title="Permanent link">&para;</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Not yet verified against a live account</p>
+<p>This walkthrough was checked by generating the Packer configuration (<code>mkosimage -u</code>), not by running a build in Azure. If a step doesn't match what you see, please open an issue.</p>
+</div>
+<p>By the end of this page you will have a managed image in an Azure resource group, built from AlmaLinux 10 and configured by OSImager's Ansible post-install. You can also publish the same image as a version in an Azure Compute Gallery. An Azure build works differently from a hypervisor build. Nothing is installed from an ISO. Packer's <code>azure-arm</code> builder starts a VM from the AlmaLinux Marketplace image, configures it over SSH, and captures it. You don't need <code>iso_path</code>, nothing is downloaded, and the image never exists on your machine.</p>
+<h2 id="1-prerequisites">1. Prerequisites<a class="headerlink" href="#1-prerequisites" title="Permanent link">&para;</a></h2>
+<p><strong>On the machine running OSImager</strong></p>
+<ul>
+<li>Packer, installed and on your <code>PATH</code> (<a href="https://developer.hashicorp.com/packer/install">install instructions</a>).</li>
+<li>
+<p>The Packer plugins. <code>mkosimage --init-plugins</code> installs the plugin for every platform, including <code>github.com/hashicorp/azure</code>, plus <code>github.com/hashicorp/ansible</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkosimage<span class="w"> </span>--init-plugins
+</code></pre></div>
+</li>
+<li>
+<p>No <code>mkisofs</code>. OSImager requires it only for builds that put an answer file on a CD (<code>cd_files</code>), and a cloud build has none.</p>
+</li>
+<li>
+<p>The Ansible venv the spec needs. AlmaLinux 10 needs Ansible 2.18:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>mkvenv<span class="w"> </span><span class="m">2</span>.18<span class="w">        </span><span class="c1"># or: mkvenv --all</span>
+</code></pre></div>
+<p>If you build with <code>--skip</code> (no post-install configuration), you don't need it.</p>
+</li>
+</ul>
+<p><strong>In Azure</strong></p>
+<ul>
+<li>
+<p>A subscription, and a service principal with a client secret. OSImager passes <code>client_id</code>, <code>client_secret</code>, <code>tenant_id</code> and <code>subscription_id</code> to the builder. The build creates its own temporary resource group, so the plugin requires the service principal to have full access to the subscription. For example:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>az<span class="w"> </span>ad<span class="w"> </span>sp<span class="w"> </span>create-for-rbac<span class="w"> </span>--name<span class="w"> </span>osimager-packer<span class="w"> </span>--role<span class="w"> </span>Contributor<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">  </span>--scopes<span class="w"> </span>/subscriptions/&lt;subscription-id&gt;
+</code></pre></div>
+<p>In the output, <code>appId</code> is the <code>client_id</code>, <code>password</code> is the <code>client_secret</code> and <code>tenant</code> is the <code>tenant_id</code>.</p>
+</li>
+<li>
+<p>A resource group for the finished images. The builder requires it to exist already:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>az<span class="w"> </span>group<span class="w"> </span>create<span class="w"> </span>--name<span class="w"> </span>rg-osimager-images<span class="w"> </span>--location<span class="w"> </span>eastus
+</code></pre></div>
+</li>
+<li>
+<p>Nothing to set up for the network. <code>azure.json</code> names no virtual network, so the builder creates a temporary network and public IP inside the temporary resource group and connects to the VM directly on port 22. Your machine needs outbound SSH access to Azure public IPs.</p>
+</li>
+<li>Optional: an Azure Compute Gallery, if you also want the image published as a gallery image version (step 3).</li>
+</ul>
+<h2 id="2-global-settings">2. Global settings<a class="headerlink" href="#2-global-settings" title="Permanent link">&para;</a></h2>
+<p>Use the local secrets file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>mkosimage<span class="w"> </span>--set<span class="w"> </span><span class="nv">credential_source</span><span class="o">=</span>config
+</code></pre></div>
+<p><code>iso_path</code> plays no part in a cloud build. Leave it at whatever it is.</p>
+<h2 id="3-credentials">3. Credentials<a class="headerlink" href="#3-credentials" title="Permanent link">&para;</a></h2>
+<p>An Azure build reads these secret paths:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Key</th>
+<th>Used for</th>
+<th>Needed</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>client_id</code></td>
+<td><code>client_id</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>client_secret</code></td>
+<td><code>client_secret</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>tenant_id</code></td>
+<td><code>tenant_id</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>subscription_id</code></td>
+<td><code>subscription_id</code></td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>gallery_subscription_id</code></td>
+<td><code>shared_image_gallery_destination.subscription</code></td>
+<td>Only for a gallery</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>gallery_resource_group</code></td>
+<td><code>shared_image_gallery_destination.resource_group</code></td>
+<td>Only for a gallery</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>gallery_name</code></td>
+<td><code>shared_image_gallery_destination.gallery_name</code></td>
+<td>Only for a gallery</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>bastion_hostname</code></td>
+<td><code>ssh_bastion_host</code></td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>bastion_username</code></td>
+<td><code>ssh_bastion_username</code></td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>azure/&lt;location&gt;</code></td>
+<td><code>bastion_keyfile</code></td>
+<td><code>ssh_bastion_private_key_file</code> (a path on this machine)</td>
+<td>Only through a bastion</td>
+</tr>
+<tr>
+<td><code>images/linux</code></td>
+<td><code>username</code></td>
+<td><code>ssh_username</code>: the user Packer and Ansible log in as</td>
+<td>Yes</td>
+</tr>
+<tr>
+<td><code>images/linux</code></td>
+<td><code>password</code></td>
+<td><code>ssh_password</code></td>
+<td>No, leave it out</td>
+</tr>
+</tbody>
+</table>
+<p><code>&lt;location&gt;</code> is the location name in your build target. For <code>azure/azure-east/...</code> the path is <code>azure/azure-east</code>.</p>
+<p>Create <code>~/.config/osimager/secrets</code>. This is the minimal form, a managed image only, with no gallery and no bastion:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>images/linux username=packer
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>azure/azure-east client_id=&lt;app-id&gt; client_secret=&lt;client-secret&gt; tenant_id=&lt;tenant-id&gt; subscription_id=&lt;subscription-id&gt;
+</code></pre></div>
+<p>To also publish to a gallery, add the three gallery keys to the same line:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>azure/azure-east client_id=&lt;app-id&gt; client_secret=&lt;client-secret&gt; tenant_id=&lt;tenant-id&gt; subscription_id=&lt;subscription-id&gt; gallery_subscription_id=&lt;subscription-id&gt; gallery_resource_group=&lt;gallery-rg&gt; gallery_name=&lt;gallery-name&gt;
+</code></pre></div>
+<p>Each key you leave out produces a warning such as <code>warning: secret not found: azure/azure-east/bastion_hostname</code> and is passed as an empty value. The builder ignores the gallery block when <code>gallery_name</code> is empty, and it uses no bastion when <code>bastion_hostname</code> is empty. Those warnings are expected.</p>
+<p>About <code>images/linux</code>:</p>
+<ul>
+<li><strong>Don't use <code>root</code>.</strong> The builder creates the user named in <code>ssh_username</code> on the VM. Its own default is <code>packer</code>, and the example uses the same name.</li>
+<li><strong>Leave the password out.</strong> With no password, the builder generates temporary credentials for the build. OSImager prints <code>warning: secret not found: images/linux/password</code>, which is expected.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">If you also build hypervisor images</p>
+<p><code>images/linux</code> is shared by every Linux build. Hypervisor builds need <code>username=root</code> and a password, because the password goes into the kickstart. Keep the cloud setup in its own config directory and point <code>XDG_CONFIG_HOME</code> at it for cloud builds. OSImager then reads <code>$XDG_CONFIG_HOME/osimager/</code> (its <code>config.json</code>, <code>secrets</code> and <code>locations/</code>):</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/osimager-cloud/osimager/locations
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="nb">echo</span><span class="w"> </span><span class="s1">'{"credential_source": "config"}'</span><span class="w"> </span>&gt;<span class="w"> </span>~/osimager-cloud/osimager/config.json
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># put the secrets file and the location file from this page under ~/osimager-cloud/osimager/</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nv">XDG_CONFIG_HOME</span><span class="o">=</span>~/osimager-cloud<span class="w"> </span>mkosimage<span class="w"> </span>-u<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+</div>
+<p><strong>Vault instead of the secrets file.</strong> Store the same keys under the same paths, as described in <a href="../../configuration/credential-setup/">Credential Setup</a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>vault<span class="w"> </span>secrets<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>-path<span class="o">=</span>azure<span class="w"> </span>-version<span class="o">=</span><span class="m">2</span><span class="w"> </span>kv
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>vault<span class="w"> </span>kv<span class="w"> </span>put<span class="w"> </span>azure/azure-east<span class="w"> </span><span class="nv">client_id</span><span class="o">=</span>&lt;app-id&gt;<span class="w"> </span><span class="nv">client_secret</span><span class="o">=</span>&lt;client-secret&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">  </span><span class="nv">tenant_id</span><span class="o">=</span>&lt;tenant-id&gt;<span class="w"> </span><span class="nv">subscription_id</span><span class="o">=</span>&lt;subscription-id&gt;
+</code></pre></div>
+<p>OSImager resolves the <code>{{vault ...}}</code> references in the platform file itself, in Vault mode just as with the secrets file, and passes Packer only the values. Both modes read the same paths and keys, and a key you leave out produces the same <code>secret not found</code> warning and an empty value. This walkthrough was checked only with the secrets file.</p>
+<h2 id="4-location-file">4. Location file<a class="headerlink" href="#4-location-file" title="Permanent link">&para;</a></h2>
+<p>Create <code>~/.config/osimager/locations/azure-east.json</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="p">{</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="w">  </span><span class="nt">"platforms"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"azure"</span><span class="p">],</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="nt">"defs"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="nt">"azure_location"</span><span class="p">:</span><span class="w"> </span><span class="s2">"eastus"</span><span class="p">,</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">    </span><span class="nt">"azure_resource_group"</span><span class="p">:</span><span class="w"> </span><span class="s2">"rg-osimager-images"</span><span class="p">,</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">    </span><span class="nt">"azure_replication_regions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"eastus"</span><span class="p">]</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">  </span><span class="p">}</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="p">}</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Goes to</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>platforms</code></td>
+<td></td>
+<td>Must include <code>azure</code>. A target whose platform isn't listed fails with <code>location azure-east does not support platform ...</code>.</td>
+</tr>
+<tr>
+<td><code>defs.azure_location</code></td>
+<td><code>location</code>, <code>temp_resource_group_name</code></td>
+<td>Region the build VM runs in and the managed image is created in. It is also part of the temporary resource group's name, <code>rg-packer-build-&lt;name&gt;-&lt;azure_location&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>defs.azure_resource_group</code></td>
+<td><code>managed_image_resource_group_name</code></td>
+<td>Existing resource group the managed image is saved to.</td>
+</tr>
+<tr>
+<td><code>defs.azure_replication_regions</code></td>
+<td><code>shared_image_gallery_destination.replication_regions</code></td>
+<td>List of regions the gallery image version is replicated to. Only used with a gallery, but always set it: without it the build JSON carries an empty string where a list belongs.</td>
+</tr>
+<tr>
+<td><code>defs.vm_size</code></td>
+<td><code>vm_size</code></td>
+<td>Optional. Build VM size. Defaults to <code>Standard_D2s_v3</code> (from <code>azure.json</code>).</td>
+</tr>
+<tr>
+<td><code>defs.image_version</code></td>
+<td><code>image_version</code></td>
+<td>Optional. Marketplace image version. Defaults to <code>latest</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>You don't set the base image here. <code>azure_image_publisher</code>, <code>azure_image_offer</code> and <code>azure_image_sku</code> come from the spec, which is loaded after the location, so a location value would be overwritten. To use a different base image for one build, use <code>-D</code> (for example <code>-D azure_image_sku=&lt;sku&gt;</code>).</p>
+<p>Check the location before building:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>mkosimage<span class="w"> </span>-x<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<h2 id="5-build">5. Build<a class="headerlink" href="#5-build" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>mkosimage<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p><code>alma10-base</code> is the image name. Without it, the name is the spec name (<code>alma-10.2-x86_64</code>).</p>
+<p>What happens:</p>
+<ol>
+<li>OSImager merges <code>azure.json</code>, your location and the AlmaLinux spec into a Packer build, fills in the secrets, and runs <code>packer build</code>. It prints <code>warning: removing empty value for: ssh_host</code> (cloud builds let Packer find the VM's address) and a <code>secret not found</code> warning for each optional key you left out. These are expected.</li>
+<li>Packer creates the temporary resource group <code>rg-packer-build-alma10-base-eastus</code> and, inside it, a <code>Standard_D2s_v3</code> Linux VM from the Marketplace image <code>AlmaLinux</code> / <code>almalinux</code> / <code>10-gen2</code>, version <code>latest</code>.</li>
+<li>It connects over SSH (through the bastion if you configured one) and runs the Ansible playbook (<code>config.yml</code>, with the spec's <code>specs/rhel/config_9.yml</code>) using <code>become</code>.</li>
+<li>It removes the temporary SSH key from the VM (<code>ssh_clear_authorized_keys</code>), stops the VM, and captures it as the managed image <code>alma10-base</code> in <code>rg-osimager-images</code>.</li>
+<li>If a gallery is configured, it publishes the image version <code>alma10-base</code> : <code>&lt;YYYY.MM.DD&gt;</code> to the gallery, replicated to <code>azure_replication_regions</code> with 2 replicas per region on <code>Standard_LRS</code> storage.</li>
+<li>It deletes the temporary resource group and everything in it.</li>
+</ol>
+<p><strong>Which base image each version uses</strong> (from the AlmaLinux spec):</p>
+<table>
+<thead>
+<tr>
+<th>Spec versions</th>
+<th><code>image_publisher</code></th>
+<th><code>image_offer</code></th>
+<th><code>image_sku</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>alma-8.*</code></td>
+<td><code>AlmaLinux</code></td>
+<td><code>almalinux</code></td>
+<td><code>8-gen2</code></td>
+</tr>
+<tr>
+<td><code>alma-9.*</code></td>
+<td><code>AlmaLinux</code></td>
+<td><code>almalinux</code></td>
+<td><code>9-gen2</code></td>
+</tr>
+<tr>
+<td><code>alma-10.*</code></td>
+<td><code>AlmaLinux</code></td>
+<td><code>almalinux</code></td>
+<td><code>10-gen2</code></td>
+</tr>
+</tbody>
+</table>
+<p>The SKU names only the major version, and <code>image_version</code> is <code>latest</code>. <code>alma-10.0-x86_64</code>, <code>alma-10.1-x86_64</code> and <code>alma-10.2-x86_64</code> all start from the same image: the latest version of <code>10-gen2</code>. The minor version in the target doesn't pin an AlmaLinux point release. Build <code>x86_64</code> targets only. <code>azure.json</code> lists <code>aarch64</code>, but these SKUs are not aarch64 SKUs and the default VM size is x86.</p>
+<p><strong>Picking the target.</strong> <code>mkosimage -l</code> lists every spec, and cloud builds use the same names (<code>alma-10.2-x86_64</code>). <code>alma-latest-x86_64</code> works too:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>mkosimage<span class="w"> </span>--latest<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>alma
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="c1">#   alma-latest-x86_64                 alma-10.2-x86_64</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>mkosimage<span class="w"> </span>azure/azure-east/alma-latest-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p>Ignore the ISO column of <code>mkosimage -a</code>. A cloud build never downloads the ISO, and OSImager checks the ISO only for builders that use one, so a version whose <code>-a</code> entry is a local <code>file://</code> path works too. Don't use <code>--local</code> for cloud builds. It limits <code>-latest</code> to versions whose ISO is on disk.</p>
+<p>Other specs with Azure base-image defs for at least some versions: <code>rhel</code>, <code>rocky</code>, <code>oel</code>, <code>centos</code>, <code>debian</code>, <code>ubuntu</code> and <code>sles</code>.</p>
+<p><strong>Preview without building:</strong></p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>mkosimage<span class="w"> </span>-u<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base<span class="w">   </span><span class="c1"># the Packer JSON</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>mkosimage<span class="w"> </span>-n<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base<span class="w">   </span><span class="c1"># everything except running packer</span>
+</code></pre></div>
+<p>In the <code>-u</code> output, check <code>location</code>, <code>managed_image_resource_group_name</code>, <code>image_publisher</code>, <code>image_offer</code> and <code>image_sku</code>. Also check that <code>variables</code> shows your four service-principal values, <code>ssh-username</code> set to <code>packer</code>, and <code>gallery-name</code> empty unless you configured a gallery.</p>
+<h2 id="6-check-it-worked">6. Check it worked<a class="headerlink" href="#6-check-it-worked" title="Permanent link">&para;</a></h2>
+<p>At the end, Packer prints the managed image's resource ID. In the portal, open <strong>Images</strong> and find <code>alma10-base</code> in <code>rg-osimager-images</code>. From the CLI:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>az<span class="w"> </span>image<span class="w"> </span>show<span class="w"> </span>--resource-group<span class="w"> </span>rg-osimager-images<span class="w"> </span>--name<span class="w"> </span>alma10-base<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="w">  </span>--query<span class="w"> </span><span class="s1">'{name:name, location:location, state:provisioningState}'</span><span class="w"> </span>-o<span class="w"> </span>table
+</code></pre></div>
+<p>If you configured a gallery:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>az<span class="w"> </span>sig<span class="w"> </span>image-version<span class="w"> </span>list<span class="w"> </span>--resource-group<span class="w"> </span>&lt;gallery-rg&gt;<span class="w"> </span>--gallery-name<span class="w"> </span>&lt;gallery-name&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="w">  </span>--gallery-image-definition<span class="w"> </span>alma10-base<span class="w"> </span>-o<span class="w"> </span>table
+</code></pre></div>
+<p>The temporary resource group <code>rg-packer-build-alma10-base-eastus</code> should be gone.</p>
+<h2 id="7-troubleshooting">7. Troubleshooting<a class="headerlink" href="#7-troubleshooting" title="Permanent link">&para;</a></h2>
+<p><strong><code>error: Secrets file not found!</code></strong> followed by <code>error: Your configuration uses secret references but credential_source 'config' is not configured.</code> The file <code>~/.config/osimager/secrets</code> (or <code>$XDG_CONFIG_HOME/osimager/secrets</code>) doesn't exist. Create it as shown in step 3.</p>
+<p><strong><code>error: Vault credentials not configured!</code></strong> <code>credential_source</code> is still <code>vault</code> (the default). Run <code>mkosimage --set credential_source=config</code>, or set <code>vault_addr</code> and <code>vault_token</code>.</p>
+<p><strong><code>warning: secret not found: azure/azure-east/client_id</code></strong> A required key is missing, or the path doesn't match the location name in your target. Warnings for the gallery and bastion keys are expected if you don't use them.</p>
+<p><strong><code>Error: location azure-east does not support platform aws</code></strong> The target's platform isn't in the location's <code>platforms</code> list.</p>
+<p><strong><code>Error loading file '.../locations/azure-east.toml': [Errno 2] No such file or directory</code></strong> No location file with that name exists. OSImager looks for <code>azure-east.json</code> first, then <code>azure-east.toml</code>.</p>
+<p><strong><code>spec alma-10.9-x86_64 not found</code></strong> No such version. List the valid names with <code>mkosimage -l</code>.</p>
+<p><strong><code>warning: removing empty value for: image_publisher</code></strong> (and <code>image_offer</code>, <code>image_sku</code>) That spec version has no Azure base image defined. <code>fedora</code> is one example. Pick a spec from the list in step 5.</p>
+<p><strong>The Marketplace image is not found.</strong> OSImager hasn't checked the spec's publisher, offer and SKU against Azure. List what's available and override for one build with <code>-D</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>az<span class="w"> </span>vm<span class="w"> </span>image<span class="w"> </span>list<span class="w"> </span>--location<span class="w"> </span>eastus<span class="w"> </span>--publisher<span class="w"> </span>AlmaLinux<span class="w"> </span>--all<span class="w"> </span>-o<span class="w"> </span>table
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>mkosimage<span class="w"> </span>-D<span class="w"> </span><span class="nv">azure_image_offer</span><span class="o">=</span>&lt;offer&gt;,azure_image_sku<span class="o">=</span>&lt;sku&gt;<span class="w"> </span>azure/azure-east/alma-10.2-x86_64<span class="w"> </span>alma10-base
+</code></pre></div>
+<p><strong><code>the managed image named alma10-base already exists in the resource group rg-osimager-images, use a different manage image name or use the -force option to automatically delete it.</code></strong> Use a different name, or pass <code>-f</code>. OSImager hands <code>-f</code> to Packer as <code>-force</code>.</p>
+<p><strong><code>a gallery image version for image name:version alma10-base:&lt;YYYY.MM.DD&gt; already exists in gallery ...</code></strong> The gallery version is the build date, so a second build with the same name on the same day collides. Use <code>-f</code>, or wait until the next day.</p>
+<p><strong><code>failed to get image "alma10-base" from image gallery ...</code></strong> The builder publishes a version into an existing gallery image definition named after the image, and it doesn't create the definition. Create it once:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>az<span class="w"> </span>sig<span class="w"> </span>image-definition<span class="w"> </span>create<span class="w"> </span>--resource-group<span class="w"> </span>&lt;gallery-rg&gt;<span class="w"> </span>--gallery-name<span class="w"> </span>&lt;gallery-name&gt;<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="w">  </span>--gallery-image-definition<span class="w"> </span>alma10-base<span class="w"> </span>--publisher<span class="w"> </span>&lt;your-org&gt;<span class="w"> </span>--offer<span class="w"> </span>alma<span class="w"> </span>--sku<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="w">  </span>--os-type<span class="w"> </span>Linux<span class="w"> </span>--hyper-v-generation<span class="w"> </span>V2
+</code></pre></div>
+<p><strong><code>error: post-install requires Ansible 2.18</code></strong> Run <code>mkvenv 2.18</code>, or build with <code>--skip</code>.</p>
+<p><strong><code>error: 'packer' not found in PATH</code></strong> Install Packer (step 1).</p>
+<p><strong>SSH times out, or authentication fails.</strong> In the <code>-u</code> dump, check that <code>ssh-username</code> is not <code>root</code> and <code>ssh-password</code> is empty. If you use a bastion, check that <code>bastion_keyfile</code> is a path to a private key file on this machine. The SSH timeout is 45 minutes (<code>ssh_timeout</code> in the ssh spec).</p>
+<h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Azure plugin, authentication: <a href="https://developer.hashicorp.com/packer/integrations/hashicorp/azure">https://developer.hashicorp.com/packer/integrations/hashicorp/azure</a></li>
+<li><code>azure-arm</code> builder options (<code>managed_image_*</code>, <code>shared_image_gallery_destination</code>, <code>temp_resource_group_name</code>, <code>ssh_bastion_*</code>): <a href="https://developer.hashicorp.com/packer/integrations/hashicorp/azure/latest/components/builder/arm">https://developer.hashicorp.com/packer/integrations/hashicorp/azure/latest/components/builder/arm</a></li>
+<li>Gallery validation and the <code>-force</code> handling quoted above: <a href="https://github.com/hashicorp/packer-plugin-azure/tree/main/builder/azure/arm">https://github.com/hashicorp/packer-plugin-azure/tree/main/builder/azure/arm</a> (<code>config.go</code>, <code>builder.go</code>)</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.expand", "navigation.top", "search.highlight", "content.code.copy", "toc.follow"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
+      
+    
+  </body>
+</html>
