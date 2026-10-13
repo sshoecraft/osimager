@@ -11,6 +11,13 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.11.2] — 2026-10-12
+
+### Changed
+- **ESXi builds get 4 CPU cores and 12 GB of memory** on every platform and
+  version. Before, VMware Workstation builds got 2 cores and 4 GB, below
+  ESXi 8's 8 GB minimum, and vSphere builds of ESXi 7 got 8 GB.
+
 ## [1.11.1] — 2026-10-12
 
 ### Fixed

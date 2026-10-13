@@ -31,7 +31,8 @@
     }
   ],
   "defs": {
-    "memory": 4096,
+    "cpu_cores": 4,
+    "memory": 12288,
     "boot_disk_size": 8192,
     "firmware": "bios",
     "cd_files": [
@@ -257,7 +258,6 @@
         {
           "version": "7.*",
           "defs": {
-            "memory": 8192,
             "firmware": "efi"
           },
           "config": {

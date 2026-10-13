@@ -15,7 +15,7 @@ try:
 except ImportError:
     import tomli as tomllib
 from .utils import *
-OSIMAGER_VERSION = "1.11.1"
+OSIMAGER_VERSION = "1.11.2"
 EXIT_SUCCESS = 0
 EXIT_ERROR = 1
 
