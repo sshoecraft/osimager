@@ -12,10 +12,15 @@
       "8.0U2"
     ]
   },
+  "include": "ssh",
   "platforms": [
     "vmware",
     "vsphere"
   ],
+  "variables": {
+    "ssh-username": "root",
+    "ssh-password": "{{vault `images/linux` `password`}}"
+  },
   "files": [
     {
       "sources": [
@@ -27,12 +32,13 @@
   ],
   "defs": {
     "memory": 4096,
+    "boot_disk_size": 8192,
     "firmware": "bios",
     "cd_files": [
-      "ks.cfg"
+      ">>temp_dir<</ks.cfg"
     ],
     "cd_label": "OEMDRV",
-    "ansible_playbook": "config.yml"
+    "ansible_playbook": ">>spec_dir<</config.yml"
   },
   "config": {
     "boot_wait": "8s",
@@ -65,7 +71,7 @@
       ],
       "defs": {
         "cd_files": [
-          "ks.cfg",
+          ">>temp_dir<</ks.cfg",
           "files/esxi/esx-tools-for-esxi-9.7.2-0.0.5911061.i386.vib"
         ]
       },
@@ -90,7 +96,7 @@
       ],
       "defs": {
         "cd_files": [
-          "ks.cfg",
+          ">>temp_dir<</ks.cfg",
           "files/esxi/esx-tools-for-esxi-9.7.2-0.0.5911061.i386.vib"
         ]
       },
@@ -115,7 +121,7 @@
       ],
       "defs": {
         "cd_files": [
-          "ks.cfg",
+          ">>temp_dir<</ks.cfg",
           "files/esxi/esx-tools-for-esxi-9.7.2-0.0.5911061.i386.vib"
         ]
       },

@@ -11,6 +11,32 @@ All notable changes to OSImager are documented here. The format is based on
 > were never released at all: 1.9.2 was folded into 1.9.3. There is no 1.6.x —
 > the version went 1.5.0 → 1.7.0 during the data-separation work.
 
+## [1.11.1] — 2026-10-12
+
+### Fixed
+- **ESXi builds failed before starting** with "An ssh_username must be
+  specified" and "Bad CD disk file 'ks.cfg'". The esxi spec included no SSH
+  communicator settings and gave no SSH credentials, and it listed its
+  kickstart CD file as a bare `ks.cfg`, which Packer looked for in the data
+  directory it runs from instead of the build's temp directory. The spec now
+  includes the `ssh` spec, logs in as root with the `images/linux` password
+  its kickstart sets, and names `>>temp_dir<</ks.cfg`.
+- **An ESXi build with no IP stopped the installer** at "bootproto was set to
+  static, but IP was not set". When the name doesn't resolve, the IP is
+  empty, and the ESXi kickstart only chose DHCP for the literal `dhcp`. It now
+  treats an empty IP as DHCP, as the other installer templates do.
+- **An ESXi host built with a static IP came up on DHCP.** The first-boot
+  script always switched vmk0 to DHCP, replacing the address the installer
+  had set. It now does that only when no static IP was given, the same rule
+  the Proxmox VE spec follows.
+- **ESXi builds ran the Linux post-install playbook** and failed with
+  "sudo: not found", since ESXi has no sudo. The spec named its playbook as
+  a bare `config.yml`, which resolved to the generic playbook in the data
+  directory instead of the one beside the spec. It now names
+  `>>spec_dir<</config.yml`, the ESXi playbook, which only checks over SSH
+  that the host is up.
+- **ESXi builds use an 8 GB boot disk** instead of the 16 GB default.
+
 ## [1.11.0] — 2026-10-12
 
 ### Added
